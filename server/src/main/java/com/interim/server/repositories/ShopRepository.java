@@ -11,5 +11,5 @@ public interface ShopRepository extends JpaRepository<Shop, Integer> {
     List<Shop> findByFloorId(Integer floorId);
     List<Shop> findByIsOpen(Boolean isOpen);
     List<Shop> findByIsVeg(Boolean isVeg);
-    List<Shop> findByVendorId(Integer vendorId);
+    List<Shop> findByVendor_EmployeeId(Integer employeeId);
 }

@@ -39,7 +39,7 @@ public class AuthService {
 //        );
 
         return AuthResponse.builder()
-                .token(token)
+                .token("sample-token")
                 .user(mapToResponse(user))
                 .build();
     }

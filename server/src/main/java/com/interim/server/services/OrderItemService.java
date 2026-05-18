@@ -31,7 +31,7 @@ public class OrderItemService {
     }
 
     public List<OrderItem> getOrderItemsByUser(Integer userId) {
-        return orderItemRepository.findByUserId(userId);
+        return orderItemRepository.findByUser_EmployeeId(userId);
     }
 
     public List<OrderItem> getOrderItemsByStatus(OrderItemStatus status) {

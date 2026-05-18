@@ -3,10 +3,12 @@ package com.interim.server.services;
 
 
 import com.interim.server.dtos.OrderItemRequest;
+import com.interim.server.enums.OrderItemStatus;
 import com.interim.server.models.FoodItem;
 import com.interim.server.models.Order;
 import com.interim.server.models.OrderItem;
 import com.interim.server.models.User;
+import com.interim.server.repositories.FoodItemRepository;
 import com.interim.server.repositories.OrderItemRepository;
 import com.interim.server.repositories.OrderRepository;
 import com.interim.server.repositories.UserRepository;
@@ -31,7 +33,7 @@ public class OrderService {
     @Autowired
     private  UserRepository userRepository;
     @Autowired
-    private  FoodItemRepository foodItemRepository;
+    private FoodItemRepository foodItemRepository;
     @Autowired
     private  OrderItemRepository orderItemRepository;
 
