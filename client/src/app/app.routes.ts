@@ -16,7 +16,7 @@ export const routes: Routes = [
   // User routes
   {
     path: 'home',
-    canActivate: [authGuard, roleGuard(['USER'])],
+    canActivate: [authGuard, roleGuard(['EMPLOYEE'])],
     loadComponent: () =>
       import('./features/user/home/home.component').then(
         (m) => m.HomeComponent
@@ -24,7 +24,7 @@ export const routes: Routes = [
   },
   {
     path: 'restaurant/:id',
-    canActivate: [authGuard, roleGuard(['USER'])],
+    canActivate: [authGuard, roleGuard(['EMPLOYEE'])],
     loadComponent: () =>
       import('./features/user/restaurant/restaurant.component').then(
         (m) => m.RestaurantComponent
@@ -32,7 +32,7 @@ export const routes: Routes = [
   },
   {
     path: 'cart',
-    canActivate: [authGuard, roleGuard(['USER'])],
+    canActivate: [authGuard, roleGuard(['EMPLOYEE'])],
     loadComponent: () =>
       import('./features/user/cart/cart.component').then(
         (m) => m.CartComponent
@@ -40,7 +40,7 @@ export const routes: Routes = [
   },
   {
     path: 'checkout',
-    canActivate: [authGuard, roleGuard(['USER'])],
+    canActivate: [authGuard, roleGuard(['EMPLOYEE'])],
     loadComponent: () =>
       import('./features/user/checkout/checkout.component').then(
         (m) => m.CheckoutComponent
@@ -48,7 +48,7 @@ export const routes: Routes = [
   },
   {
     path: 'payment/:orderId',
-    canActivate: [authGuard, roleGuard(['USER'])],
+    canActivate: [authGuard, roleGuard(['EMPLOYEE'])],
     loadComponent: () =>
       import('./features/user/payment/payment.component').then(
         (m) => m.PaymentComponent
@@ -56,7 +56,7 @@ export const routes: Routes = [
   },
   {
     path: 'orders',
-    canActivate: [authGuard, roleGuard(['USER'])],
+    canActivate: [authGuard, roleGuard(['EMPLOYEE'])],
     loadComponent: () =>
       import('./features/user/order-history/order-history.component').then(
         (m) => m.OrderHistoryComponent
@@ -107,7 +107,7 @@ export const routes: Routes = [
   // Manager routes
   {
     path: 'manager',
-    canActivate: [authGuard, roleGuard(['MANAGER'])],
+    canActivate: [authGuard, roleGuard(['ADMIN'])],
     loadComponent: () =>
       import('./features/manager/manager-layout/manager-layout.component').then(
         (m) => m.ManagerLayoutComponent

@@ -13,101 +13,124 @@ export class FoodService {
   constructor(private http: HttpClient) {}
 
   // ── FLOOR ──────────────────────────────────────────────
-  // GET /floor/getAll
+  // GET /api/floors
   getFloors(): Observable<Floor[]> {
-    return this.http.get<Floor[]>(`${this.baseUrl}/floor/getAll`, { withCredentials: true });
+    return this.http.get<Floor[]>(`${this.baseUrl}/floors`);
   }
-  // GET /floor/getActive
+  // GET /api/floors/active
   getActiveFloors(): Observable<Floor[]> {
-    return this.http.get<Floor[]>(`${this.baseUrl}/floor/getActive`, { withCredentials: true });
+    return this.http.get<Floor[]>(`${this.baseUrl}/floors/active`);
   }
-  // GET /floor/get/{id}
+  // GET /api/floors/{id}
   getFloorById(id: number): Observable<Floor> {
-    return this.http.get<Floor>(`${this.baseUrl}/floor/get/${id}`, { withCredentials: true });
+    return this.http.get<Floor>(`${this.baseUrl}/floors/${id}`);
   }
-  // POST /floor/create
+  // POST /api/floors
   createFloor(floor: Partial<Floor>): Observable<Floor> {
-    return this.http.post<Floor>(`${this.baseUrl}/floor/create`, floor, { withCredentials: true });
+    return this.http.post<Floor>(`${this.baseUrl}/floors`, floor);
   }
-  // PUT /floor/update/{id}
+  // PUT /api/floors/{id}
   updateFloor(id: number, floor: Partial<Floor>): Observable<Floor> {
-    return this.http.put<Floor>(`${this.baseUrl}/floor/update/${id}`, floor, { withCredentials: true });
+    return this.http.put<Floor>(`${this.baseUrl}/floors/${id}`, floor);
   }
-  // DELETE /floor/delete/{id}
+  // DELETE /api/floors/{id}
   deleteFloor(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/floor/delete/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/floors/${id}`);
   }
 
   // ── SHOP ───────────────────────────────────────────────
-  // GET /shop/getAll
+  // GET /api/shops
   getAllShops(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(`${this.baseUrl}/shop/getAll`, { withCredentials: true });
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops`);
   }
-  // GET /shop/get/{id}
+  // GET /api/shops/{id}
   getShopById(id: number): Observable<Restaurant> {
-    return this.http.get<Restaurant>(`${this.baseUrl}/shop/get/${id}`, { withCredentials: true });
+    return this.http.get<Restaurant>(`${this.baseUrl}/shops/${id}`);
   }
-  // GET /shop/getByFloor/{floorId}
+  // GET /api/shops/floor/{floorId}
   getShopsByFloor(floorId: number): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(`${this.baseUrl}/shop/getByFloor/${floorId}`, { withCredentials: true });
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops/floor/${floorId}`);
   }
-  // GET /shop/getOpen
+  // GET /api/shops/open
   getOpenShops(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(`${this.baseUrl}/shop/getOpen`, { withCredentials: true });
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops/open`);
   }
-  // GET /shop/getVeg
+  // GET /api/shops/veg
   getVegShops(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(`${this.baseUrl}/shop/getVeg`, { withCredentials: true });
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops/veg`);
   }
+  // POST /api/shops
   createShop(shop: Partial<Restaurant>): Observable<Restaurant> {
-    return this.http.post<Restaurant>(`${this.baseUrl}/shop/create`, shop, { withCredentials: true });
+    return this.http.post<Restaurant>(`${this.baseUrl}/shops`, shop);
   }
+  // PUT /api/shops/{id}
   updateShop(id: number, shop: Partial<Restaurant>): Observable<Restaurant> {
-    return this.http.put<Restaurant>(`${this.baseUrl}/shop/update/${id}`, shop, { withCredentials: true });
+    return this.http.put<Restaurant>(`${this.baseUrl}/shops/${id}`, shop);
   }
+  // DELETE /api/shops/{id}
   deleteShop(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/shop/delete/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/shops/${id}`);
   }
 
   // ── FOOD ITEMS ─────────────────────────────────────────
-  // GET /fooditem/getAll
+  // GET /api/food-items
   getAllFoodItems(): Observable<FoodItem[]> {
-    return this.http.get<FoodItem[]>(`${this.baseUrl}/fooditem/getAll`, { withCredentials: true });
+    return this.http.get<FoodItem[]>(`${this.baseUrl}/food-items`);
   }
-  // GET /fooditem/get/{id}
+  // GET /api/food-items/{id}
   getFoodItemById(id: number): Observable<FoodItem> {
-    return this.http.get<FoodItem>(`${this.baseUrl}/fooditem/get/${id}`, { withCredentials: true });
+    return this.http.get<FoodItem>(`${this.baseUrl}/food-items/${id}`);
   }
-  // GET /fooditem/getByShop/{shopId}
+  // GET /api/food-items/shop/{shopId}
   getFoodItemsByShopId(shopId: number): Observable<FoodItem[]> {
-    return this.http.get<FoodItem[]>(`${this.baseUrl}/fooditem/getByShop/${shopId}`, { withCredentials: true });
+    return this.http.get<FoodItem[]>(`${this.baseUrl}/food-items/shop/${shopId}`);
   }
-  // GET /fooditem/search?name=&category=&isVeg=
-  searchFoodItems(params: { name?: string; category?: string; isVeg?: boolean }): Observable<FoodItem[]> {
+  // GET /api/food-items/shop/{shopId}/veg
+  getVegFoodItemsByShop(shopId: number): Observable<FoodItem[]> {
+    return this.http.get<FoodItem[]>(`${this.baseUrl}/food-items/shop/${shopId}/veg`);
+  }
+  // GET /api/food-items/veg
+  getVegFoodItems(): Observable<FoodItem[]> {
+    return this.http.get<FoodItem[]>(`${this.baseUrl}/food-items/veg`);
+  }
+  // GET /api/food-items/search?name=&isVeg=&shopId=&minPrice=&maxPrice=&maxPrepTime=&sortBy=
+  searchFoodItems(params: {
+    name?: string;
+    isVeg?: boolean;
+    shopId?: number;
+    minPrice?: number;
+    maxPrice?: number;
+    maxPrepTime?: number;
+    sortBy?: 'rating' | 'popularity';
+  }): Observable<FoodItem[]> {
     let httpParams = new HttpParams();
     if (params.name) httpParams = httpParams.set('name', params.name);
-    if (params.category) httpParams = httpParams.set('category', params.category);
     if (params.isVeg !== undefined) httpParams = httpParams.set('isVeg', String(params.isVeg));
-    return this.http.get<FoodItem[]>(`${this.baseUrl}/fooditem/search`, { params: httpParams, withCredentials: true });
+    if (params.shopId !== undefined) httpParams = httpParams.set('shopId', String(params.shopId));
+    if (params.minPrice !== undefined) httpParams = httpParams.set('minPrice', String(params.minPrice));
+    if (params.maxPrice !== undefined) httpParams = httpParams.set('maxPrice', String(params.maxPrice));
+    if (params.maxPrepTime !== undefined) httpParams = httpParams.set('maxPrepTime', String(params.maxPrepTime));
+    if (params.sortBy) httpParams = httpParams.set('sortBy', params.sortBy);
+    return this.http.get<FoodItem[]>(`${this.baseUrl}/food-items/search`, { params: httpParams });
   }
-  // POST /fooditem/create
+  // POST /api/food-items
   createFoodItem(item: MenuUpdateRequest): Observable<FoodItem> {
-    return this.http.post<FoodItem>(`${this.baseUrl}/fooditem/create`, item, { withCredentials: true });
+    return this.http.post<FoodItem>(`${this.baseUrl}/food-items`, item);
   }
-  // PUT /fooditem/update/{id}
+  // PUT /api/food-items/{id}
   updateFoodItem(id: number, item: MenuUpdateRequest): Observable<FoodItem> {
-    return this.http.put<FoodItem>(`${this.baseUrl}/fooditem/update/${id}`, item, { withCredentials: true });
+    return this.http.put<FoodItem>(`${this.baseUrl}/food-items/${id}`, item);
   }
-  // DELETE /fooditem/delete/{id}
+  // DELETE /api/food-items/{id}
   deleteFoodItem(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/fooditem/delete/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/food-items/${id}`);
   }
 
   // Convenience helpers used by home page
   getTrendingItems(): Observable<FoodItem[]> {
-    return this.searchFoodItems({ name: '' });
+    return this.searchFoodItems({ sortBy: 'popularity' });
   }
   getFastItems(): Observable<FoodItem[]> {
-    return this.getAllFoodItems();
+    return this.searchFoodItems({ maxPrepTime: 10 });
   }
 }

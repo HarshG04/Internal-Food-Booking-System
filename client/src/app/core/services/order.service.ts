@@ -1,33 +1,26 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
-import { Order, PlaceOrderRequest, FeedbackRequest } from '../models/order.model';
+import { Order, OrderItem, PlaceOrderRequest, FeedbackRequest, Feedback } from '../models/order.model';
 import { environment } from '../../../environments/environment';
 
 export interface Payment {
   id: number;
-  orderId: number;
+  order: Partial<Order>;
+  gatewayTxnId: string;
   amount: number;
+  method: 'UPI' | 'CARD' | 'NETBANKING' | 'WALLET';
   status: 'PENDING' | 'SUCCESS' | 'FAILED';
-  gatewayTxnId?: string;
-  method: string;
-  createdAt: string;
+  paidAt: string;
 }
 
 export interface CreatePaymentRequest {
-  orderId: number;
+  order: { id: number };
+  gatewayTxnId: string;
   amount: number;
   method: string;
-}
-
-export interface OrderItem {
-  id: number;
-  orderId: number;
-  foodItemId: number;
-  foodItemName: string;
-  quantity: number;
-  price: number;
   status: string;
+  paidAt: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -37,107 +30,101 @@ export class OrderService {
   constructor(private http: HttpClient) {}
 
   // ── ORDER ──────────────────────────────────────────────
-  // GET /order/getAll
+  // GET /api/orders
   getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/order/getAll`, { withCredentials: true });
+    return this.http.get<Order[]>(`${this.baseUrl}/orders`);
   }
-  // GET /order/get/{id}
+  // GET /api/orders/{id}
   getOrderById(id: number): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/order/get/${id}`, { withCredentials: true });
+    return this.http.get<Order>(`${this.baseUrl}/orders/${id}`);
   }
-  // GET /order/getByToken/{token}
+  // GET /api/orders/token/{tokenNo}
   getOrderByToken(token: string): Observable<Order> {
-    return this.http.get<Order>(`${this.baseUrl}/order/getByToken/${token}`, { withCredentials: true });
+    return this.http.get<Order>(`${this.baseUrl}/orders/token/${token}`);
   }
-  // GET /order/getByEmployee/{employeeId}
-  getOrdersByEmployee(employeeId: string): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/order/getByEmployee/${employeeId}`, { withCredentials: true });
+  // GET /api/orders/employee/{employeeId}
+  getOrdersByEmployee(employeeId: number): Observable<Order[]> {
+    return this.http.get<Order[]>(`${this.baseUrl}/orders/employee/${employeeId}`);
   }
-  // POST /order/create  (before payment)
-  createOrder(request: PlaceOrderRequest): Observable<Order> {
-    return this.http.post<Order>(`${this.baseUrl}/order/create`, request, { withCredentials: true });
-  }
-  // POST /order/place  (after payment success)
+  // POST /api/orders/place — atomically places order with all items
   placeOrder(request: PlaceOrderRequest): Observable<Order> {
-    return this.http.post<Order>(`${this.baseUrl}/order/place`, request, { withCredentials: true });
+    return this.http.post<Order>(`${this.baseUrl}/orders/place`, request);
   }
 
   // ── ORDER ITEMS ────────────────────────────────────────
-  // GET /orderitem/getAll
+  // GET /api/order-items
   getAllOrderItems(): Observable<OrderItem[]> {
-    return this.http.get<OrderItem[]>(`${this.baseUrl}/orderitem/getAll`, { withCredentials: true });
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items`);
   }
-  // GET /orderitem/get/{id}
+  // GET /api/order-items/{id}
   getOrderItemById(id: number): Observable<OrderItem> {
-    return this.http.get<OrderItem>(`${this.baseUrl}/orderitem/get/${id}`, { withCredentials: true });
+    return this.http.get<OrderItem>(`${this.baseUrl}/order-items/${id}`);
   }
-  // GET /orderitem/getByOrder/{orderId}
+  // GET /api/order-items/order/{orderId}
   getOrderItemsByOrder(orderId: number): Observable<OrderItem[]> {
-    return this.http.get<OrderItem[]>(`${this.baseUrl}/orderitem/getByOrder/${orderId}`, { withCredentials: true });
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items/order/${orderId}`);
   }
-  // GET /orderitem/getByUser/{userId}
+  // GET /api/order-items/user/{userId}
   getOrderItemsByUser(userId: number): Observable<OrderItem[]> {
-    return this.http.get<OrderItem[]>(`${this.baseUrl}/orderitem/getByUser/${userId}`, { withCredentials: true });
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items/user/${userId}`);
   }
-  // GET /orderitem/getByStatus/{status}
+  // GET /api/order-items/status/{status}
   getOrderItemsByStatus(status: string): Observable<OrderItem[]> {
-    return this.http.get<OrderItem[]>(`${this.baseUrl}/orderitem/getByStatus/${status}`, { withCredentials: true });
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items/status/${status}`);
   }
-  // POST /orderitem/create
-  createOrderItem(item: Partial<OrderItem>): Observable<OrderItem> {
-    return this.http.post<OrderItem>(`${this.baseUrl}/orderitem/create`, item, { withCredentials: true });
-  }
-  // PUT /orderitem/updateStatus/{id}
+  // PATCH /api/order-items/{id}/status?status=
   updateOrderItemStatus(id: number, status: string): Observable<OrderItem> {
-    return this.http.put<OrderItem>(`${this.baseUrl}/orderitem/updateStatus/${id}`, { status }, { withCredentials: true });
+    const params = new HttpParams().set('status', status);
+    return this.http.patch<OrderItem>(`${this.baseUrl}/order-items/${id}/status`, null, { params });
   }
 
   // ── PAYMENT ────────────────────────────────────────────
-  // GET /payment/getAll
+  // GET /api/payments
   getAllPayments(): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.baseUrl}/payment/getAll`, { withCredentials: true });
+    return this.http.get<Payment[]>(`${this.baseUrl}/payments`);
   }
-  // GET /payment/get/{id}
+  // GET /api/payments/{id}
   getPaymentById(id: number): Observable<Payment> {
-    return this.http.get<Payment>(`${this.baseUrl}/payment/get/${id}`, { withCredentials: true });
+    return this.http.get<Payment>(`${this.baseUrl}/payments/${id}`);
   }
-  // GET /payment/getByGatewayTxnId/{txnId}
-  getPaymentByGatewayTxnId(txnId: string): Observable<Payment> {
-    return this.http.get<Payment>(`${this.baseUrl}/payment/getByGatewayTxnId/${txnId}`, { withCredentials: true });
+  // GET /api/payments/txn/{gatewayTxnId}
+  getPaymentByTxnId(txnId: string): Observable<Payment> {
+    return this.http.get<Payment>(`${this.baseUrl}/payments/txn/${txnId}`);
   }
-  // GET /payment/getByOrder/{orderId}
+  // GET /api/payments/order/{orderId}
   getPaymentsByOrder(orderId: number): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.baseUrl}/payment/getByOrder/${orderId}`, { withCredentials: true });
+    return this.http.get<Payment[]>(`${this.baseUrl}/payments/order/${orderId}`);
   }
-  // GET /payment/getByStatus/{status}
+  // GET /api/payments/status/{status}
   getPaymentsByStatus(status: string): Observable<Payment[]> {
-    return this.http.get<Payment[]>(`${this.baseUrl}/payment/getByStatus/${status}`, { withCredentials: true });
+    return this.http.get<Payment[]>(`${this.baseUrl}/payments/status/${status}`);
   }
-  // POST /payment/create
+  // POST /api/payments
   createPayment(req: CreatePaymentRequest): Observable<Payment> {
-    return this.http.post<Payment>(`${this.baseUrl}/payment/create`, req, { withCredentials: true });
+    return this.http.post<Payment>(`${this.baseUrl}/payments`, req);
   }
-  // PUT /payment/updateStatus/{id}
+  // PATCH /api/payments/{id}/status?status=
   updatePaymentStatus(id: number, status: string): Observable<Payment> {
-    return this.http.put<Payment>(`${this.baseUrl}/payment/updateStatus/${id}`, { status }, { withCredentials: true });
+    const params = new HttpParams().set('status', status);
+    return this.http.patch<Payment>(`${this.baseUrl}/payments/${id}/status`, null, { params });
   }
 
   // ── FEEDBACK ────────────────────────────────────────────
-  // GET /feedback/getByOrderItem/{orderItemId}
-  getFeedbackByOrderItem(orderItemId: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/feedback/getByOrderItem/${orderItemId}`, { withCredentials: true });
+  // GET /api/feedbacks/order-item/{orderItemId}
+  getFeedbackByOrderItem(orderItemId: number): Observable<Feedback> {
+    return this.http.get<Feedback>(`${this.baseUrl}/feedbacks/order-item/${orderItemId}`);
   }
-  // GET /feedback/get/{id}
-  getFeedbackById(id: number): Observable<any> {
-    return this.http.get(`${this.baseUrl}/feedback/get/${id}`, { withCredentials: true });
+  // GET /api/feedbacks/{id}
+  getFeedbackById(id: number): Observable<Feedback> {
+    return this.http.get<Feedback>(`${this.baseUrl}/feedbacks/${id}`);
   }
-  // POST /feedback/create
-  createFeedback(feedback: FeedbackRequest): Observable<any> {
-    return this.http.post(`${this.baseUrl}/feedback/create`, feedback, { withCredentials: true });
+  // POST /api/feedbacks
+  createFeedback(feedback: FeedbackRequest): Observable<Feedback> {
+    return this.http.post<Feedback>(`${this.baseUrl}/feedbacks`, feedback);
   }
 
   // Convenience
-  getMyOrders(employeeId: string): Observable<Order[]> {
+  getMyOrders(employeeId: number): Observable<Order[]> {
     return this.getOrdersByEmployee(employeeId);
   }
 }

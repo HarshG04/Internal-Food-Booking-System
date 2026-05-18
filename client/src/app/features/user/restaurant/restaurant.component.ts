@@ -37,7 +37,6 @@ export class RestaurantComponent implements OnInit {
   loading = signal(true);
   restaurant = signal<Restaurant | null>(null);
   items = signal<FoodItem[]>([]);
-  selectedCategory = signal<string>('All');
 
   constructor(
     private foodService: FoodService,
@@ -65,21 +64,10 @@ export class RestaurantComponent implements OnInit {
     });
   }
 
-  get categories(): string[] {
-    const cats = ['All', ...new Set(this.items().map((i) => i.category))];
-    return cats;
-  }
-
-  get filteredItems(): FoodItem[] {
-    const cat = this.selectedCategory();
-    if (cat === 'All') return this.items();
-    return this.items().filter((i) => i.category === cat);
-  }
-
   addToCart(item: FoodItem, event: Event): void {
     event.stopPropagation();
     const cartRestaurantId = this.cart.getRestaurantId();
-    if (cartRestaurantId && cartRestaurantId !== item.restaurantId) {
+    if (cartRestaurantId && cartRestaurantId !== item.shop.id) {
       this.notify.error('Clear your cart before ordering from a different restaurant.');
       return;
     }

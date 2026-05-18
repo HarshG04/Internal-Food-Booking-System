@@ -1,34 +1,21 @@
-export interface Category {
-  id: number;
-  name: string;
-}
-
 export interface FoodItem {
   id: number;
+  shop: { id: number; name: string };
   name: string;
-  description: string;
   price: number;
-  imageUrl: string;
-  category: string;
-  restaurantId: number;
-  restaurantName: string;
-  prepTime: number; // minutes
+  stockQuantity: number;
+  prepTimeMins: number;
   isVeg: boolean;
-  isAvailable: boolean;
-  isTrending: boolean;
-  rating: number;
-  tags: string[];
-  stock: number;
+  avgRating: number;
+  imageUrl?: string;
 }
 
 export interface MenuUpdateRequest {
+  shop: { id: number };
   name: string;
-  description: string;
   price: number;
-  category: string;
-  prepTime: number;
+  stockQuantity: number;
+  prepTimeMins: number;
   isVeg: boolean;
-  isAvailable: boolean;
-  stock: number;
-  imageUrl?: string;
+  avgRating: number;
 }

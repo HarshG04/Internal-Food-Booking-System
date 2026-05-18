@@ -14,24 +14,30 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {
     const stored = localStorage.getItem('fc_user');
-    if (stored) {
+    const token = localStorage.getItem('fc_token');
+    if (stored && token) {
       const user: User = JSON.parse(stored);
       this.currentUser.set(user);
       this.isLoggedIn.set(true);
     }
   }
 
-  // POST /auth/login
+  // POST /api/auth/login
   login(request: LoginRequest): Observable<AuthResponse> {
     return this.http
-      .post<AuthResponse>(`${this.baseUrl}/auth/login`, request, { withCredentials: true })
+      .post<AuthResponse>(`${this.baseUrl}/auth/login`, request)
       .pipe(
         tap((res) => {
           this.currentUser.set(res.user);
           this.isLoggedIn.set(true);
           localStorage.setItem('fc_user', JSON.stringify(res.user));
+          localStorage.setItem('fc_token', res.token);
         })
       );
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('fc_token');
   }
 
   logout(): void {
@@ -42,6 +48,7 @@ export class AuthService {
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
     localStorage.removeItem('fc_user');
+    localStorage.removeItem('fc_token');
     this.router.navigate(['/login']);
   }
 
@@ -50,6 +57,6 @@ export class AuthService {
   }
 
   getUserId(): number | null {
-    return this.currentUser()?.id ?? null;
+    return this.currentUser()?.employeeId ?? null;
   }
 }

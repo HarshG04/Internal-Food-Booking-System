@@ -23,17 +23,10 @@
       <mat-card-content>
         <form [formGroup]="floorForm" (ngSubmit)="saveFloor()" class="inline-form">
           <mat-form-field appearance="outline">
-            <mat-label>Floor Name</mat-label>
-            <input matInput formControlName="name" placeholder="e.g. Ground Floor" />
-          </mat-form-field>
-          <mat-form-field appearance="outline">
             <mat-label>Floor Number</mat-label>
-            <input matInput type="number" formControlName="floorNumber" />
+            <input matInput type="number" formControlName="floorNumber" min="1" />
           </mat-form-field>
-          <mat-form-field appearance="outline" class="flex2">
-            <mat-label>Description</mat-label>
-            <input matInput formControlName="description" />
-          </mat-form-field>
+          <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
           <div class="form-btns">
             <button mat-stroked-button type="button" (click)="showFloorForm.set(false)">Cancel</button>
             <button mat-flat-button class="save-btn" type="submit" [disabled]="floorForm.invalid || saving()">
@@ -63,25 +56,15 @@
               <mat-label>Assign to Floor</mat-label>
               <mat-select formControlName="floorId">
                 @for (f of floors(); track f.id) {
-                  <mat-option [value]="f.id">{{ f.name }}</mat-option>
+                  <mat-option [value]="f.id">Floor {{ f.floorNumber }}</mat-option>
                 }
               </mat-select>
             </mat-form-field>
           </div>
           <div class="form-row">
-            <mat-form-field appearance="outline">
-              <mat-label>Cuisine Type</mat-label>
-              <input matInput formControlName="cuisine" placeholder="e.g. Indian, Chinese" />
-            </mat-form-field>
-            <mat-form-field appearance="outline">
-              <mat-label>Avg Prep Time (min)</mat-label>
-              <input matInput type="number" formControlName="avgPrepTime" />
-            </mat-form-field>
+            <mat-slide-toggle formControlName="isVeg" color="primary">🟢 Vegetarian Only</mat-slide-toggle>
+            <mat-slide-toggle formControlName="isOpen" color="accent">✅ Open</mat-slide-toggle>
           </div>
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="description" rows="2"></textarea>
-          </mat-form-field>
           <div class="form-btns">
             <button mat-stroked-button type="button" (click)="showShopForm.set(false)">Cancel</button>
             <button mat-flat-button class="save-btn" type="submit" [disabled]="shopForm.invalid || saving()">
@@ -103,7 +86,7 @@
         <div class="floor-header">
           <div class="floor-title">
             <mat-icon>apartment</mat-icon>
-            <h3>{{ floor.name }}</h3>
+            <h3>Floor {{ floor.floorNumber }}</h3>
             <span class="floor-num-badge">Floor {{ floor.floorNumber }}</span>
             <span class="shop-count">{{ shopsOnFloor(floor.id).length }} shops</span>
           </div>
@@ -123,7 +106,7 @@
               <div class="shop-card-top">
                 <div class="shop-info">
                   <div class="shop-name">{{ shop.name }}</div>
-                  <div class="shop-cuisine">{{ shop.cuisine }}</div>
+                  <div class="shop-cuisine">{{ shop.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}</div>
                 </div>
                 <span class="open-badge" [class.closed-badge]="!shop.isOpen">
                   {{ shop.isOpen ? 'Open' : 'Closed' }}
@@ -136,7 +119,7 @@
                   class="floor-reassign"
                 >
                   @for (f of floors(); track f.id) {
-                    <mat-option [value]="f.id">{{ f.name }}</mat-option>
+                    <mat-option [value]="f.id">Floor {{ f.floorNumber }}</mat-option>
                   }
                 </mat-select>
                 <button mat-icon-button (click)="openEditShop(shop)">

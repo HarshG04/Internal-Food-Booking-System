@@ -19,8 +19,7 @@
           [class.active]="selectedFloorId() === floor.id"
           (click)="filterByFloor(floor.id)"
         >
-          <span class="floor-emoji">{{ floor.floorNumber }}F</span>
-          <span>{{ floor.name }}</span>
+      <span>{{ floor.floorNumber }}F</span>
         </button>
       }
     </div>
@@ -64,20 +63,17 @@
             @for (item of trendingItems(); track item.id) {
               <div class="food-card trending-card">
                 <div class="food-img-wrap">
-                  <img [src]="item.imageUrl || 'assets/food-placeholder.png'" [alt]="item.name" />
+                  <img src="assets/food-placeholder.png" [alt]="item.name" />
                   <span class="veg-tag" [class.non-veg]="!item.isVeg">
                     {{ item.isVeg ? '🟢' : '🔴' }}
                   </span>
-                  @if (item.isTrending) {
-                    <span class="trending-badge">🔥 Hot</span>
-                  }
                 </div>
                 <div class="food-info">
                   <h4>{{ item.name }}</h4>
-                  <p class="restaurant-name">{{ item.restaurantName }}</p>
+                  <p class="restaurant-name">{{ item.shop.name }}</p>
                   <div class="food-meta">
-                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTime }} min</span>
-                    <span class="rating">⭐ {{ item.rating }}</span>
+                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
+                    <span class="rating">⭐ {{ item.avgRating }}</span>
                   </div>
                   <div class="food-footer">
                     <span class="price">₹{{ item.price }}</span>
@@ -117,14 +113,14 @@
             @for (item of fastItems(); track item.id) {
               <div class="food-card fast-card">
                 <div class="food-img-wrap">
-                  <img [src]="item.imageUrl || 'assets/food-placeholder.png'" [alt]="item.name" />
+                  <img src="assets/food-placeholder.png" [alt]="item.name" />
                   <span class="fast-badge">⚡ Fast</span>
                 </div>
                 <div class="food-info">
                   <h4>{{ item.name }}</h4>
-                  <p class="restaurant-name">{{ item.restaurantName }}</p>
+                  <p class="restaurant-name">{{ item.shop.name }}</p>
                   <div class="food-meta">
-                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTime }} min</span>
+                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
                     <span class="veg-tag" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢 Veg' : '🔴 Non-veg' }}</span>
                   </div>
                   <div class="food-footer">
@@ -174,23 +170,17 @@
             @for (restaurant of filteredRestaurants; track restaurant.id) {
               <a [routerLink]="['/restaurant', restaurant.id]" class="restaurant-card">
                 <div class="rest-img-wrap">
-                  <img [src]="restaurant.imageUrl || 'assets/restaurant-placeholder.png'" [alt]="restaurant.name" />
-                  <span class="floor-chip">{{ restaurant.floor.name }}</span>
+                  <img src="assets/restaurant-placeholder.png" [alt]="restaurant.name" />
+                  <span class="floor-chip">Floor {{ restaurant.floor.floorNumber }}</span>
                   @if (!restaurant.isOpen) {
                     <div class="closed-overlay">Closed</div>
                   }
                 </div>
                 <div class="rest-info">
                   <h4>{{ restaurant.name }}</h4>
-                  <p class="cuisine">{{ restaurant.cuisine }}</p>
+                  <p class="cuisine">{{ restaurant.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}</p>
                   <div class="rest-meta">
-                    <span class="rating">⭐ {{ restaurant.rating }} ({{ restaurant.totalRatings }})</span>
-                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ restaurant.avgPrepTime }} min</span>
-                  </div>
-                  <div class="tags">
-                    @for (tag of restaurant.tags.slice(0, 3); track tag) {
-                      <span class="tag">{{ tag }}</span>
-                    }
+                    <span class="rating">⭐ {{ restaurant.avgRating }}</span>
                   </div>
                 </div>
               </a>

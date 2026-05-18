@@ -9,24 +9,21 @@
       <div class="payment-card">
         <div class="payment-icon">💳</div>
         <h2>Complete Payment</h2>
-        <p class="sub">Order #{{ order()!.id }} from {{ order()!.restaurantName }}</p>
+        <p class="sub">Order #{{ order()!.id }} · Token: {{ order()!.tokenNo }}</p>
 
         <div class="amount-display">
           <span class="amount-label">Total Amount</span>
           <span class="amount">₹{{ order()!.totalAmount }}</span>
         </div>
 
-        <div class="payment-method-info">
-          <mat-icon>payment</mat-icon>
-          <span>via {{ order()!.paymentMethod }}</span>
-        </div>
-
-        <div class="items-preview">
-          @for (item of order()!.items; track item.id) {
-            <div class="preview-row">
-              <span>{{ item.foodItemName }} × {{ item.quantity }}</span>
-              <span>₹{{ item.subtotal }}</span>
-            </div>
+        <div class="payment-method-select">
+          @for (opt of paymentOptions; track opt.value) {
+            <label class="payment-option" [class.selected]="paymentMethod() === opt.value">
+              <input type="radio" [value]="opt.value" [checked]="paymentMethod() === opt.value"
+                (change)="paymentMethod.set(opt.value)" />
+              <mat-icon>{{ opt.icon }}</mat-icon>
+              <span>{{ opt.label }}</span>
+            </label>
           }
         </div>
 
@@ -40,8 +37,10 @@
             <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
             Processing...
           } @else {
-            <mat-icon>lock</mat-icon>
-            Pay ₹{{ order()!.totalAmount }} Securely
+            <ng-container>
+              <mat-icon>lock</mat-icon>
+              Pay ₹{{ order()!.totalAmount }} Securely
+            </ng-container>
           }
         </button>
         <p class="secure-note">🔒 Your payment is 100% secure and encrypted</p>
@@ -59,8 +58,8 @@
 
         <div class="token-display">
           <span class="token-label">Your Token Number</span>
-          <div class="token-number">{{ order()!.tokenNumber }}</div>
-          <p class="token-info">Show this token to the vendor at <strong>{{ order()!.restaurantName }}</strong> to collect your order.</p>
+          <div class="token-number">{{ order()!.tokenNo }}</div>
+          <p class="token-info">Show this token to the vendor to collect your order.</p>
         </div>
 
         <div class="order-details">
@@ -69,12 +68,8 @@
             <strong>#{{ order()!.id }}</strong>
           </div>
           <div class="detail-row">
-            <span>Restaurant</span>
-            <strong>{{ order()!.restaurantName }}</strong>
-          </div>
-          <div class="detail-row">
-            <span>Est. Time</span>
-            <strong>{{ order()!.estimatedTime }} mins</strong>
+            <span>Placed by</span>
+            <strong>{{ order()!.user.fullName }}</strong>
           </div>
           <div class="detail-row">
             <span>Amount Paid</span>

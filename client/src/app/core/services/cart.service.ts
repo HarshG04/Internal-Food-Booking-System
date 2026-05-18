@@ -75,6 +75,6 @@ export class CartService {
 
   getRestaurantId(): number | null {
     const items = this.cartItems();
-    return items.length > 0 ? items[0].foodItem.restaurantId : null;
+    return items.length > 0 ? items[0].foodItem.shop.id : null;
   }
 }

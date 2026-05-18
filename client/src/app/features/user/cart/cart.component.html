@@ -27,7 +27,7 @@
             <img [src]="item.foodItem.imageUrl || 'assets/food-placeholder.png'" [alt]="item.foodItem.name" />
             <div class="item-info">
               <h4>{{ item.foodItem.name }}</h4>
-              <p class="restaurant-name">{{ item.foodItem.restaurantName }}</p>
+              <p class="restaurant-name">{{ item.foodItem.shop.name }}</p>
               <span class="unit-price">₹{{ item.foodItem.price }} each</span>
             </div>
             <div class="item-actions">

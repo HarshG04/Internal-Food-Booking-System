@@ -23,46 +23,29 @@
               <input matInput formControlName="name" placeholder="e.g. Paneer Butter Masala" />
             </mat-form-field>
             <mat-form-field appearance="outline">
-              <mat-label>Category</mat-label>
-              <mat-select formControlName="category">
-                @for (cat of categories; track cat) {
-                  <mat-option [value]="cat">{{ cat }}</mat-option>
-                }
-              </mat-select>
-            </mat-form-field>
-          </div>
-
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>Description</mat-label>
-            <textarea matInput formControlName="description" rows="2"></textarea>
-          </mat-form-field>
-
-          <div class="form-row">
-            <mat-form-field appearance="outline">
               <mat-label>Price (₹)</mat-label>
               <input matInput type="number" formControlName="price" min="1" />
             </mat-form-field>
+          </div>
+
+          <div class="form-row">
             <mat-form-field appearance="outline">
               <mat-label>Prep Time (min)</mat-label>
-              <input matInput type="number" formControlName="prepTime" min="1" />
+              <input matInput type="number" formControlName="prepTimeMins" min="1" />
             </mat-form-field>
             <mat-form-field appearance="outline">
               <mat-label>Stock Qty</mat-label>
-              <input matInput type="number" formControlName="stock" min="0" />
+              <input matInput type="number" formControlName="stockQuantity" min="0" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Avg Rating</mat-label>
+              <input matInput type="number" formControlName="avgRating" min="0" max="5" step="0.1" />
             </mat-form-field>
           </div>
-
-          <mat-form-field appearance="outline" class="full">
-            <mat-label>Image URL (optional)</mat-label>
-            <input matInput formControlName="imageUrl" placeholder="https://…" />
-          </mat-form-field>
 
           <div class="toggle-row">
             <mat-slide-toggle formControlName="isVeg" color="primary">
               🟢 Vegetarian
-            </mat-slide-toggle>
-            <mat-slide-toggle formControlName="isAvailable" color="accent">
-              ✅ Available Today
             </mat-slide-toggle>
           </div>
 
@@ -90,30 +73,26 @@
   } @else {
     <div class="menu-grid">
       @for (item of menuItems(); track item.id) {
-        <div class="menu-item-card" [class.unavailable]="!item.isAvailable">
+        <div class="menu-item-card">
           <div class="item-img">
-            <img [src]="item.imageUrl || 'assets/placeholder-food.png'" [alt]="item.name" />
+            <img src="assets/placeholder-food.png" [alt]="item.name" />
             <span class="veg-dot" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
           </div>
           <div class="item-body">
             <div class="item-top">
               <h4>{{ item.name }}</h4>
-              <span class="category-chip">{{ item.category }}</span>
+              <span class="category-chip">{{ item.shop.name }}</span>
             </div>
-            <p class="item-desc">{{ item.description }}</p>
             <div class="item-meta">
               <span class="price">₹{{ item.price }}</span>
-              <span class="prep-time"><mat-icon class="tiny">schedule</mat-icon>{{ item.prepTime }}m</span>
-              <span class="stock">Stock: {{ item.stock }}</span>
+              <span class="prep-time"><mat-icon class="tiny">schedule</mat-icon>{{ item.prepTimeMins }}m</span>
+              <span class="stock">Stock: {{ item.stockQuantity }}</span>
             </div>
           </div>
           <div class="item-actions">
-            <mat-slide-toggle
-              [checked]="item.isAvailable"
-              (change)="toggleAvailability(item)"
-              color="accent"
-              class="avail-toggle"
-            ></mat-slide-toggle>
+            <button mat-icon-button title="Toggle stock" (click)="toggleAvailability(item)">
+              <mat-icon>{{ item.stockQuantity > 0 ? 'check_circle' : 'cancel' }}</mat-icon>
+            </button>
             <button mat-icon-button (click)="openEdit(item)">
               <mat-icon>edit</mat-icon>
             </button>

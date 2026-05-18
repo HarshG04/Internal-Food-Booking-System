@@ -1,21 +1,20 @@
+import { User } from './user.model';
+
 export interface Floor {
   id: number;
-  name: string;
   floorNumber: number;
-  description?: string;
+  isActive: boolean;
 }
 
 export interface Restaurant {
   id: number;
-  name: string;
-  description: string;
-  imageUrl: string;
-  cuisine: string;
   floor: Floor;
-  rating: number;
-  totalRatings: number;
+  name: string;
+  isVeg: boolean;
   isOpen: boolean;
-  avgPrepTime: number; // minutes
-  vendorId: number;
-  tags: string[];
+  avgRating: number;
+  vendor?: Partial<User>;
 }
+
+// Shop is the API's term for Restaurant
+export type Shop = Restaurant;

@@ -1,7 +1,7 @@
 <div class="dashboard-page">
   <div class="page-header">
     <div>
-      <h2>Good {{ timeOfDay() }}, {{ auth.currentUser()?.name }}! 👨‍🍳</h2>
+      <h2>Good {{ timeOfDay() }}, {{ auth.currentUser()?.fullName }}! 👨‍🍳</h2>
       <p>Here's your shop overview for today</p>
     </div>
     <a mat-flat-button class="action-btn" routerLink="../orders">View All Orders</a>
@@ -20,24 +20,10 @@
         </div>
       </div>
       <div class="stat-card blue">
-        <mat-icon>hourglass_empty</mat-icon>
+        <mat-icon>today</mat-icon>
         <div class="stat-info">
-          <span class="stat-value">{{ stats().pendingOrders }}</span>
-          <span class="stat-label">Pending</span>
-        </div>
-      </div>
-      <div class="stat-card purple">
-        <mat-icon>restaurant</mat-icon>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats().preparingOrders }}</span>
-          <span class="stat-label">Preparing</span>
-        </div>
-      </div>
-      <div class="stat-card green">
-        <mat-icon>done_all</mat-icon>
-        <div class="stat-info">
-          <span class="stat-value">{{ stats().readyOrders }}</span>
-          <span class="stat-label">Ready</span>
+          <span class="stat-value">{{ stats().todayOrders }}</span>
+          <span class="stat-label">Today's Orders</span>
         </div>
       </div>
       <div class="stat-card teal">
@@ -47,11 +33,18 @@
           <span class="stat-label">Today's Revenue</span>
         </div>
       </div>
+      <div class="stat-card green">
+        <mat-icon>currency_rupee</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">₹{{ stats().totalRevenue | number:'1.0-0' }}</span>
+          <span class="stat-label">Total Revenue</span>
+        </div>
+      </div>
       <div class="stat-card indigo">
         <mat-icon>fastfood</mat-icon>
         <div class="stat-info">
-          <span class="stat-value">{{ stats().availableItems }}</span>
-          <span class="stat-label">Available Items</span>
+          <span class="stat-value">{{ stats().menuItemCount }}</span>
+          <span class="stat-label">Menu Items</span>
         </div>
       </div>
     </div>
@@ -73,15 +66,10 @@
             <div class="order-row">
               <div class="order-token">
                 <mat-icon>confirmation_number</mat-icon>
-                <span>#{{ order.tokenNumber }}</span>
-              </div>
-              <div class="order-items-count">
-                {{ order.items?.length || 0 }} item(s)
+                <span>🎫 {{ order.tokenNo }}</span>
               </div>
               <div class="order-amount">₹{{ order.totalAmount }}</div>
-              <div class="order-status-badge" [style.background]="statusColor(order.status) + '22'" [style.color]="statusColor(order.status)">
-                {{ order.status }}
-              </div>
+              <div class="order-date">{{ order.createdAt | date:'h:mm a' }}</div>
             </div>
           }
         </div>

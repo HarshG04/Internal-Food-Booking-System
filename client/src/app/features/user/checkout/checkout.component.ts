@@ -51,28 +51,29 @@ export class CheckoutComponent {
   get grandTotal(): number { return this.cart().total + this.gst; }
 
   placeOrder(): void {
-    const restaurantId = this.cartService.getRestaurantId();
-    if (!restaurantId) return;
+    const userId = this.auth.getUserId();
+    if (!userId) return;
 
     this.placing.set(true);
     const request = {
-      restaurantId,
+      userId,
       items: this.cart().items.map(i => ({
         foodItemId: i.foodItem.id,
         quantity: i.quantity,
       })),
-      paymentMethod: this.paymentMethod(),
     };
 
-    // POST /order/create  (before payment — order stays PENDING)
-    this.orderService.createOrder(request).subscribe({
+    // POST /api/orders/place — atomic order creation
+    this.orderService.placeOrder(request).subscribe({
       next: (order) => {
-        this.notify.info('Order created! Proceeding to payment…');
-        this.router.navigate(['/payment', order.id]);
+        this.notify.info('Order placed! Proceeding to payment…');
+        this.router.navigate(['/payment', order.id], {
+          state: { paymentMethod: this.paymentMethod(), totalAmount: this.grandTotal },
+        });
       },
       error: (err) => {
         this.placing.set(false);
-        this.notify.error(err.error?.message ?? 'Failed to create order. Try again.');
+        this.notify.error(err.error?.message ?? 'Failed to place order. Try again.');
       },
     });
   }

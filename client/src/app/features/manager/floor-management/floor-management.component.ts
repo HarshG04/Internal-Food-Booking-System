@@ -59,18 +59,16 @@ export class FloorManagementComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.floorForm = this.fb.group({
-      name: ['', Validators.required],
-      floorNumber: [1, Validators.required],
-      description: [''],
+      floorNumber: [1, [Validators.required, Validators.min(1)]],
+      isActive: [true],
     });
 
     this.shopForm = this.fb.group({
       name: ['', Validators.required],
-      cuisine: ['', Validators.required],
-      description: [''],
       floorId: [null, Validators.required],
-      avgPrepTime: [15],
+      isVeg: [false],
       isOpen: [true],
+      avgRating: [0],
     });
   }
 
@@ -95,7 +93,7 @@ export class FloorManagementComponent implements OnInit {
   // ── FLOORS ──
   openAddFloor(): void {
     this.editingFloor.set(null);
-    this.floorForm.reset({ floorNumber: 1 });
+    this.floorForm.reset({ floorNumber: 1, isActive: true });
     this.showFloorForm.set(true);
   }
 
@@ -112,8 +110,8 @@ export class FloorManagementComponent implements OnInit {
     const editing = this.editingFloor();
 
     const obs = editing
-      ? this.manager.updateFloor(editing.id, data)   // PUT /floor/update/{id}
-      : this.manager.createFloor(data);              // POST /floor/create
+      ? this.manager.updateFloor(editing.id, data)   // PUT /api/floors/{id}
+      : this.manager.createFloor(data);              // POST /api/floors
 
     obs.subscribe({
       next: () => {
@@ -130,8 +128,8 @@ export class FloorManagementComponent implements OnInit {
   }
 
   deleteFloor(floor: Floor): void {
-    if (!confirm(`Delete floor "${floor.name}"? All shops on this floor will be unassigned.`)) return;
-    // DELETE /floor/delete/{id}
+    if (!confirm(`Delete Floor ${floor.floorNumber}? All shops on this floor will be unassigned.`)) return;
+    // DELETE /api/floors/{id}
     this.manager.deleteFloor(floor.id).subscribe({
       next: () => {
         this.notify.success('Floor deleted.');
@@ -148,15 +146,18 @@ export class FloorManagementComponent implements OnInit {
   // ── SHOPS ──
   openAddShop(): void {
     this.editingShop.set(null);
-    this.shopForm.reset({ avgPrepTime: 15, isOpen: true });
+    this.shopForm.reset({ isVeg: false, isOpen: true, avgRating: 0 });
     this.showShopForm.set(true);
   }
 
   openEditShop(shop: Restaurant): void {
     this.editingShop.set(shop);
     this.shopForm.patchValue({
-      ...shop,
+      name: shop.name,
       floorId: shop.floor?.id,
+      isVeg: shop.isVeg,
+      isOpen: shop.isOpen,
+      avgRating: shop.avgRating,
     });
     this.showShopForm.set(true);
   }
@@ -164,12 +165,14 @@ export class FloorManagementComponent implements OnInit {
   saveShop(): void {
     if (this.shopForm.invalid) return;
     this.saving.set(true);
-    const data = this.shopForm.getRawValue();
+    const raw = this.shopForm.getRawValue();
+    const { floorId, ...rest } = raw;
+    const data = { ...rest, floor: { id: floorId } };
     const editing = this.editingShop();
 
     const obs = editing
-      ? this.manager.updateShop(editing.id, data)   // PUT /shop/update/{id}
-      : this.manager.createShop(data);              // POST /shop/create
+      ? this.manager.updateShop(editing.id, data)   // PUT /api/shops/{id}
+      : this.manager.createShop(data);              // POST /api/shops
 
     obs.subscribe({
       next: () => {
@@ -198,8 +201,8 @@ export class FloorManagementComponent implements OnInit {
   }
 
   reassignShopFloor(shop: Restaurant, floorId: number): void {
-    // PUT /shop/update/{id}
-    this.manager.updateShop(shop.id, { ...shop, floorId } as any).subscribe({
+    // PUT /api/shops/{id}
+    this.manager.updateShop(shop.id, { ...shop, floor: { id: floorId, floorNumber: 0, isActive: true } }).subscribe({
       next: () => {
         this.notify.success(`${shop.name} moved to new floor!`);
         this.loadAll();

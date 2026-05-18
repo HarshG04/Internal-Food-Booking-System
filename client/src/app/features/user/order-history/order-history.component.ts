@@ -9,7 +9,7 @@ import { MatChipsModule } from '@angular/material/chips';
 
 import { OrderService } from '../../../core/services/order.service';
 import { AuthService } from '../../../core/services/auth.service';
-import { Order } from '../../../core/models/order.model';
+import { Order, OrderItem } from '../../../core/models/order.model';
 import { NotificationService } from '../../../core/services/notification.service';
 import { FeedbackDialogComponent } from './feedback-dialog.component';
 
@@ -32,23 +32,13 @@ export class OrderHistoryComponent implements OnInit {
   loading = signal(true);
   orders = signal<Order[]>([]);
   expandedOrderId = signal<number | null>(null);
+  orderItemsMap = signal<Record<number, OrderItem[]>>({});
+  loadingItemsFor = signal<number | null>(null);
 
-  statusColors: Record<string, string> = {
-    PENDING: '#ff9800',
-    CONFIRMED: '#2196f3',
-    PREPARING: '#9c27b0',
-    READY: '#4caf50',
+  itemStatusColors: Record<string, string> = {
+    ORDERED: '#ff9800',
+    PREPARED: '#2196f3',
     DELIVERED: '#388e3c',
-    CANCELLED: '#f44336',
-  };
-
-  statusIcons: Record<string, string> = {
-    PENDING: 'hourglass_empty',
-    CONFIRMED: 'check_circle_outline',
-    PREPARING: 'restaurant',
-    READY: 'done_all',
-    DELIVERED: 'local_shipping',
-    CANCELLED: 'cancel',
   };
 
   constructor(
@@ -59,9 +49,10 @@ export class OrderHistoryComponent implements OnInit {
   ) {}
 
   ngOnInit(): void {
-    // GET /order/getByEmployee/{employeeId}
-    const user = this.auth.currentUser();
-    const employeeId = user?.employeeId ?? String(user?.id ?? '');
+    // GET /api/orders/employee/{employeeId}
+    const employeeId = this.auth.getUserId();
+    if (!employeeId) { this.loading.set(false); return; }
+
     this.orderService.getMyOrders(employeeId).subscribe({
       next: (orders) => {
         this.orders.set(orders.sort((a, b) =>
@@ -77,27 +68,37 @@ export class OrderHistoryComponent implements OnInit {
   }
 
   toggleExpand(orderId: number): void {
-    this.expandedOrderId.set(
-      this.expandedOrderId() === orderId ? null : orderId
-    );
+    const isExpanding = this.expandedOrderId() !== orderId;
+    this.expandedOrderId.set(isExpanding ? orderId : null);
+
+    if (isExpanding && !this.orderItemsMap()[orderId]) {
+      this.loadingItemsFor.set(orderId);
+      // GET /api/order-items/order/{orderId}
+      this.orderService.getOrderItemsByOrder(orderId).subscribe({
+        next: (items) => {
+          this.orderItemsMap.update(m => ({ ...m, [orderId]: items }));
+          this.loadingItemsFor.set(null);
+        },
+        error: () => this.loadingItemsFor.set(null),
+      });
+    }
   }
 
-  openFeedback(order: Order): void {
+  openFeedback(item: OrderItem): void {
     const ref = this.dialog.open(FeedbackDialogComponent, {
-      data: { order },
+      data: { orderItem: item },
       width: '420px',
     });
     ref.afterClosed().subscribe((result) => {
       if (result) {
-        // POST /feedback/create
+        // POST /api/feedbacks
         this.orderService.createFeedback({
-          orderId: order.id,
+          orderItem: { id: item.id },
           rating: result.rating,
-          comment: result.comment,
+          review: result.comment,
+          reviewedAt: new Date().toISOString(),
         }).subscribe({
-          next: () => {
-            this.notify.success('Thank you for your feedback!');
-          },
+          next: () => this.notify.success('Thank you for your feedback!'),
           error: () => this.notify.error('Failed to submit feedback.'),
         });
       }

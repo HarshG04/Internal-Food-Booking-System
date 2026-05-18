@@ -40,9 +40,8 @@ export class LoginComponent {
   hidePassword = signal(true);
 
   form = this.fb.nonNullable.group({
-    identifier: ['', [Validators.required]],
+    email: ['', [Validators.required, Validators.email]],
     password: ['', [Validators.required, Validators.minLength(4)]],
-    role: ['USER' as 'USER' | 'VENDOR' | 'MANAGER', Validators.required],
   });
 
   constructor() {
@@ -55,10 +54,10 @@ export class LoginComponent {
     if (this.form.invalid) return;
     this.loading.set(true);
 
-    const { identifier, password, role } = this.form.getRawValue();
-    this.auth.login({ identifier, password, role }).subscribe({
+    const { email, password } = this.form.getRawValue();
+    this.auth.login({ email, password }).subscribe({
       next: (res) => {
-        this.notify.success(`Welcome back, ${res.user.name}!`);
+        this.notify.success(`Welcome back, ${res.user.fullName}!`);
         this.redirectByRole(res.user.role);
       },
       error: (err) => {
@@ -72,14 +71,7 @@ export class LoginComponent {
 
   private redirectByRole(role: string | null): void {
     if (role === 'VENDOR') this.router.navigate(['/vendor/dashboard']);
-    else if (role === 'MANAGER') this.router.navigate(['/manager/dashboard']);
+    else if (role === 'ADMIN') this.router.navigate(['/manager/dashboard']);
     else this.router.navigate(['/home']);
-  }
-
-  get roleLabel(): string {
-    const r = this.form.get('role')?.value;
-    if (r === 'VENDOR') return 'Vendor ID';
-    if (r === 'MANAGER') return 'Manager ID';
-    return 'Employee ID / Company Email';
   }
 }

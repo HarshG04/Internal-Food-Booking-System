@@ -63,21 +63,12 @@ export class ManagerDashboardComponent implements OnInit {
           totalRevenue: orders.reduce((s, o) => s + o.totalAmount, 0),
         });
 
-        // Build per-shop revenue
-        const shopRevMap: Record<number, { name: string; revenue: number; orders: number }> = {};
-        shops.forEach(s => {
-          shopRevMap[s.id] = { name: s.name, revenue: 0, orders: 0 };
-        });
-        orders.forEach(o => {
-          if (shopRevMap[o.restaurantId]) {
-            shopRevMap[o.restaurantId].revenue += o.totalAmount;
-            shopRevMap[o.restaurantId].orders++;
-          }
-        });
-        const sorted = Object.values(shopRevMap)
-          .sort((a, b) => b.revenue - a.revenue)
-          .slice(0, 5);
-        this.topShops.set(sorted);
+        // Top shops by avg rating (order-to-shop mapping not available in API)
+        const topRated = [...shops]
+          .sort((a, b) => b.avgRating - a.avgRating)
+          .slice(0, 5)
+          .map(s => ({ name: s.name, revenue: 0, orders: 0 }));
+        this.topShops.set(topRated);
 
         this.loading.set(false);
       },

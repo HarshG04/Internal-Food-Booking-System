@@ -6,7 +6,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
-import { Order } from '../../../core/models/order.model';
+import { Order, OrderItem } from '../../../core/models/order.model';
 
 @Component({
   selector: 'app-feedback-dialog',
@@ -23,7 +23,7 @@ import { Order } from '../../../core/models/order.model';
   template: `
     <div class="feedback-dialog">
       <h2 mat-dialog-title>Rate Your Order</h2>
-      <p class="order-ref">{{ data.order.restaurantName }} · #{{ data.order.id }}</p>
+      <p class="order-ref">{{ data.orderItem.foodItem.name }} · Order #{{ data.orderItem.order.id }}</p>
 
       <div class="stars">
         @for (star of [1,2,3,4,5]; track star) {
@@ -94,7 +94,7 @@ export class FeedbackDialogComponent {
 
   constructor(
     public dialogRef: MatDialogRef<FeedbackDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { order: Order }
+    @Inject(MAT_DIALOG_DATA) public data: { orderItem: OrderItem }
   ) {}
 
   submit(): void {

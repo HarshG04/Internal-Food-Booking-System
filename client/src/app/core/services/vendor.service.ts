@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { FoodItem, MenuUpdateRequest } from '../models/food-item.model';
-import { Order } from '../models/order.model';
-import { VendorRevenueReport } from '../models/revenue.model';
+import { Order, OrderItem } from '../models/order.model';
 import { User } from '../models/user.model';
+import { Restaurant } from '../models/restaurant.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -13,58 +13,62 @@ export class VendorService {
 
   constructor(private http: HttpClient) {}
 
-  // ── FOOD ITEMS (vendor scope uses /fooditem/* endpoints) ──
-  // GET /fooditem/getByShop/{shopId}
+  // ── FOOD ITEMS (vendor scope) ────────────────────────────
+  // GET /api/food-items/shop/{shopId}
   getMenuByShop(shopId: number): Observable<FoodItem[]> {
-    return this.http.get<FoodItem[]>(`${this.baseUrl}/fooditem/getByShop/${shopId}`, { withCredentials: true });
+    return this.http.get<FoodItem[]>(`${this.baseUrl}/food-items/shop/${shopId}`);
   }
-  // POST /fooditem/create
+  // POST /api/food-items
   addMenuItem(item: MenuUpdateRequest): Observable<FoodItem> {
-    return this.http.post<FoodItem>(`${this.baseUrl}/fooditem/create`, item, { withCredentials: true });
+    return this.http.post<FoodItem>(`${this.baseUrl}/food-items`, item);
   }
-  // PUT /fooditem/update/{id}
+  // PUT /api/food-items/{id}
   updateMenuItem(id: number, item: MenuUpdateRequest): Observable<FoodItem> {
-    return this.http.put<FoodItem>(`${this.baseUrl}/fooditem/update/${id}`, item, { withCredentials: true });
+    return this.http.put<FoodItem>(`${this.baseUrl}/food-items/${id}`, item);
   }
-  // DELETE /fooditem/delete/{id}
+  // DELETE /api/food-items/{id}
   deleteMenuItem(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/fooditem/delete/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/food-items/${id}`);
   }
 
-  // ── ORDERS (vendor uses /orderitem/* endpoints) ──────────
-  // GET /orderitem/getByStatus/{status}
-  getOrdersByStatus(status: string): Observable<any[]> {
-    return this.http.get<any[]>(`${this.baseUrl}/orderitem/getByStatus/${status}`, { withCredentials: true });
+  // ── ORDERS (vendor uses order-items endpoints) ───────────
+  // GET /api/order-items/status/{status}
+  getOrderItemsByStatus(status: string): Observable<OrderItem[]> {
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items/status/${status}`);
   }
-  // GET /order/getAll  (vendor sees all orders for their shop)
+  // GET /api/orders
   getVendorOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/order/getAll`, { withCredentials: true });
+    return this.http.get<Order[]>(`${this.baseUrl}/orders`);
   }
-  // PUT /orderitem/updateStatus/{id}
-  updateOrderItemStatus(id: number, status: string): Observable<any> {
-    return this.http.put<any>(`${this.baseUrl}/orderitem/updateStatus/${id}`, { status }, { withCredentials: true });
+  // PATCH /api/order-items/{id}/status?status=
+  updateOrderItemStatus(id: number, status: string): Observable<OrderItem> {
+    const params = new HttpParams().set('status', status);
+    return this.http.patch<OrderItem>(`${this.baseUrl}/order-items/${id}/status`, null, { params });
   }
 
-  // ── USER (manager/vendor admin) ──────────────────────────
-  // GET /user/getAllUsers
+  // ── SHOPS ────────────────────────────────────────────────
+  // GET /api/shops — find vendor's shop by matching vendor.employeeId
+  getAllShops(): Observable<Restaurant[]> {
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops`);
+  }
+
+  // ── USERS (admin) ────────────────────────────────────────
+  // GET /api/users
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.baseUrl}/user/getAllUsers`, { withCredentials: true });
+    return this.http.get<User[]>(`${this.baseUrl}/users`);
   }
-  // GET /user/getByEmployeeId/{empId}
-  getUserByEmployeeId(empId: string): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/user/getByEmployeeId/${empId}`, { withCredentials: true });
+  // GET /api/users/{employeeId}
+  getUserByEmployeeId(empId: number): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/users/${empId}`);
   }
-  // GET /user/getByEmail/{email}
+  // GET /api/users/by-email?email=
   getUserByEmail(email: string): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/user/getByEmail/${email}`, { withCredentials: true });
+    const params = new HttpParams().set('email', email);
+    return this.http.get<User>(`${this.baseUrl}/users/by-email`, { params });
   }
-  // PUT /user/setActive/{id}
-  setUserActive(id: number, active: boolean): Observable<User> {
-    return this.http.put<User>(`${this.baseUrl}/user/setActive/${id}`, { active }, { withCredentials: true });
-  }
-
-  // Revenue (placeholder — wire to actual backend if implemented)
-  getRevenue(): Observable<VendorRevenueReport> {
-    return this.http.get<VendorRevenueReport>(`${this.baseUrl}/order/getAll`, { withCredentials: true }) as any;
+  // PATCH /api/users/{employeeId}/active?active=
+  setUserActive(employeeId: number, active: boolean): Observable<User> {
+    const params = new HttpParams().set('active', String(active));
+    return this.http.patch<User>(`${this.baseUrl}/users/${employeeId}/active`, null, { params });
   }
 }

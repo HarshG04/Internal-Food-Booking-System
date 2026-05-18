@@ -112,7 +112,7 @@ export class ManagerRevenueComponent implements OnInit {
         const stats: ShopRevStat[] = shops.map(s => ({
           shopId: s.id,
           shopName: s.name,
-          floor: s.floor?.name ?? 'Unassigned',
+          floor: s.floor ? 'Floor ' + s.floor.floorNumber : 'Unassigned',
           totalRevenue: orders.filter(o => o.restaurantId === s.id).reduce((sum, o) => sum + o.totalAmount, 0),
           totalOrders: orders.filter(o => o.restaurantId === s.id).length,
         })).sort((a, b) => b.totalRevenue - a.totalRevenue);

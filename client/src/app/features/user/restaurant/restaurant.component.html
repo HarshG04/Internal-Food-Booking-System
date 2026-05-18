@@ -5,71 +5,54 @@
     </div>
   } @else if (restaurant()) {
     <!-- Hero -->
-    <div class="restaurant-hero" [style.backgroundImage]="'url(' + (restaurant()!.imageUrl || 'assets/restaurant-placeholder.png') + ')'">
+    <div class="restaurant-hero">
       <div class="hero-overlay">
         <a mat-icon-button routerLink="/home" class="back-btn">
           <mat-icon>arrow_back</mat-icon>
         </a>
         <div class="hero-info">
           <h1>{{ restaurant()!.name }}</h1>
-          <p>{{ restaurant()!.cuisine }}</p>
+          <p>{{ restaurant()!.isVeg ? '🟢 Vegetarian' : '🍽️ Non-Vegetarian' }}</p>
           <div class="hero-meta">
-            <span>⭐ {{ restaurant()!.rating }} ({{ restaurant()!.totalRatings }} ratings)</span>
-            <span>📍 {{ restaurant()!.floor.name }}</span>
-            <span>⏱ {{ restaurant()!.avgPrepTime }} min avg</span>
+            <span>⭐ {{ restaurant()!.avgRating | number:'1.1-1' }}</span>
+            <span>📍 Floor {{ restaurant()!.floor.floorNumber }}</span>
             <span class="open-status" [class.open]="restaurant()!.isOpen">
               {{ restaurant()!.isOpen ? '🟢 Open' : '🔴 Closed' }}
             </span>
           </div>
-          <p class="description">{{ restaurant()!.description }}</p>
         </div>
       </div>
     </div>
 
-    <!-- Category Filter -->
-    <div class="category-bar">
-      @for (cat of categories; track cat) {
-        <button
-          class="cat-chip"
-          [class.active]="selectedCategory() === cat"
-          (click)="selectedCategory.set(cat)"
-        >
-          {{ cat }}
-        </button>
-      }
-    </div>
-
     <!-- Menu Items -->
     <div class="menu-container">
-      @if (filteredItems.length === 0) {
+      @if (items().length === 0) {
         <div class="empty-state">
           <span>🍽️</span>
-          <p>No items in this category</p>
+          <p>No items available</p>
         </div>
       } @else {
         <div class="menu-grid">
-          @for (item of filteredItems; track item.id) {
-            <div class="menu-item" [class.unavailable]="!item.isAvailable">
-              <img [src]="item.imageUrl || 'assets/food-placeholder.png'" [alt]="item.name" class="item-img" />
+          @for (item of items(); track item.id) {
+            <div class="menu-item" [class.unavailable]="item.stockQuantity === 0">
+              <img src="assets/food-placeholder.png" [alt]="item.name" class="item-img" />
               <div class="item-details">
                 <div class="item-header">
                   <div>
                     <span class="veg-dot" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
                     <h4>{{ item.name }}</h4>
                   </div>
-                  @if (!item.isAvailable) {
-                    <span class="unavail-tag">Unavailable</span>
+                  @if (item.stockQuantity === 0) {
+                    <span class="unavail-tag">Out of Stock</span>
                   }
                 </div>
-                <p class="item-desc">{{ item.description }}</p>
                 <div class="item-meta">
-                  <span><mat-icon>schedule</mat-icon>{{ item.prepTime }} min</span>
-                  <span>⭐ {{ item.rating }}</span>
-                  <span class="item-cat">{{ item.category }}</span>
+                  <span><mat-icon>schedule</mat-icon>{{ item.prepTimeMins }} min</span>
+                  <span>⭐ {{ item.avgRating | number:'1.1-1' }}</span>
                 </div>
                 <div class="item-footer">
                   <span class="price">₹{{ item.price }}</span>
-                  @if (item.isAvailable) {
+                  @if (item.stockQuantity > 0) {
                     <div class="cart-controls">
                       @if (getQuantity(item.id) === 0) {
                         <button mat-stroked-button class="add-btn" (click)="addToCart(item, $event)">

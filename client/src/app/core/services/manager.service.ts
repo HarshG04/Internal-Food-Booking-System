@@ -1,8 +1,7 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Floor, Restaurant } from '../models/restaurant.model';
-import { FloorAssignment, FloorAssignRequest } from '../models/revenue.model';
 import { User } from '../models/user.model';
 import { Order } from '../models/order.model';
 import { environment } from '../../../environments/environment';
@@ -14,78 +13,72 @@ export class ManagerService {
   constructor(private http: HttpClient) {}
 
   // ── FLOOR ──────────────────────────────────────────────
-  // GET /floor/getAll
+  // GET /api/floors
   getAllFloors(): Observable<Floor[]> {
-    return this.http.get<Floor[]>(`${this.baseUrl}/floor/getAll`, { withCredentials: true });
+    return this.http.get<Floor[]>(`${this.baseUrl}/floors`);
   }
-  // GET /floor/getActive
+  // GET /api/floors/active
   getActiveFloors(): Observable<Floor[]> {
-    return this.http.get<Floor[]>(`${this.baseUrl}/floor/getActive`, { withCredentials: true });
+    return this.http.get<Floor[]>(`${this.baseUrl}/floors/active`);
   }
-  // POST /floor/create
+  // POST /api/floors
   createFloor(floor: Partial<Floor>): Observable<Floor> {
-    return this.http.post<Floor>(`${this.baseUrl}/floor/create`, floor, { withCredentials: true });
+    return this.http.post<Floor>(`${this.baseUrl}/floors`, floor);
   }
-  // PUT /floor/update/{id}
+  // PUT /api/floors/{id}
   updateFloor(id: number, floor: Partial<Floor>): Observable<Floor> {
-    return this.http.put<Floor>(`${this.baseUrl}/floor/update/${id}`, floor, { withCredentials: true });
+    return this.http.put<Floor>(`${this.baseUrl}/floors/${id}`, floor);
   }
-  // DELETE /floor/delete/{id}
+  // DELETE /api/floors/{id}
   deleteFloor(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/floor/delete/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/floors/${id}`);
   }
 
   // ── SHOP ───────────────────────────────────────────────
-  // GET /shop/getAll
+  // GET /api/shops
   getAllShops(): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(`${this.baseUrl}/shop/getAll`, { withCredentials: true });
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops`);
   }
-  // GET /shop/getByFloor/{floorId}
+  // GET /api/shops/floor/{floorId}
   getShopsByFloor(floorId: number): Observable<Restaurant[]> {
-    return this.http.get<Restaurant[]>(`${this.baseUrl}/shop/getByFloor/${floorId}`, { withCredentials: true });
+    return this.http.get<Restaurant[]>(`${this.baseUrl}/shops/floor/${floorId}`);
   }
-  // POST /shop/create
+  // POST /api/shops
   createShop(shop: Partial<Restaurant>): Observable<Restaurant> {
-    return this.http.post<Restaurant>(`${this.baseUrl}/shop/create`, shop, { withCredentials: true });
+    return this.http.post<Restaurant>(`${this.baseUrl}/shops`, shop);
   }
-  // PUT /shop/update/{id}
+  // PUT /api/shops/{id}
   updateShop(id: number, shop: Partial<Restaurant>): Observable<Restaurant> {
-    return this.http.put<Restaurant>(`${this.baseUrl}/shop/update/${id}`, shop, { withCredentials: true });
+    return this.http.put<Restaurant>(`${this.baseUrl}/shops/${id}`, shop);
   }
-  // DELETE /shop/delete/{id}
+  // DELETE /api/shops/{id}
   deleteShop(id: number): Observable<void> {
-    return this.http.delete<void>(`${this.baseUrl}/shop/delete/${id}`, { withCredentials: true });
+    return this.http.delete<void>(`${this.baseUrl}/shops/${id}`);
   }
 
   // ── USER ───────────────────────────────────────────────
-  // GET /user/getAllUsers
+  // GET /api/users
   getAllUsers(): Observable<User[]> {
-    return this.http.get<User[]>(`${this.baseUrl}/user/getAllUsers`, { withCredentials: true });
+    return this.http.get<User[]>(`${this.baseUrl}/users`);
   }
-  // GET /user/getByEmployeeId/{empId}
-  getUserByEmployeeId(empId: string): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/user/getByEmployeeId/${empId}`, { withCredentials: true });
+  // GET /api/users/{employeeId}
+  getUserByEmployeeId(empId: number): Observable<User> {
+    return this.http.get<User>(`${this.baseUrl}/users/${empId}`);
   }
-  // GET /user/getByEmail/{email}
+  // GET /api/users/by-email?email=
   getUserByEmail(email: string): Observable<User> {
-    return this.http.get<User>(`${this.baseUrl}/user/getByEmail/${email}`, { withCredentials: true });
+    const params = new HttpParams().set('email', email);
+    return this.http.get<User>(`${this.baseUrl}/users/by-email`, { params });
   }
-  // PUT /user/setActive/{id}
-  setUserActive(id: number, active: boolean): Observable<User> {
-    return this.http.put<User>(`${this.baseUrl}/user/setActive/${id}`, { active }, { withCredentials: true });
+  // PATCH /api/users/{employeeId}/active?active=
+  setUserActive(employeeId: number, active: boolean): Observable<User> {
+    const params = new HttpParams().set('active', String(active));
+    return this.http.patch<User>(`${this.baseUrl}/users/${employeeId}/active`, null, { params });
   }
 
   // ── ORDERS (revenue view) ──────────────────────────────
-  // GET /order/getAll
+  // GET /api/orders
   getAllOrders(): Observable<Order[]> {
-    return this.http.get<Order[]>(`${this.baseUrl}/order/getAll`, { withCredentials: true });
-  }
-
-  // ── FLOOR ASSIGNMENTS (shop-floor linking via shop.floorId) ──
-  getFloorAssignments(): Observable<FloorAssignment[]> {
-    return this.http.get<FloorAssignment[]>(`${this.baseUrl}/shop/getAll`, { withCredentials: true }) as any;
-  }
-  assignFloor(request: FloorAssignRequest): Observable<FloorAssignment> {
-    return this.http.put<FloorAssignment>(`${this.baseUrl}/shop/update/${request.vendorId}`, { floorId: request.floorId }, { withCredentials: true }) as any;
+    return this.http.get<Order[]>(`${this.baseUrl}/orders`);
   }
 }

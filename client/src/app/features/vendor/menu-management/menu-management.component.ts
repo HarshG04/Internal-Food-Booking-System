@@ -47,6 +47,7 @@ export class MenuManagementComponent implements OnInit {
   showForm = signal(false);
 
   categories = ['Starters', 'Main Course', 'Snacks', 'Beverages', 'Desserts', 'Combos'];
+  shopId = 0;
 
   form: FormGroup;
 
@@ -58,25 +59,30 @@ export class MenuManagementComponent implements OnInit {
   ) {
     this.form = this.fb.group({
       name: ['', Validators.required],
-      description: [''],
       price: [0, [Validators.required, Validators.min(1)]],
-      category: ['', Validators.required],
-      prepTime: [10, Validators.required],
+      stockQuantity: [50, [Validators.required, Validators.min(0)]],
+      prepTimeMins: [10, Validators.required],
       isVeg: [true],
-      isAvailable: [true],
-      stock: [50, Validators.min(0)],
-      imageUrl: [''],
+      avgRating: [0],
     });
   }
 
   ngOnInit(): void {
-    this.loadMenu();
+    // Find vendor's shop first
+    const employeeId = this.auth.currentUser()?.employeeId ?? 0;
+    this.vendor.getAllShops().subscribe({
+      next: (shops) => {
+        const myShop = shops.find(s => s.vendor?.employeeId === employeeId);
+        this.shopId = myShop?.id ?? 0;
+        this.loadMenu();
+      },
+      error: () => this.loading.set(false),
+    });
   }
 
   loadMenu(): void {
-    const shopId = this.auth.currentUser()?.id ?? 0;
-    // GET /fooditem/getByShop/{shopId}
-    this.vendor.getMenuByShop(shopId).subscribe({
+    // GET /api/food-items/shop/{shopId}
+    this.vendor.getMenuByShop(this.shopId).subscribe({
       next: (items) => {
         this.menuItems.set(items);
         this.loading.set(false);
@@ -87,7 +93,7 @@ export class MenuManagementComponent implements OnInit {
 
   openAdd(): void {
     this.editingItem.set(null);
-    this.form.reset({ isVeg: true, isAvailable: true, stock: 50, prepTime: 10 });
+    this.form.reset({ isVeg: true, stockQuantity: 50, prepTimeMins: 10, avgRating: 0 });
     this.showForm.set(true);
   }
 
@@ -105,12 +111,17 @@ export class MenuManagementComponent implements OnInit {
   saveItem(): void {
     if (this.form.invalid) return;
     this.saving.set(true);
-    const data = this.form.getRawValue();
+    const formData = this.form.getRawValue();
     const editing = this.editingItem();
 
+    const data = {
+      ...formData,
+      shop: { id: this.shopId },
+    };
+
     const obs = editing
-      ? this.vendor.updateMenuItem(editing.id, data) // PUT /fooditem/update/{id}
-      : this.vendor.addMenuItem(data);              // POST /fooditem/create
+      ? this.vendor.updateMenuItem(editing.id, data) // PUT /api/food-items/{id}
+      : this.vendor.addMenuItem(data);              // POST /api/food-items
 
     obs.subscribe({
       next: () => {
@@ -128,7 +139,7 @@ export class MenuManagementComponent implements OnInit {
 
   deleteItem(item: FoodItem): void {
     if (!confirm(`Delete "${item.name}"?`)) return;
-    // DELETE /fooditem/delete/{id}
+    // DELETE /api/food-items/{id}
     this.vendor.deleteMenuItem(item.id).subscribe({
       next: () => {
         this.notify.success('Item removed from menu.');
@@ -139,10 +150,11 @@ export class MenuManagementComponent implements OnInit {
   }
 
   toggleAvailability(item: FoodItem): void {
-    // PUT /fooditem/update/{id}
-    this.vendor.updateMenuItem(item.id, { ...item, isAvailable: !item.isAvailable }).subscribe({
+    // PUT /api/food-items/{id} - toggle stock to 0 to disable
+    const updated = { ...item, stockQuantity: item.stockQuantity > 0 ? 0 : 10, shop: { id: this.shopId } };
+    this.vendor.updateMenuItem(item.id, updated).subscribe({
       next: () => this.loadMenu(),
-      error: () => this.notify.error('Failed to update availability.'),
+      error: () => this.notify.error('Failed to update item.'),
     });
   }
 }

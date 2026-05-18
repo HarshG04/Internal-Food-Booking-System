@@ -50,7 +50,7 @@ export class HomeComponent implements OnInit {
 
   user = this.auth.currentUser;
   firstName = computed(() => {
-    const name = this.user()?.name;
+    const name = this.user()?.fullName;
     return name ? name.split(' ')[0] : 'there';
   });
 
@@ -104,7 +104,7 @@ export class HomeComponent implements OnInit {
     event.stopPropagation();
 
     const cartRestaurantId = this.cart.getRestaurantId();
-    if (cartRestaurantId && cartRestaurantId !== item.restaurantId) {
+    if (cartRestaurantId && cartRestaurantId !== item.shop.id) {
       this.notify.error(
         'Your cart has items from a different restaurant. Clear cart first.'
       );
@@ -128,9 +128,7 @@ export class HomeComponent implements OnInit {
     const q = this.searchQuery().toLowerCase();
     if (!q) return this.restaurants();
     return this.restaurants().filter(
-      (r) =>
-        r.name.toLowerCase().includes(q) ||
-        r.cuisine.toLowerCase().includes(q)
+      (r) => r.name.toLowerCase().includes(q)
     );
   }
 

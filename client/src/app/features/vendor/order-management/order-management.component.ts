@@ -10,9 +10,9 @@ import { MatTabsModule } from '@angular/material/tabs';
 
 import { VendorService } from '../../../core/services/vendor.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { Order } from '../../../core/models/order.model';
+import { OrderItem, OrderItemStatus } from '../../../core/models/order.model';
 
-type StatusFilter = 'ALL' | 'PENDING' | 'PREPARING' | 'READY' | 'DELIVERED';
+type StatusFilter = 'ALL' | OrderItemStatus;
 
 @Component({
   selector: 'app-order-management',
@@ -32,26 +32,27 @@ type StatusFilter = 'ALL' | 'PENDING' | 'PREPARING' | 'READY' | 'DELIVERED';
 })
 export class OrderManagementComponent implements OnInit {
   loading = signal(true);
-  orders = signal<Order[]>([]);
+  orderItems = signal<OrderItem[]>([]);
   activeFilter = signal<StatusFilter>('ALL');
   updatingId = signal<number | null>(null);
 
-  filters: StatusFilter[] = ['ALL', 'PENDING', 'PREPARING', 'READY', 'DELIVERED'];
+  filters: StatusFilter[] = ['ALL', 'ORDERED', 'PREPARED', 'DELIVERED'];
 
-  filteredOrders = computed(() => {
+  filteredItems = computed(() => {
     const f = this.activeFilter();
-    const all = this.orders();
-    return f === 'ALL' ? all : all.filter(o => o.status === f);
+    const all = this.orderItems();
+    return f === 'ALL' ? all : all.filter(i => i.status === f);
   });
 
   countFor(status: StatusFilter): number {
-    if (status === 'ALL') return this.orders().length;
-    return this.orders().filter(o => o.status === status).length;
+    if (status === 'ALL') return this.orderItems().length;
+    return this.orderItems().filter(i => i.status === status).length;
   }
 
   statusColors: Record<string, string> = {
-    PENDING: '#ff9800', CONFIRMED: '#2196f3', PREPARING: '#9c27b0',
-    READY: '#4caf50', DELIVERED: '#388e3c', CANCELLED: '#f44336',
+    ORDERED: '#ff9800',
+    PREPARED: '#2196f3',
+    DELIVERED: '#388e3c',
   };
 
   constructor(
@@ -64,75 +65,66 @@ export class OrderManagementComponent implements OnInit {
   }
 
   load(): void {
-    // GET /order/getAll
-    this.vendor.getVendorOrders().subscribe({
-      next: (orders) => {
-        this.orders.set(
-          orders.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
-        );
-        this.loading.set(false);
+    // GET /api/order-items/status/ORDERED + GET /api/order-items/status/PREPARED
+    // Load all active order items (ORDERED and PREPARED)
+    this.vendor.getOrderItemsByStatus('ORDERED').subscribe({
+      next: (ordered) => {
+        this.vendor.getOrderItemsByStatus('PREPARED').subscribe({
+          next: (prepared) => {
+            this.vendor.getOrderItemsByStatus('DELIVERED').subscribe({
+              next: (delivered) => {
+                const all = [...ordered, ...prepared, ...delivered]
+                  .sort((a, b) => (b.order?.id ?? 0) - (a.order?.id ?? 0));
+                this.orderItems.set(all);
+                this.loading.set(false);
+              },
+              error: () => this.loading.set(false),
+            });
+          },
+          error: () => this.loading.set(false),
+        });
       },
       error: () => this.loading.set(false),
     });
   }
 
-  markPrepared(order: Order): void {
-    this.updatingId.set(order.id);
-    // PUT /orderitem/updateStatus/{id} → PREPARING
-    this.vendor.updateOrderItemStatus(order.id, 'PREPARING').subscribe({
+  markPrepared(item: OrderItem): void {
+    this.updatingId.set(item.id);
+    // PATCH /api/order-items/{id}/status?status=PREPARED
+    this.vendor.updateOrderItemStatus(item.id, 'PREPARED').subscribe({
       next: () => {
-        this.notify.success(`Order #${order.tokenNumber} marked as Preparing`);
-        this.orders.update(list =>
-          list.map(o => o.id === order.id ? { ...o, status: 'PREPARING' } : o)
+        this.notify.success(`Item marked as Prepared`);
+        this.orderItems.update(list =>
+          list.map(i => i.id === item.id ? { ...i, status: 'PREPARED' as OrderItemStatus } : i)
         );
         this.updatingId.set(null);
       },
       error: () => {
-        this.notify.error('Failed to update order status.');
+        this.notify.error('Failed to update status.');
         this.updatingId.set(null);
       },
     });
   }
 
-  markReady(order: Order): void {
-    this.updatingId.set(order.id);
-    this.vendor.updateOrderItemStatus(order.id, 'READY').subscribe({
+  markDelivered(item: OrderItem): void {
+    this.updatingId.set(item.id);
+    // PATCH /api/order-items/{id}/status?status=DELIVERED
+    this.vendor.updateOrderItemStatus(item.id, 'DELIVERED').subscribe({
       next: () => {
-        this.notify.success(`Order #${order.tokenNumber} is Ready for pickup!`);
-        this.orders.update(list =>
-          list.map(o => o.id === order.id ? { ...o, status: 'READY' } : o)
+        this.notify.success(`Item marked as Delivered`);
+        this.orderItems.update(list =>
+          list.map(i => i.id === item.id ? { ...i, status: 'DELIVERED' as OrderItemStatus } : i)
         );
         this.updatingId.set(null);
       },
       error: () => {
-        this.notify.error('Failed to update order status.');
+        this.notify.error('Failed to update status.');
         this.updatingId.set(null);
       },
     });
   }
 
-  markDelivered(order: Order): void {
-    this.updatingId.set(order.id);
-    this.vendor.updateOrderItemStatus(order.id, 'DELIVERED').subscribe({
-      next: () => {
-        this.notify.success(`Order #${order.tokenNumber} delivered!`);
-        this.orders.update(list =>
-          list.map(o => o.id === order.id ? { ...o, status: 'DELIVERED' } : o)
-        );
-        this.updatingId.set(null);
-      },
-      error: () => {
-        this.notify.error('Failed to update order status.');
-        this.updatingId.set(null);
-      },
-    });
-  }
-
-  timeSince(dateStr: string): string {
-    const diff = Date.now() - new Date(dateStr).getTime();
-    const mins = Math.floor(diff / 60000);
-    if (mins < 1) return 'just now';
-    if (mins < 60) return `${mins}m ago`;
-    return `${Math.floor(mins / 60)}h ago`;
+  timeSince(orderId: number | undefined): string {
+    return orderId ? `Order #${orderId}` : '';
   }
 }

@@ -24,72 +24,59 @@
 
   @if (loading()) {
     <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
-  } @else if (filteredOrders().length === 0) {
+  } @else if (filteredItems().length === 0) {
     <div class="empty-state">
       <mat-icon>inbox</mat-icon>
       <p>No orders in this status</p>
     </div>
   } @else {
     <div class="order-cards">
-      @for (order of filteredOrders(); track order.id) {
+      @for (item of filteredItems(); track item.id) {
         <div class="order-card">
           <div class="order-card-top">
             <div class="token-block">
               <mat-icon>confirmation_number</mat-icon>
-              <span class="token">#{{ order.tokenNumber }}</span>
+              <span class="token">{{ timeSince(item.order.id) }}</span>
             </div>
             <span
               class="status-pill"
-              [style.background]="statusColors[order.status] + '22'"
-              [style.color]="statusColors[order.status]"
-            >{{ order.status }}</span>
-            <span class="time-ago">{{ timeSince(order.createdAt) }}</span>
+              [style.background]="statusColors[item.status] + '22'"
+              [style.color]="statusColors[item.status]"
+            >{{ item.status }}</span>
           </div>
 
           <div class="order-items-list">
-            @for (item of order.items; track item.id) {
-              <div class="oi-row">
-                <span class="oi-name">{{ item.foodItemName }}</span>
-                <span class="oi-qty">× {{ item.quantity }}</span>
-                <span class="oi-price">₹{{ item.subtotal }}</span>
-              </div>
-            }
+            <div class="oi-row">
+              <span class="oi-name">{{ item.foodItem.name }}</span>
+              <span class="oi-qty">× {{ item.quantity }}</span>
+              <span class="oi-price">₹{{ item.subtotal }}</span>
+            </div>
           </div>
 
           <div class="order-card-footer">
-            <span class="total">Total: <strong>₹{{ order.totalAmount }}</strong></span>
+            <span class="total">Subtotal: <strong>₹{{ item.subtotal }}</strong></span>
             <div class="action-btns">
-              @if (order.status === 'PENDING' || order.status === 'CONFIRMED') {
+              @if (item.status === 'ORDERED') {
                 <button
                   mat-flat-button class="btn-prepare"
-                  [disabled]="updatingId() === order.id"
-                  (click)="markPrepared(order)"
+                  [disabled]="updatingId() === item.id"
+                  (click)="markPrepared(item)"
                 >
-                  @if (updatingId() === order.id) { <mat-spinner diameter="16"></mat-spinner> }
-                  @else { <mat-icon>restaurant</mat-icon> Start Preparing }
+                  @if (updatingId() === item.id) { <mat-spinner diameter="16"></mat-spinner> }
+                  @else { <ng-container><mat-icon>restaurant</mat-icon> Mark Prepared</ng-container> }
                 </button>
               }
-              @if (order.status === 'PREPARING') {
-                <button
-                  mat-flat-button class="btn-ready"
-                  [disabled]="updatingId() === order.id"
-                  (click)="markReady(order)"
-                >
-                  @if (updatingId() === order.id) { <mat-spinner diameter="16"></mat-spinner> }
-                  @else { <mat-icon>done_all</mat-icon> Mark Ready }
-                </button>
-              }
-              @if (order.status === 'READY') {
+              @if (item.status === 'PREPARED') {
                 <button
                   mat-flat-button class="btn-deliver"
-                  [disabled]="updatingId() === order.id"
-                  (click)="markDelivered(order)"
+                  [disabled]="updatingId() === item.id"
+                  (click)="markDelivered(item)"
                 >
-                  @if (updatingId() === order.id) { <mat-spinner diameter="16"></mat-spinner> }
-                  @else { <mat-icon>local_shipping</mat-icon> Mark Delivered }
+                  @if (updatingId() === item.id) { <mat-spinner diameter="16"></mat-spinner> }
+                  @else { <ng-container><mat-icon>local_shipping</mat-icon> Mark Delivered</ng-container> }
                 </button>
               }
-              @if (order.status === 'DELIVERED') {
+              @if (item.status === 'DELIVERED') {
                 <span class="delivered-label">✅ Completed</span>
               }
             </div>

@@ -35,7 +35,7 @@ export class NavbarComponent {
 
   user = this.auth.currentUser;
   cartCount = this.cart.cartCount;
-  isUser = computed(() => this.auth.getRole() === 'USER');
+  isUser = computed(() => this.auth.getRole() === 'EMPLOYEE');
 
   logout(): void {
     this.auth.logout();

@@ -24,13 +24,13 @@
 
   @if (user()) {
     <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
-      <div class="user-avatar">{{ user()!.name.charAt(0).toUpperCase() }}</div>
-      <span class="nav-label">{{ user()!.name }}</span>
+      <div class="user-avatar">{{ user()!.fullName.charAt(0).toUpperCase() }}</div>
+      <span class="nav-label">{{ user()!.fullName }}</span>
       <mat-icon>arrow_drop_down</mat-icon>
     </button>
     <mat-menu #userMenu="matMenu">
       <div class="user-menu-header">
-        <strong>{{ user()!.name }}</strong>
+        <strong>{{ user()!.fullName }}</strong>
         <span class="user-role-badge">{{ user()!.role }}</span>
       </div>
       <mat-divider></mat-divider>

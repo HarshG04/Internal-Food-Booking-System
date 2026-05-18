@@ -1,47 +1,45 @@
-export type OrderStatus =
-  | 'PENDING'
-  | 'CONFIRMED'
-  | 'PREPARING'
-  | 'READY'
-  | 'DELIVERED'
-  | 'CANCELLED';
+import { User } from './user.model';
+import { FoodItem } from './food-item.model';
 
-export interface OrderItem {
-  id: number;
-  foodItemId: number;
-  foodItemName: string;
-  foodItemImageUrl: string;
-  quantity: number;
-  price: number;
-  subtotal: number;
-}
+export type OrderItemStatus = 'ORDERED' | 'PREPARED' | 'DELIVERED';
+export type PaymentMethod = 'UPI' | 'CARD' | 'NETBANKING' | 'WALLET';
+export type PaymentStatus = 'PENDING' | 'SUCCESS' | 'FAILED';
 
 export interface Order {
   id: number;
-  tokenNumber: string;
-  userId: number;
-  restaurantId: number;
-  restaurantName: string;
-  items: OrderItem[];
+  user: Partial<User>;
+  tokenNo: string;
   totalAmount: number;
-  status: OrderStatus;
-  paymentStatus: 'PENDING' | 'PAID' | 'FAILED';
-  paymentMethod: string;
   createdAt: string;
-  updatedAt: string;
-  estimatedTime: number; // minutes
-  feedback?: string;
-  rating?: number;
+  restaurantId?: number;
+}
+
+export interface OrderItem {
+  id: number;
+  user: Partial<User>;
+  order: Partial<Order>;
+  foodItem: Partial<FoodItem>;
+  quantity: number;
+  status: OrderItemStatus;
+  subtotal: number;
 }
 
 export interface PlaceOrderRequest {
-  restaurantId: number;
+  userId: number;
   items: { foodItemId: number; quantity: number }[];
-  paymentMethod: string;
 }
 
 export interface FeedbackRequest {
-  orderId: number;
+  orderItem: { id: number };
   rating: number;
-  comment: string;
+  review: string;
+  reviewedAt: string;
+}
+
+export interface Feedback {
+  id: number;
+  orderItem: Partial<OrderItem>;
+  rating: number;
+  review: string;
+  reviewedAt: string;
 }

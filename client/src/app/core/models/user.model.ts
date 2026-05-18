@@ -1,20 +1,20 @@
 export interface User {
   id: number;
-  name: string;
+  employeeId: number;
   email: string;
-  employeeId: string;
-  role: 'USER' | 'VENDOR' | 'MANAGER';
-  companyName?: string;
-  phone?: string;
+  fullName: string;
+  phone: string;
+  role: 'ADMIN' | 'EMPLOYEE' | 'VENDOR';
+  createdAt: string;
+  isActive: boolean;
 }
 
 export interface LoginRequest {
-  identifier: string; // email or employeeId
+  email: string;
   password: string;
-  role: 'USER' | 'VENDOR' | 'MANAGER';
 }
 
 export interface AuthResponse {
+  token: string;
   user: User;
-  message: string;
 }
