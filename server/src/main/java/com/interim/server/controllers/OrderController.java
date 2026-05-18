@@ -1,10 +1,11 @@
 package com.interim.server.controllers;
 
-import com.interim.server.dtos.PlaceOrderRequest;
+
+
+
 import com.interim.server.models.Order;
 import com.interim.server.services.OrderService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -15,8 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class OrderController {
 
-    @Autowired
-    private OrderService orderService;
+    private final OrderService orderService;
 
     @GetMapping
     public List<Order> getAllOrders() {
@@ -42,20 +42,25 @@ public class OrderController {
         return orderService.getOrdersByEmployee(employeeId);
     }
 
-//    @PostMapping("/place")
-//    public ResponseEntity<Order> placeOrder(@RequestBody PlaceOrderRequest request) {
-//        return ResponseEntity.ok(orderService.placeOrder(request.getUserId(), request.getItems()));
-//    }
+    /**
+     * POST /api/orders/place
+     * Body: { "userId": 1, "items": [ { "foodItemId": 3, "quantity": 2 }, ... ] }
+     * Creates the order + all order items atomically and returns the order with its unique 4-digit token.
+     */
+    @PostMapping("/place")
+    public ResponseEntity<Order> placeOrder(@RequestBody PlaceOrderRequest request) {
+        return ResponseEntity.ok(orderService.placeOrder(request.getUserId(), request.getItems()));
+    }
 
     @PostMapping
     public ResponseEntity<Order> createOrder(@RequestBody Order order) {
         return ResponseEntity.ok(orderService.createOrder(order));
     }
 
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Order> updateOrder(@PathVariable Integer id, @RequestBody Order order) {
-//        return ResponseEntity.ok(orderService.updateOrder(id, order));
-//    }
+    @PutMapping("/{id}")
+    public ResponseEntity<Order> updateOrder(@PathVariable Integer id, @RequestBody Order order) {
+        return ResponseEntity.ok(orderService.updateOrder(id, order));
+    }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
@@ -63,5 +68,6 @@ public class OrderController {
         return ResponseEntity.noContent().build();
     }
 }
+
 
 
