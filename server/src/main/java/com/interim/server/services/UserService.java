@@ -5,6 +5,7 @@ import com.interim.server.dtos.UserResponse;
 import com.interim.server.models.User;
 import com.interim.server.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -14,7 +15,8 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final UserRepository userRepository;
+    @Autowired
+    private UserRepository userRepository;
 
     public List<UserResponse> getAllUsers() {
         return userRepository.findAll()
