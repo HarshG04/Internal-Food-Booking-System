@@ -63,10 +63,5 @@ public class User {
     @EqualsAndHashCode.Exclude
     private List<Order> orders;
 
-    @JsonIgnore
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    @ToString.Exclude
-    @EqualsAndHashCode.Exclude
-    private List<OrderItem> orderItems;
 }
 
