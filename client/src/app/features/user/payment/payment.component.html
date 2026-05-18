@@ -1,0 +1,96 @@
+<div class="payment-page">
+  @if (loading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (order()) {
+    @if (!paymentDone()) {
+      <!-- Payment Screen -->
+      <div class="payment-card">
+        <div class="payment-icon">💳</div>
+        <h2>Complete Payment</h2>
+        <p class="sub">Order #{{ order()!.id }} from {{ order()!.restaurantName }}</p>
+
+        <div class="amount-display">
+          <span class="amount-label">Total Amount</span>
+          <span class="amount">₹{{ order()!.totalAmount }}</span>
+        </div>
+
+        <div class="payment-method-info">
+          <mat-icon>payment</mat-icon>
+          <span>via {{ order()!.paymentMethod }}</span>
+        </div>
+
+        <div class="items-preview">
+          @for (item of order()!.items; track item.id) {
+            <div class="preview-row">
+              <span>{{ item.foodItemName }} × {{ item.quantity }}</span>
+              <span>₹{{ item.subtotal }}</span>
+            </div>
+          }
+        </div>
+
+        <button
+          mat-flat-button
+          class="pay-btn"
+          (click)="processPayment()"
+          [disabled]="processing()"
+        >
+          @if (processing()) {
+            <mat-spinner diameter="20" class="inline-spinner"></mat-spinner>
+            Processing...
+          } @else {
+            <mat-icon>lock</mat-icon>
+            Pay ₹{{ order()!.totalAmount }} Securely
+          }
+        </button>
+        <p class="secure-note">🔒 Your payment is 100% secure and encrypted</p>
+      </div>
+    } @else {
+      <!-- Success + Token Screen -->
+      <div class="success-card">
+        <div class="success-checkmark">
+          <div class="check-circle">
+            <mat-icon>check</mat-icon>
+          </div>
+        </div>
+        <h2>Order Confirmed! 🎉</h2>
+        <p class="congrats">Your order has been placed successfully.</p>
+
+        <div class="token-display">
+          <span class="token-label">Your Token Number</span>
+          <div class="token-number">{{ order()!.tokenNumber }}</div>
+          <p class="token-info">Show this token to the vendor at <strong>{{ order()!.restaurantName }}</strong> to collect your order.</p>
+        </div>
+
+        <div class="order-details">
+          <div class="detail-row">
+            <span>Order ID</span>
+            <strong>#{{ order()!.id }}</strong>
+          </div>
+          <div class="detail-row">
+            <span>Restaurant</span>
+            <strong>{{ order()!.restaurantName }}</strong>
+          </div>
+          <div class="detail-row">
+            <span>Est. Time</span>
+            <strong>{{ order()!.estimatedTime }} mins</strong>
+          </div>
+          <div class="detail-row">
+            <span>Amount Paid</span>
+            <strong class="paid">₹{{ order()!.totalAmount }}</strong>
+          </div>
+        </div>
+
+        <div class="action-btns">
+          <a mat-flat-button routerLink="/orders" class="orders-btn">
+            <mat-icon>receipt_long</mat-icon> View My Orders
+          </a>
+          <a mat-stroked-button routerLink="/home" class="home-btn">
+            <mat-icon>home</mat-icon> Back to Home
+          </a>
+        </div>
+      </div>
+    }
+  }
+</div>

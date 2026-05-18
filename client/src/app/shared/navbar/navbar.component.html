@@ -1,0 +1,43 @@
+<mat-toolbar class="app-navbar">
+  <button mat-icon-button class="brand-btn" (click)="goHome()">
+    <span class="brand-icon">🍽️</span>
+  </button>
+  <span class="brand-name" (click)="goHome()">FoodCourt</span>
+
+  <span class="spacer"></span>
+
+  @if (isUser()) {
+    <a mat-button routerLink="/home" routerLinkActive="nav-active">
+      <mat-icon>home</mat-icon>
+      <span class="nav-label">Home</span>
+    </a>
+    <a mat-button routerLink="/orders" routerLinkActive="nav-active">
+      <mat-icon>receipt_long</mat-icon>
+      <span class="nav-label">My Orders</span>
+    </a>
+    <a mat-icon-button routerLink="/cart" class="cart-btn">
+      <mat-icon [matBadge]="cartCount() || null" matBadgeColor="warn" matBadgeSize="small">
+        shopping_cart
+      </mat-icon>
+    </a>
+  }
+
+  @if (user()) {
+    <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
+      <div class="user-avatar">{{ user()!.name.charAt(0).toUpperCase() }}</div>
+      <span class="nav-label">{{ user()!.name }}</span>
+      <mat-icon>arrow_drop_down</mat-icon>
+    </button>
+    <mat-menu #userMenu="matMenu">
+      <div class="user-menu-header">
+        <strong>{{ user()!.name }}</strong>
+        <span class="user-role-badge">{{ user()!.role }}</span>
+      </div>
+      <mat-divider></mat-divider>
+      <button mat-menu-item (click)="logout()">
+        <mat-icon>logout</mat-icon>
+        Sign Out
+      </button>
+    </mat-menu>
+  }
+</mat-toolbar>

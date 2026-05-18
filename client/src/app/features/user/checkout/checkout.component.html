@@ -1,0 +1,85 @@
+<div class="checkout-page">
+  <div class="page-header">
+    <a mat-icon-button routerLink="/cart"><mat-icon>arrow_back</mat-icon></a>
+    <h2>Checkout</h2>
+  </div>
+
+  <div class="checkout-layout">
+    <!-- Left: Payment + Order Items -->
+    <div class="checkout-left">
+      <!-- Order Summary -->
+      <div class="section-card">
+        <h3><mat-icon>receipt</mat-icon> Order Items</h3>
+        @for (item of cart().items; track item.foodItem.id) {
+          <div class="order-item-row">
+            <img [src]="item.foodItem.imageUrl || 'assets/food-placeholder.png'" [alt]="item.foodItem.name" />
+            <div class="item-name">
+              <strong>{{ item.foodItem.name }}</strong>
+              <span>x {{ item.quantity }}</span>
+            </div>
+            <span class="item-price">₹{{ item.foodItem.price * item.quantity }}</span>
+          </div>
+        }
+      </div>
+
+      <!-- Payment Method -->
+      <div class="section-card">
+        <h3><mat-icon>payment</mat-icon> Payment Method</h3>
+        <div class="payment-options">
+          @for (option of paymentOptions; track option.value) {
+            <div
+              class="payment-option"
+              [class.selected]="paymentMethod() === option.value"
+              (click)="paymentMethod.set(option.value)"
+            >
+              <mat-icon>{{ option.icon }}</mat-icon>
+              <span>{{ option.label }}</span>
+              <div class="radio-dot" [class.active]="paymentMethod() === option.value"></div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+
+    <!-- Right: Bill -->
+    <div class="bill-card">
+      <h3>Bill Details</h3>
+      <div class="bill-row">
+        <span>Item Total</span>
+        <span>₹{{ cart().total }}</span>
+      </div>
+      <div class="bill-row">
+        <span>GST (5%)</span>
+        <span>₹{{ gst }}</span>
+      </div>
+      <div class="bill-row">
+        <span>Delivery</span>
+        <span class="free">FREE</span>
+      </div>
+      <mat-divider></mat-divider>
+      <div class="bill-row total">
+        <strong>Grand Total</strong>
+        <strong>₹{{ grandTotal }}</strong>
+      </div>
+
+      <div class="token-info">
+        <mat-icon>confirmation_number</mat-icon>
+        <p>After payment, you'll receive a <strong>Token Number</strong>. Show it to the vendor to collect your order.</p>
+      </div>
+
+      <button
+        mat-flat-button
+        class="place-btn"
+        (click)="placeOrder()"
+        [disabled]="cart().items.length === 0 || placing()"
+      >
+        @if (placing()) {
+          <span>Placing order...</span>
+        } @else {
+          <mat-icon>check_circle</mat-icon>
+          <span>Place Order · ₹{{ grandTotal }}</span>
+        }
+      </button>
+    </div>
+  </div>
+</div>

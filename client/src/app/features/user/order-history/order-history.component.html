@@ -1,0 +1,94 @@
+<div class="orders-page">
+  <div class="page-header">
+    <a mat-icon-button routerLink="/home"><mat-icon>arrow_back</mat-icon></a>
+    <h2>My Orders</h2>
+  </div>
+
+  @if (loading()) {
+    <div class="loading-center"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (orders().length === 0) {
+    <div class="empty-state">
+      <span class="empty-icon">📋</span>
+      <h3>No orders yet</h3>
+      <p>Your order history will appear here</p>
+      <a mat-flat-button routerLink="/home" class="browse-btn">Order Now</a>
+    </div>
+  } @else {
+    <div class="orders-list">
+      @for (order of orders(); track order.id) {
+        <div class="order-card">
+          <!-- Header -->
+          <div class="order-header" (click)="toggleExpand(order.id)">
+            <div class="order-meta">
+              <span class="order-id">#{{ order.id }}</span>
+              <span class="restaurant">{{ order.restaurantName }}</span>
+              <span class="date">{{ order.createdAt | date:'dd MMM yy, h:mm a' }}</span>
+            </div>
+            <div class="order-right">
+              <span
+                class="status-badge"
+                [style.background]="statusColors[order.status] + '20'"
+                [style.color]="statusColors[order.status]"
+              >
+                <mat-icon class="status-icon">{{ statusIcons[order.status] }}</mat-icon>
+                {{ order.status }}
+              </span>
+              <strong class="order-total">₹{{ order.totalAmount }}</strong>
+              <mat-icon class="expand-icon" [class.rotated]="expandedOrderId() === order.id">
+                expand_more
+              </mat-icon>
+            </div>
+          </div>
+
+          <!-- Token -->
+          @if (order.paymentStatus === 'PAID') {
+            <div class="token-row">
+              <span class="token-label">🎫 Token</span>
+              <span class="token-val">{{ order.tokenNumber }}</span>
+            </div>
+          }
+
+          <!-- Expanded Details -->
+          @if (expandedOrderId() === order.id) {
+            <div class="order-details">
+              <div class="items-grid">
+                @for (item of order.items; track item.id) {
+                  <div class="order-item">
+                    <img [src]="item.foodItemImageUrl || 'assets/food-placeholder.png'" [alt]="item.foodItemName" />
+                    <div class="item-info">
+                      <span class="item-name">{{ item.foodItemName }}</span>
+                      <span class="item-qty">x{{ item.quantity }}</span>
+                    </div>
+                    <span class="item-price">₹{{ item.subtotal }}</span>
+                  </div>
+                }
+              </div>
+              <div class="order-footer">
+                <div class="footer-info">
+                  <span>Payment: {{ order.paymentMethod }}</span>
+                  @if (order.estimatedTime) {
+                    <span>Est. {{ order.estimatedTime }} min</span>
+                  }
+                </div>
+                @if (order.status === 'DELIVERED' && !order.rating) {
+                  <button mat-stroked-button class="feedback-btn" (click)="openFeedback(order)">
+                    <mat-icon>star_border</mat-icon> Rate Order
+                  </button>
+                }
+                @if (order.rating) {
+                  <div class="rating-display">
+                    @for (s of [1,2,3,4,5]; track s) {
+                      <mat-icon [style.color]="s <= order.rating! ? '#ffa000' : '#ddd'" class="small-star">
+                        {{ s <= order.rating! ? 'star' : 'star_border' }}
+                      </mat-icon>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

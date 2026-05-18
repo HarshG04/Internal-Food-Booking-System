@@ -1,0 +1,111 @@
+<div class="login-wrapper">
+  <div class="login-hero">
+    <div class="hero-content">
+      <div class="brand-logo">🍽️</div>
+      <h1>FoodCourt</h1>
+      <p>Your company's food experience, simplified.</p>
+      <div class="features">
+        <div class="feature-item">
+          <span class="feature-icon">⚡</span>
+          <span>Fast ordering</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">📍</span>
+          <span>Multiple floors</span>
+        </div>
+        <div class="feature-item">
+          <span class="feature-icon">🎫</span>
+          <span>Token-based pickup</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="login-form-area">
+    <mat-card class="login-card">
+      <mat-card-header>
+        <div class="card-title-area">
+          <div class="mobile-logo">🍽️</div>
+          <h2>Sign In</h2>
+          <p class="subtitle">Choose your role and sign in to continue</p>
+        </div>
+      </mat-card-header>
+
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()">
+          <!-- Role selector -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Login as</mat-label>
+            <mat-select formControlName="role">
+              <mat-option value="USER">
+                <span class="role-option">👤 Employee / Customer</span>
+              </mat-option>
+              <mat-option value="VENDOR">
+                <span class="role-option">🏪 Vendor / Shop Owner</span>
+              </mat-option>
+              <mat-option value="MANAGER">
+                <span class="role-option">👔 Food Court Manager</span>
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+
+          <!-- Identifier -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>{{ roleLabel }}</mat-label>
+            <mat-icon matPrefix>person_outline</mat-icon>
+            <input
+              matInput
+              formControlName="identifier"
+              [placeholder]="roleLabel"
+              autocomplete="username"
+            />
+            @if (form.get('identifier')?.hasError('required') && form.get('identifier')?.touched) {
+              <mat-error>This field is required</mat-error>
+            }
+          </mat-form-field>
+
+          <!-- Password -->
+          <mat-form-field appearance="outline" class="full-width">
+            <mat-label>Password</mat-label>
+            <mat-icon matPrefix>lock_outline</mat-icon>
+            <input
+              matInput
+              formControlName="password"
+              [type]="hidePassword() ? 'password' : 'text'"
+              autocomplete="current-password"
+            />
+            <button
+              mat-icon-button
+              matSuffix
+              type="button"
+              (click)="hidePassword.set(!hidePassword())"
+            >
+              <mat-icon>{{ hidePassword() ? 'visibility_off' : 'visibility' }}</mat-icon>
+            </button>
+            @if (form.get('password')?.hasError('required') && form.get('password')?.touched) {
+              <mat-error>Password is required</mat-error>
+            }
+            @if (form.get('password')?.hasError('minlength') && form.get('password')?.touched) {
+              <mat-error>Minimum 4 characters</mat-error>
+            }
+          </mat-form-field>
+
+          <button
+            mat-flat-button
+            class="login-btn full-width"
+            type="submit"
+            [disabled]="form.invalid || loading()"
+          >
+            @if (loading()) {
+              <mat-spinner diameter="20" class="btn-spinner"></mat-spinner>
+              <span>Signing in...</span>
+            } @else {
+              <mat-icon>login</mat-icon>
+              <span>Sign In</span>
+            }
+          </button>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>

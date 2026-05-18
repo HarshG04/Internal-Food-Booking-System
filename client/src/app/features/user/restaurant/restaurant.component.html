@@ -1,0 +1,107 @@
+<div class="restaurant-page">
+  @if (loading()) {
+    <div class="loading-center">
+      <mat-spinner diameter="48"></mat-spinner>
+    </div>
+  } @else if (restaurant()) {
+    <!-- Hero -->
+    <div class="restaurant-hero" [style.backgroundImage]="'url(' + (restaurant()!.imageUrl || 'assets/restaurant-placeholder.png') + ')'">
+      <div class="hero-overlay">
+        <a mat-icon-button routerLink="/home" class="back-btn">
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+        <div class="hero-info">
+          <h1>{{ restaurant()!.name }}</h1>
+          <p>{{ restaurant()!.cuisine }}</p>
+          <div class="hero-meta">
+            <span>⭐ {{ restaurant()!.rating }} ({{ restaurant()!.totalRatings }} ratings)</span>
+            <span>📍 {{ restaurant()!.floor.name }}</span>
+            <span>⏱ {{ restaurant()!.avgPrepTime }} min avg</span>
+            <span class="open-status" [class.open]="restaurant()!.isOpen">
+              {{ restaurant()!.isOpen ? '🟢 Open' : '🔴 Closed' }}
+            </span>
+          </div>
+          <p class="description">{{ restaurant()!.description }}</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Category Filter -->
+    <div class="category-bar">
+      @for (cat of categories; track cat) {
+        <button
+          class="cat-chip"
+          [class.active]="selectedCategory() === cat"
+          (click)="selectedCategory.set(cat)"
+        >
+          {{ cat }}
+        </button>
+      }
+    </div>
+
+    <!-- Menu Items -->
+    <div class="menu-container">
+      @if (filteredItems.length === 0) {
+        <div class="empty-state">
+          <span>🍽️</span>
+          <p>No items in this category</p>
+        </div>
+      } @else {
+        <div class="menu-grid">
+          @for (item of filteredItems; track item.id) {
+            <div class="menu-item" [class.unavailable]="!item.isAvailable">
+              <img [src]="item.imageUrl || 'assets/food-placeholder.png'" [alt]="item.name" class="item-img" />
+              <div class="item-details">
+                <div class="item-header">
+                  <div>
+                    <span class="veg-dot" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
+                    <h4>{{ item.name }}</h4>
+                  </div>
+                  @if (!item.isAvailable) {
+                    <span class="unavail-tag">Unavailable</span>
+                  }
+                </div>
+                <p class="item-desc">{{ item.description }}</p>
+                <div class="item-meta">
+                  <span><mat-icon>schedule</mat-icon>{{ item.prepTime }} min</span>
+                  <span>⭐ {{ item.rating }}</span>
+                  <span class="item-cat">{{ item.category }}</span>
+                </div>
+                <div class="item-footer">
+                  <span class="price">₹{{ item.price }}</span>
+                  @if (item.isAvailable) {
+                    <div class="cart-controls">
+                      @if (getQuantity(item.id) === 0) {
+                        <button mat-stroked-button class="add-btn" (click)="addToCart(item, $event)">
+                          + Add
+                        </button>
+                      } @else {
+                        <div class="qty-ctrl">
+                          <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                            <mat-icon>remove</mat-icon>
+                          </button>
+                          <span>{{ getQuantity(item.id) }}</span>
+                          <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                            <mat-icon>add</mat-icon>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
+
+@if (cart.cartCount() > 0) {
+  <a routerLink="/cart" class="cart-fab">
+    <mat-icon>shopping_cart</mat-icon>
+    <span>View Cart ({{ cart.cartCount() }})</span>
+    <span class="fab-price">₹{{ cart.cart().total }}</span>
+  </a>
+}

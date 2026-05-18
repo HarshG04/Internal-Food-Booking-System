@@ -1,0 +1,95 @@
+<div class="revenue-page">
+  <div class="page-header">
+    <div>
+      <h2>Revenue Report</h2>
+      <p>Daily, monthly and yearly earnings overview</p>
+    </div>
+  </div>
+
+  @if (loading()) {
+    <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <!-- Summary Cards -->
+    <div class="summary-grid">
+      <div class="summary-card orange">
+        <mat-icon>currency_rupee</mat-icon>
+        <div>
+          <div class="s-val">₹{{ totals().total | number:'1.0-0' }}</div>
+          <div class="s-lbl">Total Revenue</div>
+        </div>
+      </div>
+      <div class="summary-card blue">
+        <mat-icon>receipt_long</mat-icon>
+        <div>
+          <div class="s-val">{{ totals().count }}</div>
+          <div class="s-lbl">Total Orders</div>
+        </div>
+      </div>
+      <div class="summary-card green">
+        <mat-icon>trending_up</mat-icon>
+        <div>
+          <div class="s-val">₹{{ totals().avg | number:'1.0-0' }}</div>
+          <div class="s-lbl">Avg Order Value</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <mat-tab-group class="rev-tabs">
+      <mat-tab label="Daily (Last 7 days)">
+        <div class="chart-area">
+          @for (stat of daily(); track stat.label) {
+            <div class="bar-row">
+              <span class="bar-label">{{ stat.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill"
+                  [style.width.%]="(stat.revenue / maxRevenue(daily())) * 100">
+                </div>
+              </div>
+              <span class="bar-value">₹{{ stat.revenue | number:'1.0-0' }}</span>
+              <span class="bar-orders">{{ stat.orders }} orders</span>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Monthly (Last 6 months)">
+        <div class="chart-area">
+          @for (stat of monthly(); track stat.label) {
+            <div class="bar-row">
+              <span class="bar-label">{{ stat.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill"
+                  [style.width.%]="(stat.revenue / maxRevenue(monthly())) * 100">
+                </div>
+              </div>
+              <span class="bar-value">₹{{ stat.revenue | number:'1.0-0' }}</span>
+              <span class="bar-orders">{{ stat.orders }} orders</span>
+            </div>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Yearly">
+        <div class="chart-area">
+          @if (yearly().length === 0) {
+            <p class="no-data">No yearly data available yet.</p>
+          } @else {
+            @for (stat of yearly(); track stat.label) {
+              <div class="bar-row">
+                <span class="bar-label">{{ stat.label }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill"
+                    [style.width.%]="(stat.revenue / maxRevenue(yearly())) * 100">
+                  </div>
+                </div>
+                <span class="bar-value">₹{{ stat.revenue | number:'1.0-0' }}</span>
+                <span class="bar-orders">{{ stat.orders }} orders</span>
+              </div>
+            }
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
+  }
+</div>

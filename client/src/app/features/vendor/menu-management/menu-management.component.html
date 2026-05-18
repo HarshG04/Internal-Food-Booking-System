@@ -1,0 +1,128 @@
+<div class="menu-page">
+  <div class="page-header">
+    <div>
+      <h2>Menu Management</h2>
+      <p>Add, edit or remove items from your menu</p>
+    </div>
+    <button mat-flat-button class="add-btn" (click)="openAdd()">
+      <mat-icon>add</mat-icon> Add Item
+    </button>
+  </div>
+
+  <!-- Add / Edit Form -->
+  @if (showForm()) {
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>{{ editingItem() ? 'Edit Item' : 'Add New Item' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="form" (ngSubmit)="saveItem()" class="item-form">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex2">
+              <mat-label>Item Name</mat-label>
+              <input matInput formControlName="name" placeholder="e.g. Paneer Butter Masala" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Category</mat-label>
+              <mat-select formControlName="category">
+                @for (cat of categories; track cat) {
+                  <mat-option [value]="cat">{{ cat }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="2"></textarea>
+          </mat-form-field>
+
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Price (₹)</mat-label>
+              <input matInput type="number" formControlName="price" min="1" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Prep Time (min)</mat-label>
+              <input matInput type="number" formControlName="prepTime" min="1" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Stock Qty</mat-label>
+              <input matInput type="number" formControlName="stock" min="0" />
+            </mat-form-field>
+          </div>
+
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Image URL (optional)</mat-label>
+            <input matInput formControlName="imageUrl" placeholder="https://…" />
+          </mat-form-field>
+
+          <div class="toggle-row">
+            <mat-slide-toggle formControlName="isVeg" color="primary">
+              🟢 Vegetarian
+            </mat-slide-toggle>
+            <mat-slide-toggle formControlName="isAvailable" color="accent">
+              ✅ Available Today
+            </mat-slide-toggle>
+          </div>
+
+          <div class="form-actions">
+            <button mat-stroked-button type="button" (click)="cancelForm()">Cancel</button>
+            <button mat-flat-button class="save-btn" type="submit"
+              [disabled]="form.invalid || saving()">
+              @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
+              @else { {{ editingItem() ? 'Update' : 'Add Item' }} }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Menu List -->
+  @if (loading()) {
+    <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (menuItems().length === 0) {
+    <div class="empty-state">
+      <mat-icon>restaurant_menu</mat-icon>
+      <p>No items in your menu yet. Click "Add Item" to get started.</p>
+    </div>
+  } @else {
+    <div class="menu-grid">
+      @for (item of menuItems(); track item.id) {
+        <div class="menu-item-card" [class.unavailable]="!item.isAvailable">
+          <div class="item-img">
+            <img [src]="item.imageUrl || 'assets/placeholder-food.png'" [alt]="item.name" />
+            <span class="veg-dot" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
+          </div>
+          <div class="item-body">
+            <div class="item-top">
+              <h4>{{ item.name }}</h4>
+              <span class="category-chip">{{ item.category }}</span>
+            </div>
+            <p class="item-desc">{{ item.description }}</p>
+            <div class="item-meta">
+              <span class="price">₹{{ item.price }}</span>
+              <span class="prep-time"><mat-icon class="tiny">schedule</mat-icon>{{ item.prepTime }}m</span>
+              <span class="stock">Stock: {{ item.stock }}</span>
+            </div>
+          </div>
+          <div class="item-actions">
+            <mat-slide-toggle
+              [checked]="item.isAvailable"
+              (change)="toggleAvailability(item)"
+              color="accent"
+              class="avail-toggle"
+            ></mat-slide-toggle>
+            <button mat-icon-button (click)="openEdit(item)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="del-btn" (click)="deleteItem(item)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

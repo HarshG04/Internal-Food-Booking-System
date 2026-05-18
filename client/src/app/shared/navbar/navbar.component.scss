@@ -1,0 +1,111 @@
+.app-navbar {
+  background: white !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  padding: 0 16px;
+  height: 64px;
+
+  .brand-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .brand-icon {
+    font-size: 24px;
+  }
+
+  .brand-name {
+    font-size: 20px;
+    font-weight: 800;
+    color: #ff6f00;
+    cursor: pointer;
+    letter-spacing: -0.5px;
+    margin-left: 4px;
+  }
+
+  .spacer {
+    flex: 1;
+  }
+
+  a[mat-button], button[mat-button] {
+    color: #555;
+    font-weight: 500;
+    border-radius: 8px;
+    margin: 0 2px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+
+    &.nav-active, &:hover {
+      color: #ff6f00;
+      background: rgba(255, 111, 0, 0.08);
+    }
+
+    .nav-label {
+      @media (max-width: 600px) {
+        display: none;
+      }
+    }
+  }
+
+  .cart-btn {
+    color: #555;
+    margin: 0 4px;
+
+    &:hover {
+      color: #ff6f00;
+    }
+  }
+
+  .user-menu-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    color: #333;
+    border-radius: 24px;
+    background: #f5f5f5;
+
+    &:hover {
+      background: rgba(255, 111, 0, 0.1);
+      color: #ff6f00;
+    }
+  }
+
+  .user-avatar {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #ff6f00, #ffa726);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 700;
+    font-size: 14px;
+  }
+}
+
+.user-menu-header {
+  padding: 12px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+
+  strong {
+    font-size: 15px;
+    color: #1a1a1a;
+  }
+}
+
+.user-role-badge {
+  font-size: 11px;
+  padding: 2px 8px;
+  background: rgba(255, 111, 0, 0.12);
+  color: #ff6f00;
+  border-radius: 12px;
+  font-weight: 600;
+  letter-spacing: 0.5px;
+  width: fit-content;
+}

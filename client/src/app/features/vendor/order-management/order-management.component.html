@@ -1,0 +1,101 @@
+<div class="orders-page">
+  <div class="page-header">
+    <div>
+      <h2>Order Management</h2>
+      <p>Track and manage incoming orders</p>
+    </div>
+    <button mat-icon-button (click)="load()" title="Refresh">
+      <mat-icon>refresh</mat-icon>
+    </button>
+  </div>
+
+  <!-- Status Filter Chips -->
+  <div class="filter-bar">
+    @for (f of filters; track f) {
+      <button
+        class="filter-chip"
+        [class.active]="activeFilter() === f"
+        (click)="activeFilter.set(f)"
+      >
+        {{ f }} <span class="count">{{ countFor(f) }}</span>
+      </button>
+    }
+  </div>
+
+  @if (loading()) {
+    <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else if (filteredOrders().length === 0) {
+    <div class="empty-state">
+      <mat-icon>inbox</mat-icon>
+      <p>No orders in this status</p>
+    </div>
+  } @else {
+    <div class="order-cards">
+      @for (order of filteredOrders(); track order.id) {
+        <div class="order-card">
+          <div class="order-card-top">
+            <div class="token-block">
+              <mat-icon>confirmation_number</mat-icon>
+              <span class="token">#{{ order.tokenNumber }}</span>
+            </div>
+            <span
+              class="status-pill"
+              [style.background]="statusColors[order.status] + '22'"
+              [style.color]="statusColors[order.status]"
+            >{{ order.status }}</span>
+            <span class="time-ago">{{ timeSince(order.createdAt) }}</span>
+          </div>
+
+          <div class="order-items-list">
+            @for (item of order.items; track item.id) {
+              <div class="oi-row">
+                <span class="oi-name">{{ item.foodItemName }}</span>
+                <span class="oi-qty">× {{ item.quantity }}</span>
+                <span class="oi-price">₹{{ item.subtotal }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="order-card-footer">
+            <span class="total">Total: <strong>₹{{ order.totalAmount }}</strong></span>
+            <div class="action-btns">
+              @if (order.status === 'PENDING' || order.status === 'CONFIRMED') {
+                <button
+                  mat-flat-button class="btn-prepare"
+                  [disabled]="updatingId() === order.id"
+                  (click)="markPrepared(order)"
+                >
+                  @if (updatingId() === order.id) { <mat-spinner diameter="16"></mat-spinner> }
+                  @else { <mat-icon>restaurant</mat-icon> Start Preparing }
+                </button>
+              }
+              @if (order.status === 'PREPARING') {
+                <button
+                  mat-flat-button class="btn-ready"
+                  [disabled]="updatingId() === order.id"
+                  (click)="markReady(order)"
+                >
+                  @if (updatingId() === order.id) { <mat-spinner diameter="16"></mat-spinner> }
+                  @else { <mat-icon>done_all</mat-icon> Mark Ready }
+                </button>
+              }
+              @if (order.status === 'READY') {
+                <button
+                  mat-flat-button class="btn-deliver"
+                  [disabled]="updatingId() === order.id"
+                  (click)="markDelivered(order)"
+                >
+                  @if (updatingId() === order.id) { <mat-spinner diameter="16"></mat-spinner> }
+                  @else { <mat-icon>local_shipping</mat-icon> Mark Delivered }
+                </button>
+              }
+              @if (order.status === 'DELIVERED') {
+                <span class="delivered-label">✅ Completed</span>
+              }
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  }
+</div>

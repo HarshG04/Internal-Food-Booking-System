@@ -1,0 +1,72 @@
+<div class="cart-page">
+  <div class="cart-header">
+    <a mat-icon-button routerLink="/home" class="back-btn">
+      <mat-icon>arrow_back</mat-icon>
+    </a>
+    <h2>Your Cart</h2>
+    @if (cart().items.length > 0) {
+      <button mat-button class="clear-btn" (click)="cartService.clearCart()">
+        <mat-icon>delete_outline</mat-icon> Clear
+      </button>
+    }
+  </div>
+
+  @if (cart().items.length === 0) {
+    <div class="empty-cart">
+      <div class="empty-icon">🛒</div>
+      <h3>Your cart is empty</h3>
+      <p>Add items from a restaurant to get started</p>
+      <a mat-flat-button routerLink="/home" class="browse-btn">Browse Restaurants</a>
+    </div>
+  } @else {
+    <div class="cart-layout">
+      <!-- Items -->
+      <div class="cart-items">
+        @for (item of cart().items; track item.foodItem.id) {
+          <div class="cart-item">
+            <img [src]="item.foodItem.imageUrl || 'assets/food-placeholder.png'" [alt]="item.foodItem.name" />
+            <div class="item-info">
+              <h4>{{ item.foodItem.name }}</h4>
+              <p class="restaurant-name">{{ item.foodItem.restaurantName }}</p>
+              <span class="unit-price">₹{{ item.foodItem.price }} each</span>
+            </div>
+            <div class="item-actions">
+              <div class="qty-ctrl">
+                <button mat-icon-button class="qty-btn" (click)="updateQty(item, -1)">
+                  <mat-icon>{{ item.quantity === 1 ? 'delete' : 'remove' }}</mat-icon>
+                </button>
+                <span class="qty">{{ item.quantity }}</span>
+                <button mat-icon-button class="qty-btn" (click)="updateQty(item, 1)">
+                  <mat-icon>add</mat-icon>
+                </button>
+              </div>
+              <span class="subtotal">₹{{ item.foodItem.price * item.quantity }}</span>
+            </div>
+          </div>
+        }
+      </div>
+
+      <!-- Summary -->
+      <div class="order-summary">
+        <h3>Order Summary</h3>
+        <div class="summary-row">
+          <span>Subtotal</span>
+          <span>₹{{ cart().total }}</span>
+        </div>
+        <div class="summary-row">
+          <span>GST (5%)</span>
+          <span>₹{{ gst }}</span>
+        </div>
+        <mat-divider></mat-divider>
+        <div class="summary-row total-row">
+          <span>Total</span>
+          <strong>₹{{ grandTotal }}</strong>
+        </div>
+        <a mat-flat-button routerLink="/checkout" class="checkout-btn">
+          <mat-icon>shopping_bag</mat-icon>
+          Proceed to Checkout
+        </a>
+      </div>
+    </div>
+  }
+</div>

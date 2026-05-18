@@ -1,0 +1,165 @@
+<div class="floor-page">
+  <div class="page-header">
+    <div>
+      <h2>Floor & Shop Management</h2>
+      <p>Manage floors and assign shops to floors</p>
+    </div>
+    <div class="header-actions">
+      <button mat-stroked-button (click)="openAddFloor()">
+        <mat-icon>add</mat-icon> Add Floor
+      </button>
+      <button mat-flat-button class="add-shop-btn" (click)="openAddShop()">
+        <mat-icon>storefront</mat-icon> Add Shop
+      </button>
+    </div>
+  </div>
+
+  <!-- Floor Form -->
+  @if (showFloorForm()) {
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>{{ editingFloor() ? 'Edit Floor' : 'New Floor' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="floorForm" (ngSubmit)="saveFloor()" class="inline-form">
+          <mat-form-field appearance="outline">
+            <mat-label>Floor Name</mat-label>
+            <input matInput formControlName="name" placeholder="e.g. Ground Floor" />
+          </mat-form-field>
+          <mat-form-field appearance="outline">
+            <mat-label>Floor Number</mat-label>
+            <input matInput type="number" formControlName="floorNumber" />
+          </mat-form-field>
+          <mat-form-field appearance="outline" class="flex2">
+            <mat-label>Description</mat-label>
+            <input matInput formControlName="description" />
+          </mat-form-field>
+          <div class="form-btns">
+            <button mat-stroked-button type="button" (click)="showFloorForm.set(false)">Cancel</button>
+            <button mat-flat-button class="save-btn" type="submit" [disabled]="floorForm.invalid || saving()">
+              @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
+              @else { {{ editingFloor() ? 'Update' : 'Create' }} }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  <!-- Shop Form -->
+  @if (showShopForm()) {
+    <mat-card class="form-card">
+      <mat-card-header>
+        <mat-card-title>{{ editingShop() ? 'Edit Shop' : 'Add New Shop' }}</mat-card-title>
+      </mat-card-header>
+      <mat-card-content>
+        <form [formGroup]="shopForm" (ngSubmit)="saveShop()" class="shop-form">
+          <div class="form-row">
+            <mat-form-field appearance="outline" class="flex2">
+              <mat-label>Shop Name</mat-label>
+              <input matInput formControlName="name" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Assign to Floor</mat-label>
+              <mat-select formControlName="floorId">
+                @for (f of floors(); track f.id) {
+                  <mat-option [value]="f.id">{{ f.name }}</mat-option>
+                }
+              </mat-select>
+            </mat-form-field>
+          </div>
+          <div class="form-row">
+            <mat-form-field appearance="outline">
+              <mat-label>Cuisine Type</mat-label>
+              <input matInput formControlName="cuisine" placeholder="e.g. Indian, Chinese" />
+            </mat-form-field>
+            <mat-form-field appearance="outline">
+              <mat-label>Avg Prep Time (min)</mat-label>
+              <input matInput type="number" formControlName="avgPrepTime" />
+            </mat-form-field>
+          </div>
+          <mat-form-field appearance="outline" class="full">
+            <mat-label>Description</mat-label>
+            <textarea matInput formControlName="description" rows="2"></textarea>
+          </mat-form-field>
+          <div class="form-btns">
+            <button mat-stroked-button type="button" (click)="showShopForm.set(false)">Cancel</button>
+            <button mat-flat-button class="save-btn" type="submit" [disabled]="shopForm.invalid || saving()">
+              @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
+              @else { {{ editingShop() ? 'Update Shop' : 'Create Shop' }} }
+            </button>
+          </div>
+        </form>
+      </mat-card-content>
+    </mat-card>
+  }
+
+  @if (loading()) {
+    <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <!-- Floors List with nested shops -->
+    @for (floor of floors(); track floor.id) {
+      <div class="floor-section">
+        <div class="floor-header">
+          <div class="floor-title">
+            <mat-icon>apartment</mat-icon>
+            <h3>{{ floor.name }}</h3>
+            <span class="floor-num-badge">Floor {{ floor.floorNumber }}</span>
+            <span class="shop-count">{{ shopsOnFloor(floor.id).length }} shops</span>
+          </div>
+          <div class="floor-actions">
+            <button mat-icon-button (click)="openEditFloor(floor)">
+              <mat-icon>edit</mat-icon>
+            </button>
+            <button mat-icon-button class="del-btn" (click)="deleteFloor(floor)">
+              <mat-icon>delete</mat-icon>
+            </button>
+          </div>
+        </div>
+
+        <div class="shops-grid">
+          @for (shop of shopsOnFloor(floor.id); track shop.id) {
+            <div class="shop-card" [class.closed]="!shop.isOpen">
+              <div class="shop-card-top">
+                <div class="shop-info">
+                  <div class="shop-name">{{ shop.name }}</div>
+                  <div class="shop-cuisine">{{ shop.cuisine }}</div>
+                </div>
+                <span class="open-badge" [class.closed-badge]="!shop.isOpen">
+                  {{ shop.isOpen ? 'Open' : 'Closed' }}
+                </span>
+              </div>
+              <div class="shop-card-actions">
+                <mat-select
+                  [value]="floor.id"
+                  (selectionChange)="reassignShopFloor(shop, $event.value)"
+                  class="floor-reassign"
+                >
+                  @for (f of floors(); track f.id) {
+                    <mat-option [value]="f.id">{{ f.name }}</mat-option>
+                  }
+                </mat-select>
+                <button mat-icon-button (click)="openEditShop(shop)">
+                  <mat-icon>edit</mat-icon>
+                </button>
+                <button mat-icon-button class="del-btn" (click)="deleteShop(shop)">
+                  <mat-icon>delete</mat-icon>
+                </button>
+              </div>
+            </div>
+          }
+          @if (shopsOnFloor(floor.id).length === 0) {
+            <div class="no-shops">No shops assigned to this floor.</div>
+          }
+        </div>
+      </div>
+    }
+
+    @if (floors().length === 0) {
+      <div class="empty-state">
+        <mat-icon>apartment</mat-icon>
+        <p>No floors yet. Click "Add Floor" to create one.</p>
+      </div>
+    }
+  }
+</div>

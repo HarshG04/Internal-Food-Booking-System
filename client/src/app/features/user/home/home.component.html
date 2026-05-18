@@ -1,0 +1,212 @@
+<div class="home-layout">
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <h3 class="sidebar-title">
+      <mat-icon>layers</mat-icon> Filter by Floor
+    </h3>
+    <div class="floor-list">
+      <button
+        class="floor-btn"
+        [class.active]="selectedFloorId() === null"
+        (click)="filterByFloor(null)"
+      >
+        <span class="floor-emoji">🏢</span>
+        <span>All Floors</span>
+      </button>
+      @for (floor of floors(); track floor.id) {
+        <button
+          class="floor-btn"
+          [class.active]="selectedFloorId() === floor.id"
+          (click)="filterByFloor(floor.id)"
+        >
+          <span class="floor-emoji">{{ floor.floorNumber }}F</span>
+          <span>{{ floor.name }}</span>
+        </button>
+      }
+    </div>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Welcome Banner -->
+    <div class="welcome-banner">
+      <div class="welcome-text">
+        <h2>{{ greeting() }}, {{ firstName() }}! 👋</h2>
+        <p>What would you like to eat today?</p>
+      </div>
+      <div class="search-box">
+        <mat-form-field appearance="outline" class="search-field">
+          <mat-icon matPrefix>search</mat-icon>
+          <input
+            matInput
+            placeholder="Search restaurants, cuisines..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+          />
+        </mat-form-field>
+      </div>
+    </div>
+
+    @if (loading()) {
+      <div class="loading-center">
+        <mat-spinner diameter="48"></mat-spinner>
+        <p>Loading your food court...</p>
+      </div>
+    } @else {
+      <!-- Trending Items -->
+      @if (trendingItems().length > 0) {
+        <section class="section">
+          <div class="section-header">
+            <h3>🔥 Trending Today</h3>
+            <span class="section-sub">Most ordered right now</span>
+          </div>
+          <div class="horizontal-scroll">
+            @for (item of trendingItems(); track item.id) {
+              <div class="food-card trending-card">
+                <div class="food-img-wrap">
+                  <img [src]="item.imageUrl || 'assets/food-placeholder.png'" [alt]="item.name" />
+                  <span class="veg-tag" [class.non-veg]="!item.isVeg">
+                    {{ item.isVeg ? '🟢' : '🔴' }}
+                  </span>
+                  @if (item.isTrending) {
+                    <span class="trending-badge">🔥 Hot</span>
+                  }
+                </div>
+                <div class="food-info">
+                  <h4>{{ item.name }}</h4>
+                  <p class="restaurant-name">{{ item.restaurantName }}</p>
+                  <div class="food-meta">
+                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTime }} min</span>
+                    <span class="rating">⭐ {{ item.rating }}</span>
+                  </div>
+                  <div class="food-footer">
+                    <span class="price">₹{{ item.price }}</span>
+                    <div class="cart-controls">
+                      @if (getQuantity(item.id) === 0) {
+                        <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
+                          + Add
+                        </button>
+                      } @else {
+                        <div class="qty-control">
+                          <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                            <mat-icon>remove</mat-icon>
+                          </button>
+                          <span class="qty">{{ getQuantity(item.id) }}</span>
+                          <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                            <mat-icon>add</mat-icon>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Fast Items < 10 mins -->
+      @if (fastItems().length > 0) {
+        <section class="section">
+          <div class="section-header">
+            <h3>⚡ Ready in Under 10 Mins</h3>
+            <span class="section-sub">Quick bites for busy days</span>
+          </div>
+          <div class="horizontal-scroll">
+            @for (item of fastItems(); track item.id) {
+              <div class="food-card fast-card">
+                <div class="food-img-wrap">
+                  <img [src]="item.imageUrl || 'assets/food-placeholder.png'" [alt]="item.name" />
+                  <span class="fast-badge">⚡ Fast</span>
+                </div>
+                <div class="food-info">
+                  <h4>{{ item.name }}</h4>
+                  <p class="restaurant-name">{{ item.restaurantName }}</p>
+                  <div class="food-meta">
+                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTime }} min</span>
+                    <span class="veg-tag" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢 Veg' : '🔴 Non-veg' }}</span>
+                  </div>
+                  <div class="food-footer">
+                    <span class="price">₹{{ item.price }}</span>
+                    <div class="cart-controls">
+                      @if (getQuantity(item.id) === 0) {
+                        <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
+                          + Add
+                        </button>
+                      } @else {
+                        <div class="qty-control">
+                          <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                            <mat-icon>remove</mat-icon>
+                          </button>
+                          <span class="qty">{{ getQuantity(item.id) }}</span>
+                          <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                            <mat-icon>add</mat-icon>
+                          </button>
+                        </div>
+                      }
+                    </div>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        </section>
+      }
+
+      <!-- Restaurants -->
+      <section class="section">
+        <div class="section-header">
+          <h3>🏪 Restaurants</h3>
+          <span class="section-sub">
+            {{ filteredRestaurants.length }} available
+            @if (selectedFloorId()) { on selected floor }
+          </span>
+        </div>
+        @if (filteredRestaurants.length === 0) {
+          <div class="empty-state">
+            <span class="empty-icon">🍽️</span>
+            <h4>No restaurants found</h4>
+            <p>Try a different floor or search term</p>
+          </div>
+        } @else {
+          <div class="restaurants-grid">
+            @for (restaurant of filteredRestaurants; track restaurant.id) {
+              <a [routerLink]="['/restaurant', restaurant.id]" class="restaurant-card">
+                <div class="rest-img-wrap">
+                  <img [src]="restaurant.imageUrl || 'assets/restaurant-placeholder.png'" [alt]="restaurant.name" />
+                  <span class="floor-chip">{{ restaurant.floor.name }}</span>
+                  @if (!restaurant.isOpen) {
+                    <div class="closed-overlay">Closed</div>
+                  }
+                </div>
+                <div class="rest-info">
+                  <h4>{{ restaurant.name }}</h4>
+                  <p class="cuisine">{{ restaurant.cuisine }}</p>
+                  <div class="rest-meta">
+                    <span class="rating">⭐ {{ restaurant.rating }} ({{ restaurant.totalRatings }})</span>
+                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ restaurant.avgPrepTime }} min</span>
+                  </div>
+                  <div class="tags">
+                    @for (tag of restaurant.tags.slice(0, 3); track tag) {
+                      <span class="tag">{{ tag }}</span>
+                    }
+                  </div>
+                </div>
+              </a>
+            }
+          </div>
+        }
+      </section>
+    }
+  </main>
+</div>
+
+<!-- Floating Cart Button -->
+@if (cart.cartCount() > 0) {
+  <a routerLink="/cart" class="cart-fab">
+    <mat-icon>shopping_cart</mat-icon>
+    <span class="fab-text">View Cart ({{ cart.cartCount() }} items)</span>
+    <span class="fab-price">₹{{ cart.cart().total }}</span>
+  </a>
+}

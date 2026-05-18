@@ -1,0 +1,78 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <h2>Manager Dashboard</h2>
+      <p>FoodCourt overview at a glance</p>
+    </div>
+    <a mat-flat-button class="action-btn" routerLink="../revenue">Full Revenue Report</a>
+  </div>
+
+  @if (loading()) {
+    <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card blue">
+        <mat-icon>apartment</mat-icon>
+        <div class="stat-info">
+          <span class="stat-val">{{ stats().totalFloors }}</span>
+          <span class="stat-lbl">Floors</span>
+        </div>
+      </div>
+      <div class="stat-card teal">
+        <mat-icon>storefront</mat-icon>
+        <div class="stat-info">
+          <span class="stat-val">{{ stats().totalShops }}</span>
+          <span class="stat-lbl">Total Shops</span>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <mat-icon>check_circle</mat-icon>
+        <div class="stat-info">
+          <span class="stat-val">{{ stats().openShops }}</span>
+          <span class="stat-lbl">Open Now</span>
+        </div>
+      </div>
+      <div class="stat-card orange">
+        <mat-icon>receipt_long</mat-icon>
+        <div class="stat-info">
+          <span class="stat-val">{{ stats().totalOrders }}</span>
+          <span class="stat-lbl">Total Orders</span>
+        </div>
+      </div>
+      <div class="stat-card indigo">
+        <mat-icon>today</mat-icon>
+        <div class="stat-info">
+          <span class="stat-val">₹{{ stats().todayRevenue | number:'1.0-0' }}</span>
+          <span class="stat-lbl">Today's Revenue</span>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <mat-icon>currency_rupee</mat-icon>
+        <div class="stat-info">
+          <span class="stat-val">₹{{ stats().totalRevenue | number:'1.0-0' }}</span>
+          <span class="stat-lbl">Total Revenue</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Shops -->
+    <div class="section-card">
+      <h3>🏆 Top Shops by Revenue</h3>
+      @if (topShops().length === 0) {
+        <p class="no-data">No data yet.</p>
+      } @else {
+        <div class="shop-rank-list">
+          @for (shop of topShops(); track shop.name; let i = $index) {
+            <div class="shop-rank-row">
+              <span class="rank-num">#{{ i + 1 }}</span>
+              <span class="shop-name">{{ shop.name }}</span>
+              <span class="shop-orders">{{ shop.orders }} orders</span>
+              <span class="shop-rev">₹{{ shop.revenue | number:'1.0-0' }}</span>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>

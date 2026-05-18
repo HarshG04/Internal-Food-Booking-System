@@ -1,0 +1,91 @@
+<div class="dashboard-page">
+  <div class="page-header">
+    <div>
+      <h2>Good {{ timeOfDay() }}, {{ auth.currentUser()?.name }}! 👨‍🍳</h2>
+      <p>Here's your shop overview for today</p>
+    </div>
+    <a mat-flat-button class="action-btn" routerLink="../orders">View All Orders</a>
+  </div>
+
+  @if (loading()) {
+    <div class="loader"><mat-spinner diameter="48"></mat-spinner></div>
+  } @else {
+    <!-- Stats Cards -->
+    <div class="stats-grid">
+      <div class="stat-card orange">
+        <mat-icon>receipt_long</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().totalOrders }}</span>
+          <span class="stat-label">Total Orders</span>
+        </div>
+      </div>
+      <div class="stat-card blue">
+        <mat-icon>hourglass_empty</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().pendingOrders }}</span>
+          <span class="stat-label">Pending</span>
+        </div>
+      </div>
+      <div class="stat-card purple">
+        <mat-icon>restaurant</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().preparingOrders }}</span>
+          <span class="stat-label">Preparing</span>
+        </div>
+      </div>
+      <div class="stat-card green">
+        <mat-icon>done_all</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().readyOrders }}</span>
+          <span class="stat-label">Ready</span>
+        </div>
+      </div>
+      <div class="stat-card teal">
+        <mat-icon>currency_rupee</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">₹{{ stats().todayRevenue | number:'1.0-0' }}</span>
+          <span class="stat-label">Today's Revenue</span>
+        </div>
+      </div>
+      <div class="stat-card indigo">
+        <mat-icon>fastfood</mat-icon>
+        <div class="stat-info">
+          <span class="stat-value">{{ stats().availableItems }}</span>
+          <span class="stat-label">Available Items</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Recent Orders -->
+    <div class="section-card">
+      <div class="section-head">
+        <h3>Recent Orders</h3>
+        <a mat-button routerLink="../orders" class="view-all">View All →</a>
+      </div>
+      @if (recentOrders().length === 0) {
+        <div class="empty-state">
+          <mat-icon>inbox</mat-icon>
+          <p>No orders yet today</p>
+        </div>
+      } @else {
+        <div class="order-list">
+          @for (order of recentOrders(); track order.id) {
+            <div class="order-row">
+              <div class="order-token">
+                <mat-icon>confirmation_number</mat-icon>
+                <span>#{{ order.tokenNumber }}</span>
+              </div>
+              <div class="order-items-count">
+                {{ order.items?.length || 0 }} item(s)
+              </div>
+              <div class="order-amount">₹{{ order.totalAmount }}</div>
+              <div class="order-status-badge" [style.background]="statusColor(order.status) + '22'" [style.color]="statusColor(order.status)">
+                {{ order.status }}
+              </div>
+            </div>
+          }
+        </div>
+      }
+    </div>
+  }
+</div>
