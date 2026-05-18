@@ -1,16 +1,17 @@
 package com.interim.server.services;
 
+
+
 import com.interim.server.dtos.OrderItemRequest;
+import com.interim.server.models.FoodItem;
 import com.interim.server.models.Order;
+import com.interim.server.models.OrderItem;
 import com.interim.server.models.User;
+import com.interim.server.repositories.OrderItemRepository;
 import com.interim.server.repositories.OrderRepository;
+import com.interim.server.repositories.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
-
-import java.util.Optional;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -26,10 +27,13 @@ import java.util.Random;
 public class OrderService {
 
     @Autowired
-    private OrderRepository orderRepository;
-//    private final UserRepository userRepository;
-//    private final FoodItemRepository foodItemRepository;
-//    private final OrderItemRepository orderItemRepository;
+    private  OrderRepository orderRepository;
+    @Autowired
+    private  UserRepository userRepository;
+    @Autowired
+    private  FoodItemRepository foodItemRepository;
+    @Autowired
+    private  OrderItemRepository orderItemRepository;
 
     public List<Order> getAllOrders() {
         return orderRepository.findAll();
@@ -51,52 +55,56 @@ public class OrderService {
         return orderRepository.findByShopId(shopId);
     }
 
-//    @Transactional
-//    public Order placeOrder(Integer userId, List<OrderItemRequest> items) {
-//        User user = userRepository.findById(userId)
-//                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-//        if (Boolean.FALSE.equals(user.getIsActive())) {
-//            throw new RuntimeException("User account is inactive");
-//        }
-//
-//        BigDecimal total = BigDecimal.ZERO;
-//        List<OrderItem> orderItemList = new ArrayList<>();
-//
-//        for (OrderItemRequest req : items) {
-//            FoodItem foodItem = foodItemRepository.findById(req.getFoodItemId())
-//                    .orElseThrow(() -> new RuntimeException("FoodItem not found: " + req.getFoodItemId()));
-//            if (foodItem.getStockQuantity() == null || foodItem.getStockQuantity() < req.getQuantity()) {
-//                throw new RuntimeException("Insufficient stock for: " + foodItem.getName());
-//            }
-//            BigDecimal subtotal = foodItem.getPrice().multiply(BigDecimal.valueOf(req.getQuantity()));
-//            total = total.add(subtotal);
-//
-//            foodItem.setStockQuantity(foodItem.getStockQuantity() - req.getQuantity());
-//            foodItemRepository.save(foodItem);
-//
-//            orderItemList.add(OrderItem.builder()
-//                    .user(user)
-//                    .foodItem(foodItem)
-//                    .quantity(req.getQuantity())
-//                    .status(OrderItemStatus.ORDERED)
-//                    .subtotal(subtotal)
-//                    .build());
-//        }
-//
-//        Order order = Order.builder()
-//                .user(user)
-//                .tokenNo(generateUniqueToken())
-//                .totalAmount(total)
-//                .createdAt(LocalDateTime.now())
-//                .build();
-//        Order savedOrder = orderRepository.save(order);
-//
-//        for (OrderItem item : orderItemList) {
-//            item.setOrder(savedOrder);
-//            orderItemRepository.save(item);
-//        }
-//        return savedOrder;
-//    }
+    /**
+     * Place a new order atomically.
+     * Validates stock, generates a unique 4-digit token, creates Order + OrderItems.
+     */
+    @Transactional
+    public Order placeOrder(Integer userId, List<OrderItemRequest> items) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+        if (Boolean.FALSE.equals(user.getIsActive())) {
+            throw new RuntimeException("User account is inactive");
+        }
+
+        BigDecimal total = BigDecimal.ZERO;
+        List<OrderItem> orderItemList = new ArrayList<>();
+
+        for (OrderItemRequest req : items) {
+            FoodItem foodItem = foodItemRepository.findById(req.getFoodItemId())
+                    .orElseThrow(() -> new RuntimeException("FoodItem not found: " + req.getFoodItemId()));
+            if (foodItem.getStockQuantity() == null || foodItem.getStockQuantity() < req.getQuantity()) {
+                throw new RuntimeException("Insufficient stock for: " + foodItem.getName());
+            }
+            BigDecimal subtotal = foodItem.getPrice().multiply(BigDecimal.valueOf(req.getQuantity()));
+            total = total.add(subtotal);
+
+            foodItem.setStockQuantity(foodItem.getStockQuantity() - req.getQuantity());
+            foodItemRepository.save(foodItem);
+
+            orderItemList.add(OrderItem.builder()
+                    .user(user)
+                    .foodItem(foodItem)
+                    .quantity(req.getQuantity())
+                    .status(OrderItemStatus.ORDERED)
+                    .subtotal(subtotal)
+                    .build());
+        }
+
+        Order order = Order.builder()
+                .user(user)
+                .tokenNo(generateUniqueToken())
+                .totalAmount(total)
+                .createdAt(LocalDateTime.now())
+                .build();
+        Order savedOrder = orderRepository.save(order);
+
+        for (OrderItem item : orderItemList) {
+            item.setOrder(savedOrder);
+            orderItemRepository.save(item);
+        }
+        return savedOrder;
+    }
 
     /** Generates a unique 4-digit numeric token (1000–9999). */
     private String generateUniqueToken() {
@@ -112,14 +120,14 @@ public class OrderService {
         return orderRepository.save(order);
     }
 
-//    public Order updateOrder(Integer id, Order updated) {
-//        return orderRepository.findById(id).map(existing -> {
-//            existing.setUser(updated.getUser());
-//            existing.setTokenNo(updated.getTokenNo());
-//            existing.setTotalAmount(updated.getTotalAmount());
-//            return orderRepository.save(existing);
-//        }).orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
-//    }
+    public Order updateOrder(Integer id, Order updated) {
+        return orderRepository.findById(id).map(existing -> {
+            existing.setUser(updated.getUser());
+            existing.setTokenNo(updated.getTokenNo());
+            existing.setTotalAmount(updated.getTotalAmount());
+            return orderRepository.save(existing);
+        }).orElseThrow(() -> new RuntimeException("Order not found with id: " + id));
+    }
 
     public void deleteOrder(Integer id) {
         orderRepository.deleteById(id);

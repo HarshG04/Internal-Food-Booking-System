@@ -8,6 +8,7 @@ import com.interim.server.models.OrderItem;
 import com.interim.server.repositories.FeedbackRepository;
 import com.interim.server.repositories.OrderItemRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,8 +18,10 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class FeedbackService {
 
-    private final FeedbackRepository feedbackRepository;
-    private final OrderItemRepository orderItemRepository;
+    @Autowired
+    private  FeedbackRepository feedbackRepository;
+    @Autowired
+    private  OrderItemRepository orderItemRepository;
 
     public List<Feedback> getAllFeedbacks() {
         return feedbackRepository.findAll();
