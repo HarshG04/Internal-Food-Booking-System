@@ -33,10 +33,7 @@ import lombok.ToString;
 public class User {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
-
-    @Column(name = "employee_id", unique = true)
+    @Column(name = "employee_id")
     private Integer employeeId;
 
     @Column(unique = true, nullable = false)
