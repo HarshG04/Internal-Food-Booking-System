@@ -4,8 +4,8 @@ package com.interim.server.models;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import com.interim.server.enums.Role;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.interim.server.enums.Role;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
