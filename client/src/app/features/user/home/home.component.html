@@ -106,6 +106,11 @@
           <mat-icon>filter_alt_off</mat-icon> Clear
         </button>
       }
+      <button mat-flat-button class="search-api-btn" (click)="runSearch()" [disabled]="!isSearchActive || searchLoading()">
+        @if (searchLoading()) { <mat-spinner diameter="16"></mat-spinner> }
+        @else { <mat-icon>travel_explore</mat-icon> }
+        Search All
+      </button>
     </div>
 
     @if (loading()) {
@@ -122,7 +127,13 @@
             @if (searchLoading()) {
               <mat-spinner diameter="18"></mat-spinner>
             } @else {
-              <span class="section-sub">{{ searchResults()?.length ?? 0 }} item(s) found</span>
+              <span class="section-sub">
+                {{ searchResults()?.length ?? 0 }} item(s) found
+                @if (searchResultsSource() === 'local') {
+                  &mdash; from loaded items &nbsp;
+                  <span class="source-hint" title="Click &quot;Search All&quot; to query the full catalogue">Showing preview 📌</span>
+                }
+              </span>
             }
           </div>
 

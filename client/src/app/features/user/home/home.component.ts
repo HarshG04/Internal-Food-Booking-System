@@ -21,8 +21,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { FoodItem } from '../../../core/models/food-item.model';
 import { Restaurant, Floor } from '../../../core/models/restaurant.model';
-import { forkJoin, Subject } from 'rxjs';
-import { debounceTime } from 'rxjs/operators';
+import { forkJoin } from 'rxjs';
 
 @Component({
   selector: 'app-home',
@@ -76,8 +75,7 @@ export class HomeComponent implements OnInit {
   filterMaxPrepTime = signal<number | null>(null);
   filterSortBy = signal<'rating' | 'popularity' | null>(null);
   searchResults = signal<FoodItem[] | null>(null); // null = no active search
-
-  private searchSubject = new Subject<void>();
+  searchResultsSource = signal<'local' | 'api'>('local');
 
   get isSearchActive(): boolean {
     return !!(
@@ -109,22 +107,46 @@ export class HomeComponent implements OnInit {
         this.notify.error('Failed to load data. Please refresh.');
       },
     });
-
-    // Debounce all filter changes before hitting the API
-    this.searchSubject.pipe(debounceTime(350)).subscribe(() => {
-      this.runSearch();
-    });
   }
 
+  // Called on every filter/input change — filters the already-loaded local pool instantly
   onFilterChange(): void {
-    if (this.isSearchActive) {
-      this.searchSubject.next();
-    } else {
+    if (!this.isSearchActive) {
       this.searchResults.set(null);
+      return;
     }
+    const q = this.searchQuery().toLowerCase();
+    const isVeg = this.filterIsVeg();
+    const minPrice = this.filterMinPrice();
+    const maxPrice = this.filterMaxPrice();
+    const maxPrepTime = this.filterMaxPrepTime();
+    const sortBy = this.filterSortBy();
+
+    // Combine trending + fast items, deduplicated by id
+    const seen = new Set<number>();
+    const pool: FoodItem[] = [];
+    for (const item of [...this.trendingItems(), ...this.fastItems()]) {
+      if (!seen.has(item.id)) { seen.add(item.id); pool.push(item); }
+    }
+
+    let results = pool.filter(item =>
+      (!q || item.name.toLowerCase().includes(q)) &&
+      (isVeg === null || item.isVeg === isVeg) &&
+      (minPrice === null || item.price >= minPrice) &&
+      (maxPrice === null || item.price <= maxPrice) &&
+      (maxPrepTime === null || item.prepTimeMins <= maxPrepTime)
+    );
+
+    if (sortBy === 'rating') {
+      results = [...results].sort((a, b) => b.avgRating - a.avgRating);
+    }
+
+    this.searchResultsSource.set('local');
+    this.searchResults.set(results);
   }
 
-  private runSearch(): void {
+  // Called only by the Search button — hits the backend endpoint
+  runSearch(): void {
     this.searchLoading.set(true);
     const params: Parameters<typeof this.foodService.searchFoodItems>[0] = {};
     if (this.searchQuery()) params.name = this.searchQuery();
@@ -136,6 +158,7 @@ export class HomeComponent implements OnInit {
 
     this.foodService.searchFoodItems(params).subscribe({
       next: (results) => {
+        this.searchResultsSource.set('api');
         this.searchResults.set(results);
         this.searchLoading.set(false);
       },

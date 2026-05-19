@@ -160,6 +160,30 @@
     align-items: center;
     gap: 4px;
   }
+
+  .search-api-btn {
+    height: 40px;
+    font-size: 13px;
+    font-weight: 600;
+    background: #2563eb;
+    color: white;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    border-radius: 6px;
+
+    mat-icon { font-size: 17px; width: 17px; height: 17px; }
+    mat-spinner { display: inline-block; }
+
+    &:disabled { opacity: 0.6; }
+  }
+}
+
+.source-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  font-style: italic;
 }
 
 /* Search results grid (wraps like restaurants grid) */
