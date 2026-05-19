@@ -4,7 +4,6 @@ import com.interim.server.dtos.AuthResponse;
 import com.interim.server.dtos.UserResponse;
 import com.interim.server.models.User;
 import com.interim.server.repositories.UserRepository;
-import com.interim.server.utils.JwtUtil;
 import lombok.RequiredArgsConstructor;
 import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,7 +17,7 @@ public class AuthService {
     private UserRepository userRepository;
 
     @Autowired
-    private JwtUtil jwtUtil;
+    private SessionService sessionService;
 
     public AuthResponse login(String email, String password) {
         User user = userRepository.findByEmail(email)
@@ -32,14 +31,10 @@ public class AuthService {
             throw new RuntimeException("Invalid email or password");
         }
 
-//        String token = jwtUtil.generateToken(
-//                user.getEmployeeId(),
-//                user.getEmail(),
-//                user.getRole().name()
-//        );
+        String sessionId = sessionService.createSession(user);
 
         return AuthResponse.builder()
-                .token("sample-token")
+                .sessionId(sessionId)
                 .user(mapToResponse(user))
                 .build();
     }
