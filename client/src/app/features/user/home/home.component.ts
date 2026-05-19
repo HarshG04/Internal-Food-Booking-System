@@ -12,6 +12,8 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatBadgeModule } from '@angular/material/badge';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 import { MatDividerModule } from '@angular/material/divider';
+import { MatSelectModule } from '@angular/material/select';
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 
 import { FoodService } from '../../../core/services/food.service';
 import { CartService } from '../../../core/services/cart.service';
@@ -19,7 +21,8 @@ import { NotificationService } from '../../../core/services/notification.service
 import { AuthService } from '../../../core/services/auth.service';
 import { FoodItem } from '../../../core/models/food-item.model';
 import { Restaurant, Floor } from '../../../core/models/restaurant.model';
-import { forkJoin } from 'rxjs';
+import { forkJoin, Subject } from 'rxjs';
+import { debounceTime } from 'rxjs/operators';
 
 @Component({
   selector: 'app-home',
@@ -38,6 +41,8 @@ import { forkJoin } from 'rxjs';
     MatBadgeModule,
     MatSnackBarModule,
     MatDividerModule,
+    MatSelectModule,
+    MatSlideToggleModule,
   ],
   templateUrl: './home.component.html',
   styleUrl: './home.component.scss',
@@ -55,13 +60,35 @@ export class HomeComponent implements OnInit {
   });
 
   loading = signal(true);
-  searchQuery = signal('');
+  searchLoading = signal(false);
 
   floors = signal<Floor[]>([]);
   selectedFloorId = signal<number | null>(null);
   restaurants = signal<Restaurant[]>([]);
   trendingItems = signal<FoodItem[]>([]);
   fastItems = signal<FoodItem[]>([]);
+
+  // Search & filter state
+  searchQuery = signal('');
+  filterIsVeg = signal<boolean | null>(null);
+  filterMinPrice = signal<number | null>(null);
+  filterMaxPrice = signal<number | null>(null);
+  filterMaxPrepTime = signal<number | null>(null);
+  filterSortBy = signal<'rating' | 'popularity' | null>(null);
+  searchResults = signal<FoodItem[] | null>(null); // null = no active search
+
+  private searchSubject = new Subject<void>();
+
+  get isSearchActive(): boolean {
+    return !!(
+      this.searchQuery() ||
+      this.filterIsVeg() !== null ||
+      this.filterMinPrice() !== null ||
+      this.filterMaxPrice() !== null ||
+      this.filterMaxPrepTime() !== null ||
+      this.filterSortBy()
+    );
+  }
 
   ngOnInit(): void {
     forkJoin({
@@ -82,6 +109,51 @@ export class HomeComponent implements OnInit {
         this.notify.error('Failed to load data. Please refresh.');
       },
     });
+
+    // Debounce all filter changes before hitting the API
+    this.searchSubject.pipe(debounceTime(350)).subscribe(() => {
+      this.runSearch();
+    });
+  }
+
+  onFilterChange(): void {
+    if (this.isSearchActive) {
+      this.searchSubject.next();
+    } else {
+      this.searchResults.set(null);
+    }
+  }
+
+  private runSearch(): void {
+    this.searchLoading.set(true);
+    const params: Parameters<typeof this.foodService.searchFoodItems>[0] = {};
+    if (this.searchQuery()) params.name = this.searchQuery();
+    if (this.filterIsVeg() !== null) params.isVeg = this.filterIsVeg()!;
+    if (this.filterMinPrice() !== null) params.minPrice = this.filterMinPrice()!;
+    if (this.filterMaxPrice() !== null) params.maxPrice = this.filterMaxPrice()!;
+    if (this.filterMaxPrepTime() !== null) params.maxPrepTime = this.filterMaxPrepTime()!;
+    if (this.filterSortBy()) params.sortBy = this.filterSortBy()!;
+
+    this.foodService.searchFoodItems(params).subscribe({
+      next: (results) => {
+        this.searchResults.set(results);
+        this.searchLoading.set(false);
+      },
+      error: () => {
+        this.searchLoading.set(false);
+        this.notify.error('Search failed. Please try again.');
+      },
+    });
+  }
+
+  clearSearch(): void {
+    this.searchQuery.set('');
+    this.filterIsVeg.set(null);
+    this.filterMinPrice.set(null);
+    this.filterMaxPrice.set(null);
+    this.filterMaxPrepTime.set(null);
+    this.filterSortBy.set(null);
+    this.searchResults.set(null);
   }
 
   filterByFloor(floorId: number | null): void {
@@ -102,12 +174,9 @@ export class HomeComponent implements OnInit {
   addToCart(item: FoodItem, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-
     const cartRestaurantId = this.cart.getRestaurantId();
     if (cartRestaurantId && cartRestaurantId !== item.shop.id) {
-      this.notify.error(
-        'Your cart has items from a different restaurant. Clear cart first.'
-      );
+      this.notify.error('Your cart has items from a different restaurant. Clear cart first.');
       return;
     }
     this.cart.addItem(item);
@@ -125,11 +194,7 @@ export class HomeComponent implements OnInit {
   }
 
   get filteredRestaurants(): Restaurant[] {
-    const q = this.searchQuery().toLowerCase();
-    if (!q) return this.restaurants();
-    return this.restaurants().filter(
-      (r) => r.name.toLowerCase().includes(q)
-    );
+    return this.restaurants();
   }
 
   greeting(): string {

@@ -38,12 +38,74 @@
           <mat-icon matPrefix>search</mat-icon>
           <input
             matInput
-            placeholder="Search restaurants, cuisines..."
+            placeholder="Search food items..."
             [ngModel]="searchQuery()"
-            (ngModelChange)="searchQuery.set($event)"
+            (ngModelChange)="searchQuery.set($event); onFilterChange()"
           />
+          @if (searchQuery()) {
+            <button matSuffix mat-icon-button (click)="searchQuery.set(''); onFilterChange()">
+              <mat-icon>close</mat-icon>
+            </button>
+          }
         </mat-form-field>
       </div>
+    </div>
+
+    <!-- Filter Bar -->
+    <div class="filter-bar">
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Type</mat-label>
+        <mat-select
+          [value]="filterIsVeg()"
+          (selectionChange)="filterIsVeg.set($event.value); onFilterChange()"
+        >
+          <mat-option [value]="null">All</mat-option>
+          <mat-option [value]="true">🟢 Veg</mat-option>
+          <mat-option [value]="false">🔴 Non-Veg</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Min Price (₹)</mat-label>
+        <input matInput type="number" min="0"
+          [ngModel]="filterMinPrice()"
+          (ngModelChange)="filterMinPrice.set($event || null); onFilterChange()"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Max Price (₹)</mat-label>
+        <input matInput type="number" min="0"
+          [ngModel]="filterMaxPrice()"
+          (ngModelChange)="filterMaxPrice.set($event || null); onFilterChange()"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Max Prep Time (min)</mat-label>
+        <input matInput type="number" min="1"
+          [ngModel]="filterMaxPrepTime()"
+          (ngModelChange)="filterMaxPrepTime.set($event || null); onFilterChange()"
+        />
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="filter-field">
+        <mat-label>Sort By</mat-label>
+        <mat-select
+          [value]="filterSortBy()"
+          (selectionChange)="filterSortBy.set($event.value); onFilterChange()"
+        >
+          <mat-option [value]="null">Default</mat-option>
+          <mat-option value="rating">⭐ Rating</mat-option>
+          <mat-option value="popularity">🔥 Popularity</mat-option>
+        </mat-select>
+      </mat-form-field>
+
+      @if (isSearchActive) {
+        <button mat-stroked-button class="clear-filter-btn" (click)="clearSearch()">
+          <mat-icon>filter_alt_off</mat-icon> Clear
+        </button>
+      }
     </div>
 
     @if (loading()) {
@@ -52,6 +114,69 @@
         <p>Loading your food court...</p>
       </div>
     } @else {
+      <!-- Search Results -->
+      @if (isSearchActive) {
+        <section class="section">
+          <div class="section-header">
+            <h3>🔍 Search Results</h3>
+            @if (searchLoading()) {
+              <mat-spinner diameter="18"></mat-spinner>
+            } @else {
+              <span class="section-sub">{{ searchResults()?.length ?? 0 }} item(s) found</span>
+            }
+          </div>
+
+          @if (searchLoading()) {
+            <div class="loading-center"><mat-spinner diameter="36"></mat-spinner></div>
+          } @else if (!searchResults()?.length) {
+            <div class="empty-state">
+              <span class="empty-icon">🍽️</span>
+              <h4>No items match your filters</h4>
+              <p>Try adjusting the search or filters</p>
+            </div>
+          } @else {
+            <div class="search-results-grid">
+              @for (item of searchResults()!; track item.id) {
+                <div class="food-card" [class.unavailable]="item.stockQuantity === 0">
+                  <div class="food-img-wrap">
+                    <img src="assets/food-placeholder.png" [alt]="item.name" />
+                    <span class="veg-tag" [class.non-veg]="!item.isVeg">
+                      {{ item.isVeg ? '🟢' : '🔴' }}
+                    </span>
+                  </div>
+                  <div class="food-info">
+                    <h4>{{ item.name }}</h4>
+                    <p class="restaurant-name">{{ item.shop.name }}</p>
+                    <div class="food-meta">
+                      <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
+                      <span class="rating">{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
+                    </div>
+                    <div class="food-footer">
+                      <span class="price">₹{{ item.price }}</span>
+                      @if (item.stockQuantity > 0) {
+                        <div class="cart-controls">
+                          @if (getQuantity(item.id) === 0) {
+                            <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">+ Add</button>
+                          } @else {
+                            <div class="qty-control">
+                              <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)"><mat-icon>remove</mat-icon></button>
+                              <span class="qty">{{ getQuantity(item.id) }}</span>
+                              <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)"><mat-icon>add</mat-icon></button>
+                            </div>
+                          }
+                        </div>
+                      } @else {
+                        <span class="unavail-tag">Out of Stock</span>
+                      }
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+        </section>
+      }
+
       <!-- Trending Items -->
       @if (trendingItems().length > 0) {
         <section class="section">
