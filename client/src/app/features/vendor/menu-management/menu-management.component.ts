@@ -15,7 +15,6 @@ import { MatTableModule } from '@angular/material/table';
 
 import { VendorService } from '../../../core/services/vendor.service';
 import { NotificationService } from '../../../core/services/notification.service';
-import { AuthService } from '../../../core/services/auth.service';
 import { FoodItem } from '../../../core/models/food-item.model';
 
 @Component({
@@ -54,7 +53,6 @@ export class MenuManagementComponent implements OnInit {
   constructor(
     private vendor: VendorService,
     private notify: NotificationService,
-    private auth: AuthService,
     private fb: FormBuilder
   ) {
     this.form = this.fb.group({
@@ -67,11 +65,8 @@ export class MenuManagementComponent implements OnInit {
   }
 
   ngOnInit(): void {
-    // Find vendor's shop first
-    const employeeId = this.auth.currentUser()?.employeeId ?? 0;
-    this.vendor.getAllShops().subscribe({
-      next: (shops) => {
-        const myShop = shops.find(s => s.vendor?.employeeId === employeeId);
+    this.vendor.getMyShop().subscribe({
+      next: (myShop) => {
         this.shopId = myShop?.id ?? 0;
         this.loadMenu();
       },

@@ -21,6 +21,9 @@ public interface OrderItemRepository extends JpaRepository<OrderItem, Integer> {
     List<OrderItem> findByStatus(OrderItemStatus status);
     List<OrderItem> findByOrderIdAndStatus(Integer orderId, OrderItemStatus status);
 
+    @Query("SELECT oi FROM OrderItem oi WHERE oi.foodItem.shop.id = :shopId ORDER BY oi.order.createdAt DESC")
+    List<OrderItem> findByFoodItemShopId(@Param("shopId") Integer shopId);
+
     // ── Revenue queries for admin ────────────────────────────────────────────
     @Query("SELECT SUM(oi.subtotal) FROM OrderItem oi WHERE oi.foodItem.shop.id = :shopId")
     BigDecimal getTotalRevenueByShop(@Param("shopId") Integer shopId);

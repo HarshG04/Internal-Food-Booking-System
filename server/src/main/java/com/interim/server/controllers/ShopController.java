@@ -19,6 +19,17 @@ public class ShopController {
 
     private final ShopService shopService;
 
+    @GetMapping("/my")
+    public ResponseEntity<Shop> getMyShop(HttpServletRequest request) {
+        User currentUser = (User) request.getAttribute("currentUser");
+        if (currentUser.getRole() != Role.VENDOR) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return shopService.getShopByVendorId(currentUser.getEmployeeId())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
     @GetMapping
     public List<Shop> getAllShops() {
         return shopService.getAllShops();

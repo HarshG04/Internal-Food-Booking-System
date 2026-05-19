@@ -36,7 +36,11 @@ export class VendorService {
   getOrderItemsByStatus(status: string): Observable<OrderItem[]> {
     return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items/status/${status}`);
   }
-  // GET /api/orders
+  // GET /api/orders/my-shop — OrderItems belonging to the logged-in vendor's shop
+  getMyShopOrders(): Observable<OrderItem[]> {
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/orders/my-shop`);
+  }
+  // GET /api/orders (kept for backwards compat)
   getVendorOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.baseUrl}/orders`);
   }
@@ -47,7 +51,11 @@ export class VendorService {
   }
 
   // ── SHOPS ────────────────────────────────────────────────
-  // GET /api/shops — find vendor's shop by matching vendor.employeeId
+  // GET /api/shops/my — the shop assigned to the logged-in vendor
+  getMyShop(): Observable<Restaurant> {
+    return this.http.get<Restaurant>(`${this.baseUrl}/shops/my`);
+  }
+  // GET /api/shops — full list (kept for backwards compat)
   getAllShops(): Observable<Restaurant[]> {
     return this.http.get<Restaurant[]>(`${this.baseUrl}/shops`);
   }

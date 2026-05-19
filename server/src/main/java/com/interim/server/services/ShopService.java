@@ -30,6 +30,10 @@ public class ShopService {
         return shopRepository.findById(id);
     }
 
+    public Optional<Shop> getShopByVendorId(Integer vendorId) {
+        return shopRepository.findByVendor_EmployeeId(vendorId).stream().findFirst();
+    }
+
     public List<Shop> getShopsByFloor(Integer floorId) {
         return shopRepository.findByFloorId(floorId);
     }

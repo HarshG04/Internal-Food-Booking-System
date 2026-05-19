@@ -55,21 +55,21 @@
         <h3>Recent Orders</h3>
         <a mat-button routerLink="../orders" class="view-all">View All →</a>
       </div>
-      @if (recentOrders().length === 0) {
+      @if (recentOrderItems().length === 0) {
         <div class="empty-state">
           <mat-icon>inbox</mat-icon>
           <p>No orders yet today</p>
         </div>
       } @else {
         <div class="order-list">
-          @for (order of recentOrders(); track order.id) {
+          @for (item of recentOrderItems(); track item.id) {
             <div class="order-row">
               <div class="order-token">
                 <mat-icon>confirmation_number</mat-icon>
-                <span>🎫 {{ order.tokenNo }}</span>
+                <span>🎫 {{ item.order?.tokenNo ?? ('#' + item.order?.id) }}</span>
               </div>
-              <div class="order-amount">₹{{ order.totalAmount }}</div>
-              <div class="order-date">{{ order.createdAt | date:'h:mm a' }}</div>
+              <div class="order-amount">₹{{ item.subtotal }}</div>
+              <div class="order-date">{{ item.order?.createdAt | date:'h:mm a' }}</div>
             </div>
           }
         </div>

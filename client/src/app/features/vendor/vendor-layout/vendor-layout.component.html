@@ -26,6 +26,22 @@
     </mat-nav-list>
 
     <div class="sidenav-footer">
+      @if (myShop()) {
+        <div class="shop-info">
+          <mat-icon class="shop-icon">storefront</mat-icon>
+          <div class="shop-details">
+            <div class="shop-name">{{ myShop()!.name }}</div>
+            <div class="shop-meta">
+              {{ myShop()!.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}
+              &nbsp;&bull;&nbsp;
+              Floor {{ myShop()!.floor.floorNumber }}
+            </div>
+            <span class="shop-status" [class.closed]="!myShop()!.isOpen">
+              {{ myShop()!.isOpen ? 'Open' : 'Closed' }}
+            </span>
+          </div>
+        </div>
+      }
       <button mat-stroked-button class="logout-btn" (click)="auth.logout()">
         <mat-icon>logout</mat-icon> Sign Out
       </button>

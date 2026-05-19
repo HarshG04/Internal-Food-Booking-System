@@ -1,12 +1,16 @@
 package com.interim.server.controllers;
 
-
-
-
 import com.interim.server.dtos.PlaceOrderRequest;
+import com.interim.server.enums.Role;
 import com.interim.server.models.Order;
+import com.interim.server.models.OrderItem;
+import com.interim.server.models.Shop;
+import com.interim.server.models.User;
 import com.interim.server.services.OrderService;
+import com.interim.server.services.ShopService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -18,6 +22,21 @@ import java.util.List;
 public class OrderController {
 
     private final OrderService orderService;
+    private final ShopService shopService;
+
+    @GetMapping("/my-shop")
+    public ResponseEntity<List<OrderItem>> getOrdersForMyShop(HttpServletRequest request) {
+        User currentUser = (User) request.getAttribute("currentUser");
+        if (currentUser.getRole() != Role.VENDOR) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        Shop shop = shopService.getShopByVendorId(currentUser.getEmployeeId())
+                .orElse(null);
+        if (shop == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok(orderService.getOrderItemsByShopId(shop.getId()));
+    }
 
     @GetMapping
     public List<Order> getAllOrders() {

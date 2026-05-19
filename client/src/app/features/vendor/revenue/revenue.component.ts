@@ -7,7 +7,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTabsModule } from '@angular/material/tabs';
 
 import { VendorService } from '../../../core/services/vendor.service';
-import { Order } from '../../../core/models/order.model';
+import { OrderItem } from '../../../core/models/order.model';
 
 interface PeriodStat {
   label: string;
@@ -31,36 +31,37 @@ interface PeriodStat {
 })
 export class VendorRevenueComponent implements OnInit {
   loading = signal(true);
-  orders = signal<Order[]>([]);
+  orderItems = signal<OrderItem[]>([]);
 
   daily = signal<PeriodStat[]>([]);
   monthly = signal<PeriodStat[]>([]);
   yearly = signal<PeriodStat[]>([]);
 
   totals = computed(() => {
-    const all = this.orders();
+    const all = this.orderItems();
+    const total = all.reduce((s, i) => s + i.subtotal, 0);
+    const uniqueOrders = new Set(all.map(i => i.order?.id)).size;
     return {
-      total: all.reduce((s, o) => s + o.totalAmount, 0),
-      count: all.length,
-      avg: all.length ? Math.round(all.reduce((s,o)=>s+o.totalAmount,0)/all.length) : 0,
+      total,
+      count: uniqueOrders,
+      avg: uniqueOrders ? Math.round(total / uniqueOrders) : 0,
     };
   });
 
   constructor(private vendor: VendorService) {}
 
   ngOnInit(): void {
-    // Uses GET /order/getAll via getVendorOrders
-    this.vendor.getVendorOrders().subscribe({
-      next: (orders) => {
-        this.orders.set(orders);
-        this.buildStats(orders);
+    this.vendor.getMyShopOrders().subscribe({
+      next: (items) => {
+        this.orderItems.set(items);
+        this.buildStats(items);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
   }
 
-  private buildStats(orders: Order[]): void {
+  private buildStats(items: OrderItem[]): void {
     // Daily — last 7 days
     const dayMap: Record<string, PeriodStat> = {};
     for (let i = 6; i >= 0; i--) {
@@ -68,11 +69,14 @@ export class VendorRevenueComponent implements OnInit {
       const key = d.toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
       dayMap[key] = { label: key, revenue: 0, orders: 0 };
     }
-    orders.forEach(o => {
-      const key = new Date(o.createdAt).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
+    const dayOrderSets: Record<string, Set<number>> = {};
+    items.forEach(i => {
+      const key = new Date(i.order?.createdAt ?? '').toLocaleDateString('en-IN', { day: '2-digit', month: 'short' });
       if (dayMap[key]) {
-        dayMap[key].revenue += o.totalAmount;
-        dayMap[key].orders++;
+        dayMap[key].revenue += i.subtotal;
+        if (!dayOrderSets[key]) dayOrderSets[key] = new Set();
+        if (i.order?.id) dayOrderSets[key].add(i.order.id);
+        dayMap[key].orders = dayOrderSets[key].size;
       }
     });
     this.daily.set(Object.values(dayMap));
@@ -84,22 +88,28 @@ export class VendorRevenueComponent implements OnInit {
       const key = d.toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
       monMap[key] = { label: key, revenue: 0, orders: 0 };
     }
-    orders.forEach(o => {
-      const key = new Date(o.createdAt).toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
+    const monOrderSets: Record<string, Set<number>> = {};
+    items.forEach(i => {
+      const key = new Date(i.order?.createdAt ?? '').toLocaleDateString('en-IN', { month: 'short', year: '2-digit' });
       if (monMap[key]) {
-        monMap[key].revenue += o.totalAmount;
-        monMap[key].orders++;
+        monMap[key].revenue += i.subtotal;
+        if (!monOrderSets[key]) monOrderSets[key] = new Set();
+        if (i.order?.id) monOrderSets[key].add(i.order.id);
+        monMap[key].orders = monOrderSets[key].size;
       }
     });
     this.monthly.set(Object.values(monMap));
 
     // Yearly
     const yrMap: Record<string, PeriodStat> = {};
-    orders.forEach(o => {
-      const key = new Date(o.createdAt).getFullYear().toString();
+    const yrOrderSets: Record<string, Set<number>> = {};
+    items.forEach(i => {
+      const key = new Date(i.order?.createdAt ?? '').getFullYear().toString();
       if (!yrMap[key]) yrMap[key] = { label: key, revenue: 0, orders: 0 };
-      yrMap[key].revenue += o.totalAmount;
-      yrMap[key].orders++;
+      yrMap[key].revenue += i.subtotal;
+      if (!yrOrderSets[key]) yrOrderSets[key] = new Set();
+      if (i.order?.id) yrOrderSets[key].add(i.order.id);
+      yrMap[key].orders = yrOrderSets[key].size;
     });
     this.yearly.set(Object.values(yrMap).sort((a, b) => a.label.localeCompare(b.label)));
   }

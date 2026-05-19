@@ -57,6 +57,10 @@ public class OrderService {
         return orderRepository.findByShopId(shopId);
     }
 
+    public List<com.interim.server.models.OrderItem> getOrderItemsByShopId(Integer shopId) {
+        return orderItemRepository.findByFoodItemShopId(shopId);
+    }
+
     /**
      * Place a new order atomically.
      * Validates stock, generates a unique 4-digit token, creates Order + OrderItems.

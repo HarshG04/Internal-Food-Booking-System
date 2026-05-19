@@ -65,24 +65,11 @@ export class OrderManagementComponent implements OnInit {
   }
 
   load(): void {
-    // GET /api/order-items/status/ORDERED + GET /api/order-items/status/PREPARED
-    // Load all active order items (ORDERED and PREPARED)
-    this.vendor.getOrderItemsByStatus('ORDERED').subscribe({
-      next: (ordered) => {
-        this.vendor.getOrderItemsByStatus('PREPARED').subscribe({
-          next: (prepared) => {
-            this.vendor.getOrderItemsByStatus('DELIVERED').subscribe({
-              next: (delivered) => {
-                const all = [...ordered, ...prepared, ...delivered]
-                  .sort((a, b) => (b.order?.id ?? 0) - (a.order?.id ?? 0));
-                this.orderItems.set(all);
-                this.loading.set(false);
-              },
-              error: () => this.loading.set(false),
-            });
-          },
-          error: () => this.loading.set(false),
-        });
+    // GET /api/orders/my-shop — returns all OrderItems for the vendor's shop
+    this.vendor.getMyShopOrders().subscribe({
+      next: (items) => {
+        this.orderItems.set(items);
+        this.loading.set(false);
       },
       error: () => this.loading.set(false),
     });
