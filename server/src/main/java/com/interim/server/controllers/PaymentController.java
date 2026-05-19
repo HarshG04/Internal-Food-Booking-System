@@ -53,15 +53,4 @@ public class PaymentController {
     public ResponseEntity<Payment> updatePaymentStatus(@PathVariable Integer id, @RequestParam PaymentStatus status) {
         return ResponseEntity.ok(paymentService.updatePaymentStatus(id, status));
     }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Payment> updatePayment(@PathVariable Integer id, @RequestBody Payment payment) {
-        return ResponseEntity.ok(paymentService.updatePayment(id, payment));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deletePayment(@PathVariable Integer id) {
-        paymentService.deletePayment(id);
-        return ResponseEntity.noContent().build();
-    }
 }

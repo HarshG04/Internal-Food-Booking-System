@@ -17,11 +17,6 @@ public class FeedbackController {
 
     private final FeedbackService feedbackService;
 
-    @GetMapping
-    public List<Feedback> getAllFeedbacks() {
-        return feedbackService.getAllFeedbacks();
-    }
-
     @GetMapping("/{id}")
     public ResponseEntity<Feedback> getFeedbackById(@PathVariable Integer id) {
         return feedbackService.getFeedbackById(id)
@@ -39,17 +34,6 @@ public class FeedbackController {
     @PostMapping
     public ResponseEntity<Feedback> createFeedback(@RequestBody Feedback feedback) {
         return ResponseEntity.ok(feedbackService.createFeedback(feedback));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Feedback> updateFeedback(@PathVariable Integer id, @RequestBody Feedback feedback) {
-        return ResponseEntity.ok(feedbackService.updateFeedback(id, feedback));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteFeedback(@PathVariable Integer id) {
-        feedbackService.deleteFeedback(id);
-        return ResponseEntity.noContent().build();
     }
 }
 

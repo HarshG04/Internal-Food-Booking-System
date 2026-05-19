@@ -47,24 +47,8 @@ public class OrderItemController {
         return orderItemService.getOrderItemsByStatus(status);
     }
 
-    @PostMapping
-    public ResponseEntity<OrderItem> createOrderItem(@RequestBody OrderItem orderItem) {
-        return ResponseEntity.ok(orderItemService.createOrderItem(orderItem));
-    }
-
     @PatchMapping("/{id}/status")
     public ResponseEntity<OrderItem> updateStatus(@PathVariable Integer id, @RequestParam OrderItemStatus status) {
         return ResponseEntity.ok(orderItemService.updateStatus(id, status));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<OrderItem> updateOrderItem(@PathVariable Integer id, @RequestBody OrderItem orderItem) {
-        return ResponseEntity.ok(orderItemService.updateOrderItem(id, orderItem));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrderItem(@PathVariable Integer id) {
-        orderItemService.deleteOrderItem(id);
-        return ResponseEntity.noContent().build();
     }
 }

@@ -71,22 +71,6 @@ public class OrderController {
     public ResponseEntity<Order> placeOrder(@RequestBody PlaceOrderRequest request) {
         return ResponseEntity.ok(orderService.placeOrder(request.getUserId(), request.getItems()));
     }
-
-    @PostMapping
-    public ResponseEntity<Order> createOrder(@RequestBody Order order) {
-        return ResponseEntity.ok(orderService.createOrder(order));
-    }
-
-    @PutMapping("/{id}")
-    public ResponseEntity<Order> updateOrder(@PathVariable Integer id, @RequestBody Order order) {
-        return ResponseEntity.ok(orderService.updateOrder(id, order));
-    }
-
-    @DeleteMapping("/{id}")
-    public ResponseEntity<Void> deleteOrder(@PathVariable Integer id) {
-        orderService.deleteOrder(id);
-        return ResponseEntity.noContent().build();
-    }
 }
 
 
