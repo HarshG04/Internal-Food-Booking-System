@@ -11,6 +11,7 @@ import { OrderService } from '../../../core/services/order.service';
 import { AuthService } from '../../../core/services/auth.service';
 import { Order, OrderItem } from '../../../core/models/order.model';
 import { NotificationService } from '../../../core/services/notification.service';
+import { forkJoin } from 'rxjs';
 import { FeedbackDialogComponent } from './feedback-dialog.component';
 
 @Component({
@@ -31,9 +32,7 @@ import { FeedbackDialogComponent } from './feedback-dialog.component';
 export class OrderHistoryComponent implements OnInit {
   loading = signal(true);
   orders = signal<Order[]>([]);
-  expandedOrderId = signal<number | null>(null);
   orderItemsMap = signal<Record<number, OrderItem[]>>({});
-  loadingItemsFor = signal<number | null>(null);
 
   itemStatusColors: Record<string, string> = {
     ORDERED: '#ff9800',
@@ -48,16 +47,32 @@ export class OrderHistoryComponent implements OnInit {
     private dialog: MatDialog
   ) {}
 
+  shopForOrder(orderId: number): string {
+    return this.orderItemsMap()[orderId]?.[0]?.foodItem?.shop?.name ?? '';
+  }
+
   ngOnInit(): void {
-    // GET /api/orders/employee/{employeeId}
     const employeeId = this.auth.getUserId();
     if (!employeeId) { this.loading.set(false); return; }
 
-    this.orderService.getMyOrders(employeeId).subscribe({
-      next: (orders) => {
+    forkJoin({
+      orders: this.orderService.getMyOrders(employeeId),
+      items: this.orderService.getOrderItemsByUser(employeeId),
+    }).subscribe({
+      next: ({ orders, items }) => {
         this.orders.set(orders.sort((a, b) =>
           new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
         ));
+        // Pre-populate the items map grouped by order id
+        const map: Record<number, OrderItem[]> = {};
+        items.forEach(item => {
+          const oid = item.order?.id;
+          if (oid != null) {
+            if (!map[oid]) map[oid] = [];
+            map[oid].push(item);
+          }
+        });
+        this.orderItemsMap.set(map);
         this.loading.set(false);
       },
       error: () => {
@@ -65,23 +80,6 @@ export class OrderHistoryComponent implements OnInit {
         this.notify.error('Failed to load orders.');
       },
     });
-  }
-
-  toggleExpand(orderId: number): void {
-    const isExpanding = this.expandedOrderId() !== orderId;
-    this.expandedOrderId.set(isExpanding ? orderId : null);
-
-    if (isExpanding && !this.orderItemsMap()[orderId]) {
-      this.loadingItemsFor.set(orderId);
-      // GET /api/order-items/order/{orderId}
-      this.orderService.getOrderItemsByOrder(orderId).subscribe({
-        next: (items) => {
-          this.orderItemsMap.update(m => ({ ...m, [orderId]: items }));
-          this.loadingItemsFor.set(null);
-        },
-        error: () => this.loadingItemsFor.set(null),
-      });
-    }
   }
 
   openFeedback(item: OrderItem): void {

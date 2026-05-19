@@ -17,51 +17,38 @@
     <div class="orders-list">
       @for (order of orders(); track order.id) {
         <div class="order-card">
-          <!-- Header -->
-          <div class="order-header" (click)="toggleExpand(order.id)">
-            <div class="order-meta">
-              <span class="order-id">#{{ order.id }}</span>
-              <span class="token-badge">🎫 {{ order.tokenNo }}</span>
-              <span class="date">{{ order.createdAt | date:'dd MMM yy, h:mm a' }}</span>
-            </div>
-            <div class="order-right">
-              <strong class="order-total">₹{{ order.totalAmount }}</strong>
-              <mat-icon class="expand-icon" [class.rotated]="expandedOrderId() === order.id">
-                expand_more
-              </mat-icon>
-            </div>
-          </div>
-
-          <!-- Expanded Details -->
-          @if (expandedOrderId() === order.id) {
-            <div class="order-details">
-              @if (loadingItemsFor() === order.id) {
-                <div class="items-loading"><mat-spinner diameter="24"></mat-spinner></div>
-              } @else {
-                <div class="items-grid">
-                  @for (item of orderItemsMap()[order.id]; track item.id) {
-                    <div class="order-item">
-                      <div class="item-info">
-                        <span class="item-name">{{ item.foodItem.name }}</span>
-                        <span class="item-qty">× {{ item.quantity }}</span>
-                        <span class="item-status"
-                          [style.color]="itemStatusColors[item.status]">
-                          {{ item.status }}
-                        </span>
-                      </div>
-                      <span class="item-price">₹{{ item.subtotal }}</span>
-                      @if (item.status === 'DELIVERED') {
-                        <button mat-icon-button class="rate-btn" title="Rate this item"
-                          (click)="openFeedback(item)">
-                          <mat-icon>star_border</mat-icon>
-                        </button>
-                      }
-                    </div>
+          <div class="order-items-primary">
+            <div class="items-grid">
+              @for (item of orderItemsMap()[order.id]; track item.id) {
+                <div class="order-item">
+                  <div class="item-info">
+                    <span class="item-name">{{ item.foodItem.name }}</span>
+                    <span class="item-qty">× {{ item.quantity }}</span>
+                    <span class="item-status"
+                      [style.color]="itemStatusColors[item.status]">
+                      {{ item.status }}
+                    </span>
+                  </div>
+                  <span class="item-price">₹{{ item.subtotal }}</span>
+                  @if (item.status === 'DELIVERED') {
+                    <button mat-icon-button class="rate-btn" title="Rate this item"
+                      (click)="openFeedback(item)">
+                      <mat-icon>star_border</mat-icon>
+                    </button>
                   }
                 </div>
               }
             </div>
-          }
+          </div>
+
+          <div class="order-footer">
+            <div class="order-meta">
+              <span class="shop-name">🏪 {{ shopForOrder(order.id) }}</span>
+              <span class="token-badge">🎫 {{ order.tokenNo }}</span>
+              <span class="date">{{ order.createdAt | date:'dd MMM yy, h:mm a' }}</span>
+            </div>
+            <strong class="order-total">₹{{ order.totalAmount }}</strong>
+          </div>
         </div>
       }
     </div>
