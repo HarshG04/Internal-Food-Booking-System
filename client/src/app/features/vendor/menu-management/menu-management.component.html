@@ -71,7 +71,8 @@
       @for (item of menuItems(); track item.id) {
         <div class="menu-item-card">
           <div class="item-img">
-            <img src="assets/placeholder-food.png" [alt]="item.name" />
+            <img [src]="foodImgSrc(item.id)" [alt]="item.name"
+              (error)="onFoodImgError(item.id, $event.target)" />
             <span class="veg-dot" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢' : '🔴' }}</span>
           </div>
           <div class="item-body">
@@ -92,6 +93,11 @@
             <button mat-icon-button (click)="openEdit(item)">
               <mat-icon>edit</mat-icon>
             </button>
+            <button mat-icon-button title="Upload image" (click)="imgInput.click()">
+              <mat-icon>add_a_photo</mat-icon>
+            </button>
+            <input #imgInput type="file" accept="image/*" hidden
+              (change)="uploadImage(item, $any($event.target).files[0]); $any($event.target).value=''" />
             <button mat-icon-button class="del-btn" (click)="deleteItem(item)">
               <mat-icon>delete</mat-icon>
             </button>

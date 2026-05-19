@@ -165,7 +165,8 @@
               @for (item of searchResults()!; track item.id) {
                 <div class="food-card" [class.unavailable]="item.stockQuantity === 0">
                   <div class="food-img-wrap">
-                    <img src="assets/food-placeholder.png" [alt]="item.name" />
+                    <img [src]="foodImgSrc(item.id)" [alt]="item.name"
+                      (error)="onFoodImgError(item.id, $event.target)" />
                     <span class="veg-tag" [class.non-veg]="!item.isVeg">
                       {{ item.isVeg ? '🟢' : '🔴' }}
                     </span>
@@ -220,7 +221,8 @@
                 @for (item of trendingItems(); track item.id) {
                   <div class="food-card trending-card">
                     <div class="food-img-wrap">
-                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <img [src]="foodImgSrc(item.id)" [alt]="item.name"
+                        (error)="onFoodImgError(item.id, $event.target)" />
                       <span class="veg-tag" [class.non-veg]="!item.isVeg">
                         {{ item.isVeg ? '🟢' : '🔴' }}
                       </span>
@@ -270,7 +272,8 @@
                 @for (item of fastItems(); track item.id) {
                   <div class="food-card fast-card">
                     <div class="food-img-wrap">
-                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <img [src]="foodImgSrc(item.id)" [alt]="item.name"
+                        (error)="onFoodImgError(item.id, $event.target)" />
                       <span class="fast-badge">⚡ Fast</span>
                     </div>
                     <div class="food-info">
@@ -324,7 +327,8 @@
                 @for (restaurant of filteredRestaurants; track restaurant.id) {
                   <a [routerLink]="['/restaurant', restaurant.id]" class="restaurant-card">
                     <div class="rest-img-wrap">
-                      <img src="assets/restaurant-placeholder.png" [alt]="restaurant.name" />
+                      <img [src]="shopImgSrc(restaurant.id)" [alt]="restaurant.name"
+                        (error)="onShopImgError(restaurant.id, $event.target)" />
                       <span class="floor-chip">Floor {{ restaurant.floor.floorNumber }}</span>
                       @if (!restaurant.isOpen) {
                         <div class="closed-overlay">Closed</div>
@@ -362,7 +366,8 @@
               @for (shop of floorShops; track shop.id) {
                 <div class="shop-card" (click)="selectShop(shop)">
                   <div class="rest-img-wrap">
-                    <img src="assets/restaurant-placeholder.png" [alt]="shop.name" />
+                    <img [src]="shopImgSrc(shop.id)" [alt]="shop.name"
+                      (error)="onShopImgError(shop.id, $event.target)" />
                     @if (!shop.isOpen) {
                       <div class="closed-overlay">Closed</div>
                     }
@@ -402,7 +407,8 @@
                 @for (item of floorFoodItems(); track item.id) {
                   <div class="food-card" [class.unavailable]="item.stockQuantity === 0">
                     <div class="food-img-wrap">
-                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <img [src]="foodImgSrc(item.id)" [alt]="item.name"
+                        (error)="onFoodImgError(item.id, $event.target)" />
                       <span class="veg-tag" [class.non-veg]="!item.isVeg">
                         {{ item.isVeg ? '🟢' : '🔴' }}
                       </span>
@@ -474,7 +480,8 @@
                 @for (item of shopFoodItems(); track item.id) {
                   <div class="food-card" [class.unavailable]="item.stockQuantity === 0">
                     <div class="food-img-wrap">
-                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <img [src]="foodImgSrc(item.id)" [alt]="item.name"
+                        (error)="onFoodImgError(item.id, $event.target)" />
                       <span class="veg-tag" [class.non-veg]="!item.isVeg">
                         {{ item.isVeg ? '🟢' : '🔴' }}
                       </span>

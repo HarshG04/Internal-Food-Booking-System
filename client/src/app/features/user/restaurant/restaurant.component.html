@@ -6,6 +6,9 @@
   } @else if (restaurant()) {
     <!-- Hero -->
     <div class="restaurant-hero">
+      <img class="hero-bg" [src]="heroImgSrc()"
+        [alt]="restaurant()!.name"
+        (error)="onHeroImgError($event.target)" />
       <div class="hero-overlay">
         <a mat-icon-button routerLink="/home" class="back-btn">
           <mat-icon>arrow_back</mat-icon>
@@ -35,7 +38,8 @@
         <div class="menu-grid">
           @for (item of items(); track item.id) {
             <div class="menu-item" [class.unavailable]="item.stockQuantity === 0">
-              <img src="assets/food-placeholder.png" [alt]="item.name" class="item-img" />
+              <img [src]="foodImgSrc(item.id)" [alt]="item.name" class="item-img"
+                (error)="onFoodImgError(item.id, $event.target)" />
               <div class="item-details">
                 <div class="item-header">
                   <div>

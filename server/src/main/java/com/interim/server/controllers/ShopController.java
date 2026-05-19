@@ -7,9 +7,12 @@ import com.interim.server.services.ShopService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.util.List;
 
 @RestController
@@ -55,6 +58,25 @@ public class ShopController {
     @GetMapping("/veg")
     public List<Shop> getVegShops() {
         return shopService.getVegShops();
+    }
+
+    @PostMapping("/{id}/image")
+    public ResponseEntity<Void> uploadShopImage(
+            @PathVariable Integer id,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        shopService.uploadImage(id, file);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getShopImage(@PathVariable Integer id) {
+        Shop shop = shopService.getShopWithImage(id);
+        if (shop.getImage() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(shop.getImageType()))
+                .body(shop.getImage());
     }
 
     @PostMapping

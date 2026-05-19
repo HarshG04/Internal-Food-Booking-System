@@ -1,9 +1,11 @@
 package com.interim.server.services;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Optional;
 
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import com.interim.server.models.Floor;
 import com.interim.server.models.Shop;
@@ -59,6 +61,19 @@ public class ShopService {
             existing.setAvgRating(updated.getAvgRating());
             return shopRepository.save(existing);
         }).orElseThrow(() -> new RuntimeException("Shop not found with id: " + id));
+    }
+
+    public Shop uploadImage(Integer shopId, MultipartFile file) throws IOException {
+        Shop shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new RuntimeException("Shop not found: " + shopId));
+        shop.setImage(file.getBytes());
+        shop.setImageType(file.getContentType());
+        return shopRepository.save(shop);
+    }
+
+    public Shop getShopWithImage(Integer shopId) {
+        return shopRepository.findById(shopId)
+                .orElseThrow(() -> new RuntimeException("Shop not found: " + shopId));
     }
 
     /**

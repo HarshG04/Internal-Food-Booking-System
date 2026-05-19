@@ -4,9 +4,12 @@ package com.interim.server.controllers;
 import com.interim.server.models.FoodItem;
 import com.interim.server.services.FoodItemService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -59,6 +62,25 @@ public class FoodItemController {
     @GetMapping("/veg")
     public List<FoodItem> getVegFoodItems() {
         return foodItemService.getVegFoodItems();
+    }
+
+    @PostMapping("/{id}/image")
+    public ResponseEntity<Void> uploadFoodItemImage(
+            @PathVariable Integer id,
+            @RequestParam("file") MultipartFile file) throws IOException {
+        foodItemService.uploadImage(id, file);
+        return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/image")
+    public ResponseEntity<byte[]> getFoodItemImage(@PathVariable Integer id) {
+        FoodItem foodItem = foodItemService.getFoodItemWithImage(id);
+        if (foodItem.getImage() == null) {
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok()
+                .contentType(MediaType.parseMediaType(foodItem.getImageType()))
+                .body(foodItem.getImage());
     }
 
     @PostMapping

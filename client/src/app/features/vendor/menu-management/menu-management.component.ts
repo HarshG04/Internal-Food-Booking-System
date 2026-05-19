@@ -45,13 +45,25 @@ export class MenuManagementComponent implements OnInit {
   editingItem = signal<FoodItem | null>(null);
   showForm = signal(false);
 
+  private failedFoodIds = new Set<number>();
+
+  foodImgSrc(id: number): string {
+    return this.failedFoodIds.has(id)
+      ? '/food_placeholder.webp'
+      : this.vendor.getFoodItemImageUrl(id);
+  }
+  onFoodImgError(id: number, el: EventTarget | null): void {
+    this.failedFoodIds.add(id);
+    if (el) (el as HTMLImageElement).src = '/food_placeholder.webp';
+  }
+
   categories = ['Starters', 'Main Course', 'Snacks', 'Beverages', 'Desserts', 'Combos'];
   shopId = 0;
 
   form: FormGroup;
 
   constructor(
-    private vendor: VendorService,
+    readonly vendor: VendorService,
     private notify: NotificationService,
     private fb: FormBuilder
   ) {
@@ -140,6 +152,15 @@ export class MenuManagementComponent implements OnInit {
         this.loadMenu();
       },
       error: () => this.notify.error('Failed to delete item.'),
+    });
+  }
+
+  uploadImage(item: FoodItem, file: File): void {
+    if (!file) return;
+    // POST /api/food-items/{id}/image
+    this.vendor.uploadFoodItemImage(item.id, file).subscribe({
+      next: () => this.notify.success('Image uploaded!'),
+      error: () => this.notify.error('Failed to upload image.'),
     });
   }
 

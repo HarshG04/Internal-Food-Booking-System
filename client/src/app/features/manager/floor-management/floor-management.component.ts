@@ -213,6 +213,15 @@ export class FloorManagementComponent implements OnInit {
     });
   }
 
+  uploadShopImage(shop: Restaurant, file: File): void {
+    if (!file) return;
+    // POST /api/shops/{id}/image
+    this.manager.uploadShopImage(shop.id, file).subscribe({
+      next: () => this.notify.success('Shop image uploaded!'),
+      error: () => this.notify.error('Failed to upload shop image.'),
+    });
+  }
+
   reassignShopFloor(shop: Restaurant, floorId: number): void {
     // PUT /api/shops/{id}
     this.manager.updateShop(shop.id, { ...shop, floor: { id: floorId, floorNumber: 0, isActive: true } }).subscribe({

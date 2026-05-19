@@ -126,6 +126,28 @@ export class FoodService {
     return this.http.delete<void>(`${this.baseUrl}/food-items/${id}`);
   }
 
+  // ── IMAGES ─────────────────────────────────────────────
+  // GET /api/shops/{id}/image
+  getShopImageUrl(id: number): string {
+    return `${this.baseUrl}/shops/${id}/image`;
+  }
+  // POST /api/shops/{id}/image
+  uploadShopImage(id: number, file: File): Observable<void> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<void>(`${this.baseUrl}/shops/${id}/image`, fd);
+  }
+  // GET /api/food-items/{id}/image
+  getFoodItemImageUrl(id: number): string {
+    return `${this.baseUrl}/food-items/${id}/image`;
+  }
+  // POST /api/food-items/{id}/image
+  uploadFoodItemImage(id: number, file: File): Observable<void> {
+    const fd = new FormData();
+    fd.append('file', file);
+    return this.http.post<void>(`${this.baseUrl}/food-items/${id}/image`, fd);
+  }
+
   // Convenience helpers used by home page
   getTrendingItems(): Observable<FoodItem[]> {
     return this.searchFoodItems({ sortBy: 'popularity' });

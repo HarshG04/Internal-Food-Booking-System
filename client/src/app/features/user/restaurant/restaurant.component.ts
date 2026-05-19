@@ -38,8 +38,30 @@ export class RestaurantComponent implements OnInit {
   restaurant = signal<Restaurant | null>(null);
   items = signal<FoodItem[]>([]);
 
+  private failedFoodIds = new Set<number>();
+  private failedShopId = false;
+
+  foodImgSrc(id: number): string {
+    return this.failedFoodIds.has(id)
+      ? '/food_placeholder.webp'
+      : this.foodService.getFoodItemImageUrl(id);
+  }
+  heroImgSrc(): string {
+    return this.failedShopId
+      ? '/shop_placeholder.jpg'
+      : this.foodService.getShopImageUrl(this.restaurant()!.id);
+  }
+  onFoodImgError(id: number, el: EventTarget | null): void {
+    this.failedFoodIds.add(id);
+    if (el) (el as HTMLImageElement).src = '/food_placeholder.webp';
+  }
+  onHeroImgError(el: EventTarget | null): void {
+    this.failedShopId = true;
+    if (el) (el as HTMLImageElement).src = '/shop_placeholder.jpg';
+  }
+
   constructor(
-    private foodService: FoodService,
+    readonly foodService: FoodService,
     public cart: CartService,
     private notify: NotificationService
   ) {}

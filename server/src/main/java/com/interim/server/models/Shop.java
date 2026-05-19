@@ -12,6 +12,7 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
+import jakarta.persistence.Lob;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
@@ -54,6 +55,15 @@ public class Shop {
     @OneToOne
     @JoinColumn(name = "vendor_id", unique = true)
     private User vendor;
+
+    @Lob
+    @JsonIgnore
+    @Column(name = "image", columnDefinition = "LONGBLOB")
+    private byte[] image;
+
+    @JsonIgnore
+    @Column(name = "image_type")
+    private String imageType;
 
     @JsonIgnore
     @OneToMany(mappedBy = "shop", cascade = CascadeType.ALL)

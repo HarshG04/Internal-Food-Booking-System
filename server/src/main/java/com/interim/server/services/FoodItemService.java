@@ -4,7 +4,9 @@ import com.interim.server.models.FoodItem;
 import com.interim.server.repositories.FoodItemRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
@@ -69,6 +71,19 @@ public class FoodItemService {
 
     public void deleteFoodItem(Integer id) {
         foodItemRepository.deleteById(id);
+    }
+
+    public FoodItem uploadImage(Integer foodItemId, MultipartFile file) throws IOException {
+        FoodItem foodItem = foodItemRepository.findById(foodItemId)
+                .orElseThrow(() -> new RuntimeException("FoodItem not found: " + foodItemId));
+        foodItem.setImage(file.getBytes());
+        foodItem.setImageType(file.getContentType());
+        return foodItemRepository.save(foodItem);
+    }
+
+    public FoodItem getFoodItemWithImage(Integer foodItemId) {
+        return foodItemRepository.findById(foodItemId)
+                .orElseThrow(() -> new RuntimeException("FoodItem not found: " + foodItemId));
     }
 }
 

@@ -41,6 +41,15 @@ public class FoodItem {
     @Column(name = "avg_rating", precision = 3, scale = 2)
     private BigDecimal avgRating;
 
+    @Lob
+    @JsonIgnore
+    @Column(name = "image", columnDefinition = "LONGBLOB")
+    private byte[] image;
+
+    @JsonIgnore
+    @Column(name = "image_type")
+    private String imageType;
+
     @JsonIgnore
     @OneToMany(mappedBy = "foodItem", cascade = CascadeType.ALL)
     @ToString.Exclude

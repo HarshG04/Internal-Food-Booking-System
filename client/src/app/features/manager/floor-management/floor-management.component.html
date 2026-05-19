@@ -160,6 +160,11 @@
                     }
                   </mat-select>
                 </mat-form-field>
+                <button mat-icon-button title="Upload image" (click)="shopImgInput.click()">
+                  <mat-icon>add_a_photo</mat-icon>
+                </button>
+                <input #shopImgInput type="file" accept="image/*" hidden
+                  (change)="uploadShopImage(shop, $any($event.target).files[0]); $any($event.target).value=''" />
                 <button mat-icon-button (click)="openEditShop(shop)">
                   <mat-icon>edit</mat-icon>
                 </button>

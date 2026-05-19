@@ -47,10 +47,32 @@ import { forkJoin } from 'rxjs';
   styleUrl: './home.component.scss',
 })
 export class HomeComponent implements OnInit {
-  private foodService = inject(FoodService);
+  readonly foodService = inject(FoodService);
   cart = inject(CartService);
   private notify = inject(NotificationService);
   private auth = inject(AuthService);
+
+  private failedFoodIds = new Set<number>();
+  private failedShopIds = new Set<number>();
+
+  foodImgSrc(id: number): string {
+    return this.failedFoodIds.has(id)
+      ? '/food_placeholder.webp'
+      : this.foodService.getFoodItemImageUrl(id);
+  }
+  shopImgSrc(id: number): string {
+    return this.failedShopIds.has(id)
+      ? '/shop_placeholder.jpg'
+      : this.foodService.getShopImageUrl(id);
+  }
+  onFoodImgError(id: number, el: EventTarget | null): void {
+    this.failedFoodIds.add(id);
+    if (el) (el as HTMLImageElement).src = '/food_placeholder.webp';
+  }
+  onShopImgError(id: number, el: EventTarget | null): void {
+    this.failedShopIds.add(id);
+    if (el) (el as HTMLImageElement).src = '/shop_placeholder.jpg';
+  }
 
   user = this.auth.currentUser;
   firstName = computed(() => {
