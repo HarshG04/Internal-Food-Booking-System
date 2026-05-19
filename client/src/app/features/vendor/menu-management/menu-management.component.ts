@@ -63,7 +63,6 @@ export class MenuManagementComponent implements OnInit {
       stockQuantity: [50, [Validators.required, Validators.min(0)]],
       prepTimeMins: [10, Validators.required],
       isVeg: [true],
-      avgRating: [0],
     });
   }
 
@@ -93,7 +92,7 @@ export class MenuManagementComponent implements OnInit {
 
   openAdd(): void {
     this.editingItem.set(null);
-    this.form.reset({ isVeg: true, stockQuantity: 50, prepTimeMins: 10, avgRating: 0 });
+    this.form.reset({ isVeg: true, stockQuantity: 50, prepTimeMins: 10 });
     this.showForm.set(true);
   }
 

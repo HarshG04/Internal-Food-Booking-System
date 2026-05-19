@@ -48,7 +48,7 @@
                 </div>
                 <div class="item-meta">
                   <span><mat-icon>schedule</mat-icon>{{ item.prepTimeMins }} min</span>
-                  <span>⭐ {{ item.avgRating | number:'1.1-1' }}</span>
+                  <span>{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + (item.avgRating | number:'1.1-1')) }}</span>
                 </div>
                 <div class="item-footer">
                   <span class="price">₹{{ item.price }}</span>
