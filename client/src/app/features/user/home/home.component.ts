@@ -77,6 +77,14 @@ export class HomeComponent implements OnInit {
   searchResults = signal<FoodItem[] | null>(null); // null = no active search
   searchResultsSource = signal<'local' | 'api'>('local');
 
+  // Shop / floor drill-down
+  selectedShopId = signal<number | null>(null);
+  selectedShop = signal<Restaurant | null>(null);
+  floorFoodItems = signal<FoodItem[]>([]);
+  floorItemsLoading = signal(false);
+  shopFoodItems = signal<FoodItem[]>([]);
+  shopItemsLoading = signal(false);
+
   get isSearchActive(): boolean {
     return !!(
       this.searchQuery() ||
@@ -86,6 +94,26 @@ export class HomeComponent implements OnInit {
       this.filterMaxPrepTime() !== null ||
       this.filterSortBy()
     );
+  }
+
+  get view(): 'home' | 'floor' | 'shop' {
+    if (this.selectedShopId() !== null) return 'shop';
+    if (this.selectedFloorId() !== null) return 'floor';
+    return 'home';
+  }
+
+  get selectedFloor(): Floor | null {
+    const id = this.selectedFloorId();
+    return id ? (this.floors().find(f => f.id === id) ?? null) : null;
+  }
+
+  get floorShops(): Restaurant[] {
+    const floorId = this.selectedFloorId();
+    return floorId ? this.restaurants().filter(r => r.floor.id === floorId) : [];
+  }
+
+  shopsOnFloor(floorId: number): Restaurant[] {
+    return this.restaurants().filter(r => r.floor.id === floorId);
   }
 
   ngOnInit(): void {
@@ -181,17 +209,52 @@ export class HomeComponent implements OnInit {
 
   filterByFloor(floorId: number | null): void {
     this.selectedFloorId.set(floorId);
-    this.loading.set(true);
-    const obs = floorId
-      ? this.foodService.getShopsByFloor(floorId)
-      : this.foodService.getAllShops();
-    obs.subscribe({
-      next: (data) => {
-        this.restaurants.set(data);
-        this.loading.set(false);
+    this.selectedShopId.set(null);
+    this.selectedShop.set(null);
+    this.shopFoodItems.set([]);
+
+    if (!floorId) {
+      this.floorFoodItems.set([]);
+      return;
+    }
+
+    const shops = this.floorShops;
+    if (shops.length === 0) {
+      this.floorFoodItems.set([]);
+      return;
+    }
+
+    this.floorItemsLoading.set(true);
+    forkJoin(shops.map(s => this.foodService.getFoodItemsByShopId(s.id))).subscribe({
+      next: (results) => {
+        this.floorFoodItems.set(results.flat());
+        this.floorItemsLoading.set(false);
       },
-      error: () => this.loading.set(false),
+      error: () => this.floorItemsLoading.set(false),
     });
+  }
+
+  selectShop(shop: Restaurant): void {
+    this.selectedFloorId.set(shop.floor.id);
+    this.selectedShopId.set(shop.id);
+    this.selectedShop.set(shop);
+    this.shopFoodItems.set([]);
+    this.shopItemsLoading.set(true);
+    this.foodService.getFoodItemsByShopId(shop.id).subscribe({
+      next: (items) => {
+        this.shopFoodItems.set(items);
+        this.shopItemsLoading.set(false);
+      },
+      error: () => this.shopItemsLoading.set(false),
+    });
+  }
+
+  goHome(): void {
+    this.selectedFloorId.set(null);
+    this.selectedShopId.set(null);
+    this.selectedShop.set(null);
+    this.floorFoodItems.set([]);
+    this.shopFoodItems.set([]);
   }
 
   addToCart(item: FoodItem, event: Event): void {

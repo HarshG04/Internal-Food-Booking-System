@@ -2,25 +2,39 @@
   <!-- Sidebar -->
   <aside class="sidebar">
     <h3 class="sidebar-title">
-      <mat-icon>layers</mat-icon> Filter by Floor
+      <mat-icon>layers</mat-icon> Browse
     </h3>
     <div class="floor-list">
       <button
         class="floor-btn"
-        [class.active]="selectedFloorId() === null"
-        (click)="filterByFloor(null)"
+        [class.active]="view === 'home'"
+        (click)="goHome()"
       >
         <span class="floor-emoji">🏢</span>
         <span>All Floors</span>
       </button>
       @for (floor of floors(); track floor.id) {
-        <button
-          class="floor-btn"
-          [class.active]="selectedFloorId() === floor.id"
-          (click)="filterByFloor(floor.id)"
-        >
-      <span>{{ floor.floorNumber }}F</span>
-        </button>
+        <div class="floor-group">
+          <button
+            class="floor-btn floor-group-header"
+            [class.active]="selectedFloorId() === floor.id && selectedShopId() === null"
+            (click)="filterByFloor(floor.id)"
+          >
+            <span class="floor-num">{{ floor.floorNumber }}F</span>
+            <span>Floor {{ floor.floorNumber }}</span>
+          </button>
+          <div class="shop-list">
+            @for (shop of shopsOnFloor(floor.id); track shop.id) {
+              <button
+                class="shop-btn"
+                [class.active]="selectedShopId() === shop.id"
+                (click)="selectShop(shop)"
+              >
+                {{ shop.name }}
+              </button>
+            }
+          </div>
+        </div>
       }
     </div>
   </aside>
@@ -119,7 +133,8 @@
         <p>Loading your food court...</p>
       </div>
     } @else {
-      <!-- Search Results -->
+
+      <!-- Search Results (shown over all views when search is active) -->
       @if (isSearchActive) {
         <section class="section">
           <div class="section-header">
@@ -188,142 +203,316 @@
         </section>
       }
 
-      <!-- Trending Items -->
-      @if (trendingItems().length > 0) {
-        <section class="section">
-          <div class="section-header">
-            <h3>🔥 Trending Today</h3>
-            <span class="section-sub">Most ordered right now</span>
-          </div>
-          <div class="horizontal-scroll">
-            @for (item of trendingItems(); track item.id) {
-              <div class="food-card trending-card">
-                <div class="food-img-wrap">
-                  <img src="assets/food-placeholder.png" [alt]="item.name" />
-                  <span class="veg-tag" [class.non-veg]="!item.isVeg">
-                    {{ item.isVeg ? '🟢' : '🔴' }}
-                  </span>
-                </div>
-                <div class="food-info">
-                  <h4>{{ item.name }}</h4>
-                  <p class="restaurant-name">{{ item.shop.name }}</p>
-                  <div class="food-meta">
-                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
-                    <span class="rating">⭐ {{ item.avgRating }}</span>
-                  </div>
-                  <div class="food-footer">
-                    <span class="price">₹{{ item.price }}</span>
-                    <div class="cart-controls">
-                      @if (getQuantity(item.id) === 0) {
-                        <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
-                          + Add
-                        </button>
-                      } @else {
-                        <div class="qty-control">
-                          <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
-                            <mat-icon>remove</mat-icon>
-                          </button>
-                          <span class="qty">{{ getQuantity(item.id) }}</span>
-                          <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
-                            <mat-icon>add</mat-icon>
-                          </button>
+      <!-- Contextual content (only when not searching) -->
+      @if (!isSearchActive) {
+
+        <!-- HOME VIEW: Trending, Fast items, All restaurants -->
+        @if (view === 'home') {
+
+          <!-- Trending Items -->
+          @if (trendingItems().length > 0) {
+            <section class="section">
+              <div class="section-header">
+                <h3>🔥 Trending Today</h3>
+                <span class="section-sub">Most ordered right now</span>
+              </div>
+              <div class="horizontal-scroll">
+                @for (item of trendingItems(); track item.id) {
+                  <div class="food-card trending-card">
+                    <div class="food-img-wrap">
+                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <span class="veg-tag" [class.non-veg]="!item.isVeg">
+                        {{ item.isVeg ? '🟢' : '🔴' }}
+                      </span>
+                    </div>
+                    <div class="food-info">
+                      <h4>{{ item.name }}</h4>
+                      <p class="restaurant-name">{{ item.shop.name }}</p>
+                      <div class="food-meta">
+                        <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
+                        <span class="rating">⭐ {{ item.avgRating }}</span>
+                      </div>
+                      <div class="food-footer">
+                        <span class="price">₹{{ item.price }}</span>
+                        <div class="cart-controls">
+                          @if (getQuantity(item.id) === 0) {
+                            <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
+                              + Add
+                            </button>
+                          } @else {
+                            <div class="qty-control">
+                              <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                                <mat-icon>remove</mat-icon>
+                              </button>
+                              <span class="qty">{{ getQuantity(item.id) }}</span>
+                              <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                                <mat-icon>add</mat-icon>
+                              </button>
+                            </div>
+                          }
                         </div>
-                      }
+                      </div>
                     </div>
                   </div>
-                </div>
+                }
               </div>
-            }
-          </div>
-        </section>
-      }
+            </section>
+          }
 
-      <!-- Fast Items < 10 mins -->
-      @if (fastItems().length > 0) {
-        <section class="section">
-          <div class="section-header">
-            <h3>⚡ Ready in Under 10 Mins</h3>
-            <span class="section-sub">Quick bites for busy days</span>
-          </div>
-          <div class="horizontal-scroll">
-            @for (item of fastItems(); track item.id) {
-              <div class="food-card fast-card">
-                <div class="food-img-wrap">
-                  <img src="assets/food-placeholder.png" [alt]="item.name" />
-                  <span class="fast-badge">⚡ Fast</span>
-                </div>
-                <div class="food-info">
-                  <h4>{{ item.name }}</h4>
-                  <p class="restaurant-name">{{ item.shop.name }}</p>
-                  <div class="food-meta">
-                    <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
-                    <span class="veg-tag" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢 Veg' : '🔴 Non-veg' }}</span>
-                  </div>
-                  <div class="food-footer">
-                    <span class="price">₹{{ item.price }}</span>
-                    <div class="cart-controls">
-                      @if (getQuantity(item.id) === 0) {
-                        <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
-                          + Add
-                        </button>
-                      } @else {
-                        <div class="qty-control">
-                          <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
-                            <mat-icon>remove</mat-icon>
-                          </button>
-                          <span class="qty">{{ getQuantity(item.id) }}</span>
-                          <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
-                            <mat-icon>add</mat-icon>
-                          </button>
+          <!-- Fast Items < 10 mins -->
+          @if (fastItems().length > 0) {
+            <section class="section">
+              <div class="section-header">
+                <h3>⚡ Ready in Under 10 Mins</h3>
+                <span class="section-sub">Quick bites for busy days</span>
+              </div>
+              <div class="horizontal-scroll">
+                @for (item of fastItems(); track item.id) {
+                  <div class="food-card fast-card">
+                    <div class="food-img-wrap">
+                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <span class="fast-badge">⚡ Fast</span>
+                    </div>
+                    <div class="food-info">
+                      <h4>{{ item.name }}</h4>
+                      <p class="restaurant-name">{{ item.shop.name }}</p>
+                      <div class="food-meta">
+                        <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
+                        <span class="veg-tag" [class.non-veg]="!item.isVeg">{{ item.isVeg ? '🟢 Veg' : '🔴 Non-veg' }}</span>
+                      </div>
+                      <div class="food-footer">
+                        <span class="price">₹{{ item.price }}</span>
+                        <div class="cart-controls">
+                          @if (getQuantity(item.id) === 0) {
+                            <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
+                              + Add
+                            </button>
+                          } @else {
+                            <div class="qty-control">
+                              <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                                <mat-icon>remove</mat-icon>
+                              </button>
+                              <span class="qty">{{ getQuantity(item.id) }}</span>
+                              <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                                <mat-icon>add</mat-icon>
+                              </button>
+                            </div>
+                          }
                         </div>
-                      }
+                      </div>
                     </div>
                   </div>
-                </div>
+                }
+              </div>
+            </section>
+          }
+
+          <!-- All Restaurants -->
+          <section class="section">
+            <div class="section-header">
+              <h3>🏪 Restaurants</h3>
+              <span class="section-sub">{{ filteredRestaurants.length }} available</span>
+            </div>
+            @if (filteredRestaurants.length === 0) {
+              <div class="empty-state">
+                <span class="empty-icon">🍽️</span>
+                <h4>No restaurants found</h4>
+                <p>Try a different floor or search term</p>
+              </div>
+            } @else {
+              <div class="restaurants-grid">
+                @for (restaurant of filteredRestaurants; track restaurant.id) {
+                  <a [routerLink]="['/restaurant', restaurant.id]" class="restaurant-card">
+                    <div class="rest-img-wrap">
+                      <img src="assets/restaurant-placeholder.png" [alt]="restaurant.name" />
+                      <span class="floor-chip">Floor {{ restaurant.floor.floorNumber }}</span>
+                      @if (!restaurant.isOpen) {
+                        <div class="closed-overlay">Closed</div>
+                      }
+                    </div>
+                    <div class="rest-info">
+                      <h4>{{ restaurant.name }}</h4>
+                      <p class="cuisine">{{ restaurant.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}</p>
+                      <div class="rest-meta">
+                        <span class="rating">⭐ {{ restaurant.avgRating }}</span>
+                      </div>
+                    </div>
+                  </a>
+                }
               </div>
             }
-          </div>
-        </section>
-      }
-
-      <!-- Restaurants -->
-      <section class="section">
-        <div class="section-header">
-          <h3>🏪 Restaurants</h3>
-          <span class="section-sub">
-            {{ filteredRestaurants.length }} available
-            @if (selectedFloorId()) { on selected floor }
-          </span>
-        </div>
-        @if (filteredRestaurants.length === 0) {
-          <div class="empty-state">
-            <span class="empty-icon">🍽️</span>
-            <h4>No restaurants found</h4>
-            <p>Try a different floor or search term</p>
-          </div>
-        } @else {
-          <div class="restaurants-grid">
-            @for (restaurant of filteredRestaurants; track restaurant.id) {
-              <a [routerLink]="['/restaurant', restaurant.id]" class="restaurant-card">
-                <div class="rest-img-wrap">
-                  <img src="assets/restaurant-placeholder.png" [alt]="restaurant.name" />
-                  <span class="floor-chip">Floor {{ restaurant.floor.floorNumber }}</span>
-                  @if (!restaurant.isOpen) {
-                    <div class="closed-overlay">Closed</div>
-                  }
-                </div>
-                <div class="rest-info">
-                  <h4>{{ restaurant.name }}</h4>
-                  <p class="cuisine">{{ restaurant.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}</p>
-                  <div class="rest-meta">
-                    <span class="rating">⭐ {{ restaurant.avgRating }}</span>
-                  </div>
-                </div>
-              </a>
-            }
-          </div>
+          </section>
         }
-      </section>
+
+        <!-- FLOOR VIEW: shops on this floor + their food items -->
+        @if (view === 'floor') {
+          <div class="breadcrumb">
+            <button class="breadcrumb-link" (click)="goHome()">All Floors</button>
+            <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+            <span>Floor {{ selectedFloor?.floorNumber }}</span>
+          </div>
+
+          <!-- Shops on this floor -->
+          <section class="section">
+            <div class="section-header">
+              <h3>🏪 Shops on Floor {{ selectedFloor?.floorNumber }}</h3>
+              <span class="section-sub">{{ floorShops.length }} shop(s) — click a shop to browse its menu</span>
+            </div>
+            <div class="restaurants-grid">
+              @for (shop of floorShops; track shop.id) {
+                <div class="shop-card" (click)="selectShop(shop)">
+                  <div class="rest-img-wrap">
+                    <img src="assets/restaurant-placeholder.png" [alt]="shop.name" />
+                    @if (!shop.isOpen) {
+                      <div class="closed-overlay">Closed</div>
+                    }
+                  </div>
+                  <div class="rest-info">
+                    <h4>{{ shop.name }}</h4>
+                    <p class="cuisine">{{ shop.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}</p>
+                    <div class="rest-meta">
+                      <span class="rating">⭐ {{ shop.avgRating }}</span>
+                    </div>
+                  </div>
+                </div>
+              }
+            </div>
+          </section>
+
+          <!-- Food items on this floor -->
+          <section class="section">
+            <div class="section-header">
+              <h3>🍽️ Food Items on Floor {{ selectedFloor?.floorNumber }}</h3>
+              @if (floorItemsLoading()) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <span class="section-sub">{{ floorFoodItems().length }} item(s)</span>
+              }
+            </div>
+            @if (floorItemsLoading()) {
+              <div class="loading-center"><mat-spinner diameter="36"></mat-spinner></div>
+            } @else if (floorFoodItems().length === 0) {
+              <div class="empty-state">
+                <span class="empty-icon">🍽️</span>
+                <h4>No food items available</h4>
+                <p>The shops on this floor may not have listed items yet</p>
+              </div>
+            } @else {
+              <div class="search-results-grid">
+                @for (item of floorFoodItems(); track item.id) {
+                  <div class="food-card" [class.unavailable]="item.stockQuantity === 0">
+                    <div class="food-img-wrap">
+                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <span class="veg-tag" [class.non-veg]="!item.isVeg">
+                        {{ item.isVeg ? '🟢' : '🔴' }}
+                      </span>
+                    </div>
+                    <div class="food-info">
+                      <h4>{{ item.name }}</h4>
+                      <p class="restaurant-name">{{ item.shop.name }}</p>
+                      <div class="food-meta">
+                        <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
+                        <span class="rating">{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
+                      </div>
+                      <div class="food-footer">
+                        <span class="price">₹{{ item.price }}</span>
+                        @if (item.stockQuantity > 0) {
+                          <div class="cart-controls">
+                            @if (getQuantity(item.id) === 0) {
+                              <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">+ Add</button>
+                            } @else {
+                              <div class="qty-control">
+                                <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)"><mat-icon>remove</mat-icon></button>
+                                <span class="qty">{{ getQuantity(item.id) }}</span>
+                                <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)"><mat-icon>add</mat-icon></button>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <span class="unavail-tag">Out of Stock</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+
+        <!-- SHOP VIEW: food items in the selected shop -->
+        @if (view === 'shop') {
+          <div class="breadcrumb">
+            <button class="breadcrumb-link" (click)="goHome()">All Floors</button>
+            <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+            <button class="breadcrumb-link" (click)="filterByFloor(selectedShop()!.floor.id)">
+              Floor {{ selectedShop()?.floor?.floorNumber }}
+            </button>
+            <mat-icon class="breadcrumb-sep">chevron_right</mat-icon>
+            <span>{{ selectedShop()?.name }}</span>
+          </div>
+
+          <section class="section">
+            <div class="section-header">
+              <h3>🍽️ {{ selectedShop()?.name }}</h3>
+              @if (shopItemsLoading()) {
+                <mat-spinner diameter="18"></mat-spinner>
+              } @else {
+                <span class="section-sub">{{ shopFoodItems().length }} item(s)</span>
+              }
+            </div>
+            @if (shopItemsLoading()) {
+              <div class="loading-center"><mat-spinner diameter="36"></mat-spinner></div>
+            } @else if (shopFoodItems().length === 0) {
+              <div class="empty-state">
+                <span class="empty-icon">🍽️</span>
+                <h4>No food items available</h4>
+                <p>This shop hasn't listed items yet</p>
+              </div>
+            } @else {
+              <div class="search-results-grid">
+                @for (item of shopFoodItems(); track item.id) {
+                  <div class="food-card" [class.unavailable]="item.stockQuantity === 0">
+                    <div class="food-img-wrap">
+                      <img src="assets/food-placeholder.png" [alt]="item.name" />
+                      <span class="veg-tag" [class.non-veg]="!item.isVeg">
+                        {{ item.isVeg ? '🟢' : '🔴' }}
+                      </span>
+                    </div>
+                    <div class="food-info">
+                      <h4>{{ item.name }}</h4>
+                      <p class="restaurant-name">{{ item.shop.name }}</p>
+                      <div class="food-meta">
+                        <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
+                        <span class="rating">{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
+                      </div>
+                      <div class="food-footer">
+                        <span class="price">₹{{ item.price }}</span>
+                        @if (item.stockQuantity > 0) {
+                          <div class="cart-controls">
+                            @if (getQuantity(item.id) === 0) {
+                              <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">+ Add</button>
+                            } @else {
+                              <div class="qty-control">
+                                <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)"><mat-icon>remove</mat-icon></button>
+                                <span class="qty">{{ getQuantity(item.id) }}</span>
+                                <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)"><mat-icon>add</mat-icon></button>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <span class="unavail-tag">Out of Stock</span>
+                        }
+                      </div>
+                    </div>
+                  </div>
+                }
+              </div>
+            }
+          </section>
+        }
+
+      }
     }
   </main>
 </div>

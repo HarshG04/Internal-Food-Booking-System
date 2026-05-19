@@ -6,7 +6,7 @@
 
 /* Sidebar */
 .sidebar {
-  width: 200px;
+  width: 230px;
   min-height: 100%;
   background: #ffffff;
   border-right: 1px solid #e5e7eb;
@@ -80,8 +80,7 @@
 
   &.active {
     background: #eff6ff;
-    // color: #2563eb;
-    color: red;
+    color: #2563eb;
     font-weight: 600;
 
     .floor-emoji {
@@ -89,6 +88,167 @@
       color: white;
     }
   }
+}
+
+.floor-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.floor-num {
+  font-size: 10px;
+  font-weight: 700;
+  color: #9ca3af;
+  background: #f3f4f6;
+  padding: 2px 5px;
+  border-radius: 3px;
+  flex-shrink: 0;
+  min-width: 22px;
+  text-align: center;
+}
+
+.shop-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  padding: 2px 0 4px 14px;
+}
+
+.shop-btn {
+  width: 100%;
+  padding: 5px 8px;
+  border: none;
+  background: transparent;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 400;
+  color: #6b7280;
+  text-align: left;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+
+  &:hover {
+    background: #f9fafb;
+    color: #111827;
+  }
+
+  &.active {
+    background: #eff6ff;
+    color: #2563eb;
+    font-weight: 600;
+  }
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #6b7280;
+
+  .breadcrumb-link {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: #2563eb;
+    font-size: 13px;
+    padding: 0;
+    font-family: inherit;
+
+    &:hover {
+      text-decoration: underline;
+    }
+  }
+
+  .breadcrumb-sep {
+    font-size: 16px;
+    width: 16px;
+    height: 16px;
+    color: #d1d5db;
+  }
+}
+
+/* Shop card (clickable button, same look as restaurant-card) */
+.shop-card {
+  background: #ffffff;
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+  cursor: pointer;
+  text-align: left;
+
+  &:hover {
+    border-color: #bfdbfe;
+    box-shadow: 0 1px 4px rgba(37, 99, 235, 0.1);
+  }
+
+  .rest-img-wrap {
+    position: relative;
+    height: 148px;
+    background: #f3f4f6;
+
+    img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .closed-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      color: white;
+      font-size: 16px;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+    }
+  }
+
+  .rest-info {
+    padding: 12px 14px;
+
+    h4 {
+      font-size: 15px;
+      font-weight: 700;
+      color: #111827;
+      margin: 0 0 2px;
+    }
+
+    .cuisine {
+      font-size: 12px;
+      color: #6b7280;
+      margin: 0 0 6px;
+    }
+
+    .rest-meta {
+      display: flex;
+      gap: 10px;
+      font-size: 12px;
+      color: #6b7280;
+      align-items: center;
+
+      .rating {
+        color: #374151;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+/* Out of stock tag */
+.unavail-tag {
+  font-size: 11px;
+  color: #ef4444;
+  font-weight: 600;
 }
 
 /* Main Content */
