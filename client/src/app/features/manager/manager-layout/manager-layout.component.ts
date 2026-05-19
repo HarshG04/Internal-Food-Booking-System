@@ -30,6 +30,7 @@ export class ManagerLayoutComponent {
   navItems = [
     { path: 'dashboard', icon: 'dashboard', label: 'Dashboard' },
     { path: 'floors', icon: 'apartment', label: 'Floor & Shop Management' },
+    { path: 'users', icon: 'people', label: 'User Management' },
     { path: 'revenue', icon: 'bar_chart', label: 'Revenue Overview' },
   ];
 }

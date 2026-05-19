@@ -15,6 +15,7 @@ import { MatChipsModule } from '@angular/material/chips';
 import { ManagerService } from '../../../core/services/manager.service';
 import { NotificationService } from '../../../core/services/notification.service';
 import { Floor, Restaurant } from '../../../core/models/restaurant.model';
+import { User } from '../../../core/models/user.model';
 import { forkJoin } from 'rxjs';
 
 @Component({
@@ -43,6 +44,10 @@ export class FloorManagementComponent implements OnInit {
 
   floors = signal<Floor[]>([]);
   shops = signal<Restaurant[]>([]);
+  users = signal<User[]>([]);
+
+  vendorPanelShopId = signal<number | null>(null);
+  selectedVendorId = signal<number | null>(null);
 
   showFloorForm = signal(false);
   editingFloor = signal<Floor | null>(null);
@@ -52,6 +57,10 @@ export class FloorManagementComponent implements OnInit {
 
   floorForm: FormGroup;
   shopForm: FormGroup;
+
+  get vendors(): User[] {
+    return this.users().filter(u => u.role === 'VENDOR');
+  }
 
   constructor(
     private manager: ManagerService,
@@ -78,12 +87,14 @@ export class FloorManagementComponent implements OnInit {
 
   loadAll(): void {
     forkJoin({
-      floors: this.manager.getAllFloors(),  // GET /floor/getAll
-      shops: this.manager.getAllShops(),    // GET /shop/getAll
+      floors: this.manager.getAllFloors(),
+      shops: this.manager.getAllShops(),
+      users: this.manager.getAllUsers(),
     }).subscribe({
-      next: ({ floors, shops }) => {
+      next: ({ floors, shops, users }) => {
         this.floors.set(floors);
         this.shops.set(shops);
+        this.users.set(users);
         this.loading.set(false);
       },
       error: () => this.loading.set(false),
@@ -208,6 +219,45 @@ export class FloorManagementComponent implements OnInit {
         this.loadAll();
       },
       error: () => this.notify.error('Failed to reassign floor.'),
+    });
+  }
+
+  // ── VENDOR ASSIGNMENT ──
+  openVendorPanel(shop: Restaurant): void {
+    this.vendorPanelShopId.set(shop.id);
+    this.selectedVendorId.set(shop.vendor?.employeeId ?? null);
+  }
+
+  closeVendorPanel(): void {
+    this.vendorPanelShopId.set(null);
+    this.selectedVendorId.set(null);
+  }
+
+  confirmVendorAssign(shop: Restaurant): void {
+    const vendorId = this.selectedVendorId();
+    if (!vendorId) return;
+    const obs = shop.vendor
+      ? this.manager.reassignVendorToShop(shop.id, vendorId)  // PUT
+      : this.manager.assignVendorToShop(shop.id, vendorId);   // POST
+    obs.subscribe({
+      next: () => {
+        this.notify.success(shop.vendor ? 'Vendor reassigned!' : 'Vendor assigned!');
+        this.closeVendorPanel();
+        this.loadAll();
+      },
+      error: (err) => this.notify.error(err.error?.message ?? 'Failed to update vendor.'),
+    });
+  }
+
+  confirmUnassign(shop: Restaurant): void {
+    if (!confirm(`Remove vendor from "${shop.name}"?`)) return;
+    this.manager.unassignVendorFromShop(shop.id).subscribe({  // DELETE
+      next: () => {
+        this.notify.success('Vendor removed.');
+        this.closeVendorPanel();
+        this.loadAll();
+      },
+      error: (err) => this.notify.error(err.error?.message ?? 'Failed to unassign vendor.'),
     });
   }
 }

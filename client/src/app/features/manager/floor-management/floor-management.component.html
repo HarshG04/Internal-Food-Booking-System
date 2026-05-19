@@ -112,6 +112,43 @@
                   {{ shop.isOpen ? 'Open' : 'Closed' }}
                 </span>
               </div>
+
+              <div class="vendor-row">
+                <mat-icon class="vendor-icon">person</mat-icon>
+                <span class="vendor-name">{{ shop.vendor?.fullName ?? 'No vendor' }}</span>
+                <button mat-icon-button class="vendor-btn" (click)="openVendorPanel(shop)" matTooltip="Manage vendor">
+                  <mat-icon>manage_accounts</mat-icon>
+                </button>
+              </div>
+
+              @if (vendorPanelShopId() === shop.id) {
+                <div class="vendor-panel">
+                  <mat-select
+                    [value]="selectedVendorId()"
+                    (selectionChange)="selectedVendorId.set($event.value)"
+                    placeholder="Select vendor"
+                    class="vendor-select"
+                  >
+                    @for (v of vendors; track v.employeeId) {
+                      <mat-option [value]="v.employeeId">{{ v.fullName }}</mat-option>
+                    }
+                  </mat-select>
+                  <div class="vendor-panel-actions">
+                    <button mat-flat-button class="assign-btn"
+                      (click)="confirmVendorAssign(shop)"
+                      [disabled]="!selectedVendorId()">
+                      {{ shop.vendor ? 'Reassign' : 'Assign' }}
+                    </button>
+                    @if (shop.vendor) {
+                      <button mat-stroked-button class="del-btn" (click)="confirmUnassign(shop)">Unassign</button>
+                    }
+                    <button mat-icon-button (click)="closeVendorPanel()">
+                      <mat-icon>close</mat-icon>
+                    </button>
+                  </div>
+                </div>
+              }
+
               <div class="shop-card-actions">
                 <mat-select
                   [value]="floor.id"

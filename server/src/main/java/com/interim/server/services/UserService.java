@@ -1,15 +1,19 @@
 package com.interim.server.services;
 
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 
-import com.interim.server.dtos.UserResponse;
-import com.interim.server.models.User;
-import com.interim.server.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
+import org.mindrot.jbcrypt.BCrypt;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import com.interim.server.dtos.CreateUserRequest;
+import com.interim.server.dtos.UserResponse;
+import com.interim.server.models.User;
+import com.interim.server.repositories.UserRepository;
+
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -33,6 +37,26 @@ public class UserService {
     public Optional<UserResponse> getUserByEmail(String email) {
         return userRepository.findByEmail(email)
                 .map(this::mapToResponse);
+    }
+
+    public UserResponse createUser(CreateUserRequest request) {
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new RuntimeException("Email already in use: " + request.getEmail());
+        }
+        if (userRepository.existsById(request.getEmployeeId())) {
+            throw new RuntimeException("Employee ID already exists: " + request.getEmployeeId());
+        }
+        User user = User.builder()
+                .employeeId(request.getEmployeeId())
+                .email(request.getEmail())
+                .password(BCrypt.hashpw(request.getPassword(), BCrypt.gensalt()))
+                .fullName(request.getFullName())
+                .phone(request.getPhone())
+                .role(request.getRole())
+                .createdAt(LocalDateTime.now())
+                .isActive(true)
+                .build();
+        return mapToResponse(userRepository.save(user));
     }
 
     public UserResponse setUserActive(Integer employeeId, Boolean active) {

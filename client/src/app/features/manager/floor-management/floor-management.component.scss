@@ -178,6 +178,39 @@
   border-radius: 6px;
 }
 
+.vendor-row {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-bottom: 6px;
+  font-size: 12px;
+  color: #6b7280;
+
+  .vendor-icon { font-size: 14px; width: 14px; height: 14px; color: #9ca3af; }
+  .vendor-name { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .vendor-btn { width: 24px; height: 24px; line-height: 24px; mat-icon { font-size: 16px; } }
+}
+
+.vendor-panel {
+  border: 1px solid #bfdbfe;
+  background: #eff6ff;
+  border-radius: 6px;
+  padding: 8px;
+  margin-bottom: 8px;
+
+  .vendor-select { width: 100%; font-size: 12px; }
+
+  .vendor-panel-actions {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+    margin-top: 6px;
+
+    .assign-btn { background: #2563eb; color: white; font-size: 12px; height: 30px; line-height: 30px; padding: 0 10px; border-radius: 5px; }
+    .del-btn { font-size: 12px; height: 30px; line-height: 30px; padding: 0 10px; color: #dc2626; border-color: #fecaca; }
+  }
+}
+
 .empty-state {
   text-align: center;
   padding: 80px;

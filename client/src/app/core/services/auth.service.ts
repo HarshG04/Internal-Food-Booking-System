@@ -14,8 +14,7 @@ export class AuthService {
 
   constructor(private http: HttpClient, private router: Router) {
     const stored = localStorage.getItem('fc_user');
-    const token = localStorage.getItem('fc_token');
-    if (stored && token) {
+    if (stored) {
       const user: User = JSON.parse(stored);
       this.currentUser.set(user);
       this.isLoggedIn.set(true);
@@ -31,24 +30,22 @@ export class AuthService {
           this.currentUser.set(res.user);
           this.isLoggedIn.set(true);
           localStorage.setItem('fc_user', JSON.stringify(res.user));
-          localStorage.setItem('fc_token', res.token);
         })
       );
   }
 
-  getToken(): string | null {
-    return localStorage.getItem('fc_token');
-  }
-
+  // POST /api/auth/logout
   logout(): void {
-    this.clearSession();
+    this.http.post(`${this.baseUrl}/auth/logout`, {}).subscribe({
+      complete: () => this.clearSession(),
+      error: () => this.clearSession(),
+    });
   }
 
   private clearSession(): void {
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
     localStorage.removeItem('fc_user');
-    localStorage.removeItem('fc_token');
     this.router.navigate(['/login']);
   }
 

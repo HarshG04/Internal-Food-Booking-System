@@ -9,12 +9,21 @@ export interface User {
   isActive: boolean;
 }
 
+export interface CreateUserRequest {
+  employeeId: number;
+  email: string;
+  password: string;
+  fullName: string;
+  phone: string;
+  role: 'ADMIN' | 'EMPLOYEE' | 'VENDOR';
+}
+
 export interface LoginRequest {
   email: string;
   password: string;
 }
 
 export interface AuthResponse {
-  token: string;
+  sessionId: string;
   user: User;
 }

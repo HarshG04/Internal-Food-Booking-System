@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Floor, Restaurant } from '../models/restaurant.model';
-import { User } from '../models/user.model';
+import { User, CreateUserRequest } from '../models/user.model';
 import { Order } from '../models/order.model';
 import { environment } from '../../../environments/environment';
 
@@ -70,10 +70,28 @@ export class ManagerService {
     const params = new HttpParams().set('email', email);
     return this.http.get<User>(`${this.baseUrl}/users/by-email`, { params });
   }
+  // POST /api/users
+  createUser(user: CreateUserRequest): Observable<User> {
+    return this.http.post<User>(`${this.baseUrl}/users`, user);
+  }
   // PATCH /api/users/{employeeId}/active?active=
   setUserActive(employeeId: number, active: boolean): Observable<User> {
     const params = new HttpParams().set('active', String(active));
     return this.http.patch<User>(`${this.baseUrl}/users/${employeeId}/active`, null, { params });
+  }
+
+  // ── VENDOR ASSIGNMENT ──────────────────────────────────
+  // POST /api/shops/{shopId}/vendor/{vendorId}
+  assignVendorToShop(shopId: number, vendorId: number): Observable<Restaurant> {
+    return this.http.post<Restaurant>(`${this.baseUrl}/shops/${shopId}/vendor/${vendorId}`, null);
+  }
+  // PUT /api/shops/{shopId}/vendor/{vendorId}
+  reassignVendorToShop(shopId: number, vendorId: number): Observable<Restaurant> {
+    return this.http.put<Restaurant>(`${this.baseUrl}/shops/${shopId}/vendor/${vendorId}`, null);
+  }
+  // DELETE /api/shops/{shopId}/vendor
+  unassignVendorFromShop(shopId: number): Observable<Restaurant> {
+    return this.http.delete<Restaurant>(`${this.baseUrl}/shops/${shopId}/vendor`);
   }
 
   // ── ORDERS (revenue view) ──────────────────────────────

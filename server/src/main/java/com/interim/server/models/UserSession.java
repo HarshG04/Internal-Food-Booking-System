@@ -26,7 +26,7 @@ public class UserSession {
     @Column(name = "session_id")
     private String sessionId;
 
-    @OneToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "employee_id", nullable = false, unique = true)
     private User user;
 

@@ -1,8 +1,12 @@
 package com.interim.server.controllers;
 
+import com.interim.server.enums.Role;
 import com.interim.server.models.Shop;
+import com.interim.server.models.User;
 import com.interim.server.services.ShopService;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -50,6 +54,41 @@ public class ShopController {
     @PutMapping("/{id}")
     public ResponseEntity<Shop> updateShop(@PathVariable Integer id, @RequestBody Shop shop) {
         return ResponseEntity.ok(shopService.updateShop(id, shop));
+    }
+
+    @PostMapping("/{shopId}/vendor/{vendorId}")
+    public ResponseEntity<Shop> assignVendor(
+            @PathVariable Integer shopId,
+            @PathVariable Integer vendorId,
+            HttpServletRequest request) {
+        User currentUser = (User) request.getAttribute("currentUser");
+        if (currentUser.getRole() != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(shopService.assignVendor(shopId, vendorId));
+    }
+
+    @PutMapping("/{shopId}/vendor/{vendorId}")
+    public ResponseEntity<Shop> reassignVendor(
+            @PathVariable Integer shopId,
+            @PathVariable Integer vendorId,
+            HttpServletRequest request) {
+        User currentUser = (User) request.getAttribute("currentUser");
+        if (currentUser.getRole() != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(shopService.reassignVendor(shopId, vendorId));
+    }
+
+    @DeleteMapping("/{shopId}/vendor")
+    public ResponseEntity<Shop> unassignVendor(
+            @PathVariable Integer shopId,
+            HttpServletRequest request) {
+        User currentUser = (User) request.getAttribute("currentUser");
+        if (currentUser.getRole() != Role.ADMIN) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).build();
+        }
+        return ResponseEntity.ok(shopService.unassignVendor(shopId));
     }
 
     @DeleteMapping("/{id}")

@@ -57,20 +57,57 @@ public class ShopService {
         }).orElseThrow(() -> new RuntimeException("Shop not found with id: " + id));
     }
 
-    /** Admin: assign a vendor (User with role VENDOR) to a shop. */
+    /**
+     * Admin: assign a vendor to a shop for the first time.
+     * Fails if the shop already has a vendor, or if the vendor is already assigned elsewhere,
+     * or if the user is not a VENDOR.
+     */
     public Shop assignVendor(Integer shopId, Integer vendorId) {
         Shop shop = shopRepository.findById(shopId)
                 .orElseThrow(() -> new RuntimeException("Shop not found: " + shopId));
         User vendor = userRepository.findById(vendorId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + vendorId));
 
-        // Enforce one-to-one: reject if this vendor is already assigned to a different shop
-        shopRepository.findByVendor_EmployeeId(vendorId).stream()
-                .filter(s -> !s.getId().equals(shopId))
-                .findFirst()
+        if (vendor.getRole() != com.interim.server.enums.Role.VENDOR) {
+            throw new RuntimeException("User " + vendorId + " does not have the VENDOR role");
+        }
+        if (shop.getVendor() != null) {
+            throw new RuntimeException("Shop " + shopId + " already has vendor " + shop.getVendor().getEmployeeId() + ". Use PUT to reassign.");
+        }
+        shopRepository.findByVendor_EmployeeId(vendorId)
+                .stream().findFirst()
                 .ifPresent(s -> { throw new RuntimeException("Vendor " + vendorId + " is already assigned to shop " + s.getId()); });
 
         shop.setVendor(vendor);
+        return shopRepository.save(shop);
+    }
+
+    /**
+     * Admin: replace a shop's current vendor with a different one.
+     * Fails if the shop has no vendor yet (use POST to assign first),
+     * or if the new vendor is already assigned to another shop,
+     * or if the new vendor does not have the VENDOR role.
+     */
+    public Shop reassignVendor(Integer shopId, Integer newVendorId) {
+        Shop shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new RuntimeException("Shop not found: " + shopId));
+        User newVendor = userRepository.findById(newVendorId)
+                .orElseThrow(() -> new RuntimeException("User not found: " + newVendorId));
+
+        if (newVendor.getRole() != com.interim.server.enums.Role.VENDOR) {
+            throw new RuntimeException("User " + newVendorId + " does not have the VENDOR role");
+        }
+        if (shop.getVendor() == null) {
+            throw new RuntimeException("Shop " + shopId + " has no vendor assigned yet. Use POST to assign.");
+        }
+        if (shop.getVendor().getEmployeeId().equals(newVendorId)) {
+            throw new RuntimeException("Vendor " + newVendorId + " is already assigned to this shop");
+        }
+        shopRepository.findByVendor_EmployeeId(newVendorId)
+                .stream().findFirst()
+                .ifPresent(s -> { throw new RuntimeException("Vendor " + newVendorId + " is already assigned to shop " + s.getId()); });
+
+        shop.setVendor(newVendor);
         return shopRepository.save(shop);
     }
 
@@ -81,6 +118,14 @@ public class ShopService {
         Floor floor = floorRepository.findById(floorId)
                 .orElseThrow(() -> new RuntimeException("Floor not found: " + floorId));
         shop.setFloor(floor);
+        return shopRepository.save(shop);
+    }
+
+    /** Admin: remove the vendor assignment from a shop. */
+    public Shop unassignVendor(Integer shopId) {
+        Shop shop = shopRepository.findById(shopId)
+                .orElseThrow(() -> new RuntimeException("Shop not found: " + shopId));
+        shop.setVendor(null);
         return shopRepository.save(shop);
     }
 

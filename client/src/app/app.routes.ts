@@ -129,6 +129,13 @@ export const routes: Routes = [
           ),
       },
       {
+        path: 'users',
+        loadComponent: () =>
+          import('./features/manager/user-management/user-management.component').then(
+            (m) => m.UserManagementComponent
+          ),
+      },
+      {
         path: 'revenue',
         loadComponent: () =>
           import('./features/manager/revenue/revenue.component').then(
