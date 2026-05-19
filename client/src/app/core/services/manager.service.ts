@@ -3,7 +3,7 @@ import { HttpClient, HttpParams } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Floor, Restaurant } from '../models/restaurant.model';
 import { User, CreateUserRequest } from '../models/user.model';
-import { Order } from '../models/order.model';
+import { Order, OrderItem } from '../models/order.model';
 import { environment } from '../../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
@@ -98,5 +98,9 @@ export class ManagerService {
   // GET /api/orders
   getAllOrders(): Observable<Order[]> {
     return this.http.get<Order[]>(`${this.baseUrl}/orders`);
+  }
+  // GET /api/order-items — all order items across all shops
+  getAllOrderItems(): Observable<OrderItem[]> {
+    return this.http.get<OrderItem[]>(`${this.baseUrl}/order-items`);
   }
 }

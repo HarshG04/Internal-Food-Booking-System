@@ -11,67 +11,103 @@
   } @else {
     <!-- Overall Summary -->
     <div class="summary-grid">
-      <div class="sum-card orange">
+      <div class="summary-card orange">
         <mat-icon>currency_rupee</mat-icon>
         <div>
-          <div class="sum-val">₹{{ totalRevenue() | number:'1.0-0' }}</div>
-          <div class="sum-lbl">Total Revenue</div>
+          <div class="s-val">₹{{ totalRevenue() | number:'1.0-0' }}</div>
+          <div class="s-lbl">Total Revenue</div>
         </div>
       </div>
-      <div class="sum-card blue">
+      <div class="summary-card blue">
         <mat-icon>receipt_long</mat-icon>
         <div>
-          <div class="sum-val">{{ totalOrders() }}</div>
-          <div class="sum-lbl">Total Orders</div>
+          <div class="s-val">{{ totalOrders() }}</div>
+          <div class="s-lbl">Total Orders</div>
         </div>
       </div>
-      <div class="sum-card green">
+      <div class="summary-card green">
         <mat-icon>trending_up</mat-icon>
         <div>
-          <div class="sum-val">₹{{ avgOrder() | number:'1.0-0' }}</div>
-          <div class="sum-lbl">Avg Order Value</div>
+          <div class="s-val">₹{{ avgOrder() | number:'1.0-0' }}</div>
+          <div class="s-lbl">Avg Order Value</div>
         </div>
       </div>
     </div>
 
-    <!-- Chart Controls -->
-    <div class="chart-controls">
-      <mat-select [(ngModel)]="selectedShopId" (ngModelChange)="selectedShopId.set($event)" class="shop-select">
-        <mat-option value="ALL">All Shops</mat-option>
-        @for (s of shops(); track s.id) {
-          <mat-option [value]="s.id">{{ s.name }}</mat-option>
-        }
-      </mat-select>
-
-      <div class="period-tabs">
-        @for (p of periods; track p) {
-          <button
-            class="period-btn"
-            [class.active]="selectedPeriod() === p"
-            (click)="setPeriod(p)"
-          >{{ p | titlecase }}</button>
-        }
-      </div>
+    <!-- Shop Filter -->
+    <div class="filter-row">
+      <mat-form-field appearance="outline" subscriptSizing="dynamic" class="shop-field">
+        <mat-label>Filter by Shop</mat-label>
+        <mat-icon matPrefix>storefront</mat-icon>
+        <mat-select [ngModel]="selectedShopId()" (ngModelChange)="selectedShopId.set($event)">
+          <mat-option value="ALL">All Shops</mat-option>
+          @for (s of shops(); track s.id) {
+            <mat-option [value]="s.id">{{ s.name }}</mat-option>
+          }
+        </mat-select>
+      </mat-form-field>
     </div>
 
-    <!-- Chart -->
-    <div class="chart-card">
-      <h3>Revenue — {{ selectedPeriod() | titlecase }}</h3>
-      <div class="chart-bars">
-        @for (d of chartData(); track d.label) {
-          <div class="bar-col">
-            <span class="bar-tip">₹{{ d.revenue | number:'1.0-0' }}</span>
-            <div class="bar-wrap">
-              <div class="bar"
-                [style.height.%]="(d.revenue / maxRevenue()) * 100">
+    <!-- Chart Tabs -->
+    <mat-tab-group class="rev-tabs"
+      [selectedIndex]="periods.indexOf(selectedPeriod())"
+      (selectedIndexChange)="setPeriod(periods[$event])">
+
+      <mat-tab label="Daily (Last 7 days)">
+        <div class="chart-area">
+          @for (d of chartData(); track d.label) {
+            <div class="bar-row">
+              <span class="bar-label">{{ d.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="(d.revenue / maxRevenue()) * 100"></div>
               </div>
+              <span class="bar-value">₹{{ d.revenue | number:'1.0-0' }}</span>
+              <span class="bar-orders">{{ d.orders }} orders</span>
             </div>
-            <span class="bar-lbl">{{ d.label }}</span>
-            <span class="bar-orders">{{ d.orders }}x</span>
-          </div>
-        }
-      </div>
-    </div>
+          }
+          @if (chartData().length === 0) {
+            <p class="no-data">No data for this period.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Monthly (Last 6 months)">
+        <div class="chart-area">
+          @for (d of chartData(); track d.label) {
+            <div class="bar-row">
+              <span class="bar-label">{{ d.label }}</span>
+              <div class="bar-track">
+                <div class="bar-fill" [style.width.%]="(d.revenue / maxRevenue()) * 100"></div>
+              </div>
+              <span class="bar-value">₹{{ d.revenue | number:'1.0-0' }}</span>
+              <span class="bar-orders">{{ d.orders }} orders</span>
+            </div>
+          }
+          @if (chartData().length === 0) {
+            <p class="no-data">No data for this period.</p>
+          }
+        </div>
+      </mat-tab>
+
+      <mat-tab label="Yearly">
+        <div class="chart-area">
+          @if (chartData().length === 0) {
+            <p class="no-data">No yearly data available yet.</p>
+          } @else {
+            @for (d of chartData(); track d.label) {
+              <div class="bar-row">
+                <span class="bar-label">{{ d.label }}</span>
+                <div class="bar-track">
+                  <div class="bar-fill" [style.width.%]="(d.revenue / maxRevenue()) * 100"></div>
+                </div>
+                <span class="bar-value">₹{{ d.revenue | number:'1.0-0' }}</span>
+                <span class="bar-orders">{{ d.orders }} orders</span>
+              </div>
+            }
+          }
+        </div>
+      </mat-tab>
+    </mat-tab-group>
 
     <!-- Per Shop Table -->
     <div class="shop-table-card">
