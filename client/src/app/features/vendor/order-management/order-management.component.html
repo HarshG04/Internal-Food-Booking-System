@@ -36,7 +36,10 @@
           <div class="order-card-top">
             <div class="token-block">
               <mat-icon>confirmation_number</mat-icon>
-              <span class="token">{{ timeSince(item.order.id) }}</span>
+              <div class="token-info">
+                <span class="token">Token {{ item.order.tokenNo ?? '—' }}</span>
+                <span class="order-ref">Order #{{ item.order.id }} &nbsp;·&nbsp; {{ item.order.user?.fullName ?? 'Customer' }}</span>
+              </div>
             </div>
             <span
               class="status-pill"

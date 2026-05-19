@@ -75,13 +75,31 @@
   .token-block {
     display: flex;
     align-items: center;
-    gap: 6px;
-    font-weight: 700;
-    font-size: 15px;
-    color: #111827;
+    gap: 8px;
     flex: 1;
 
-    mat-icon { color: #2563eb; font-size: 18px; width: 18px; height: 18px; }
+    mat-icon { color: #2563eb; font-size: 20px; width: 20px; height: 20px; flex-shrink: 0; }
+
+    .token-info {
+      display: flex;
+      flex-direction: column;
+      gap: 1px;
+
+      .token {
+        font-size: 15px;
+        font-weight: 700;
+        color: #111827;
+        line-height: 1.2;
+      }
+
+      .order-ref {
+        font-size: 11px;
+        color: #9ca3af;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+    }
   }
 
   .status-pill {
