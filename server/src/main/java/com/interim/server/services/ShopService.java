@@ -1,16 +1,18 @@
 package com.interim.server.services;
 
+import java.util.List;
+import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
 import com.interim.server.models.Floor;
 import com.interim.server.models.Shop;
 import com.interim.server.models.User;
 import com.interim.server.repositories.FloorRepository;
 import com.interim.server.repositories.ShopRepository;
 import com.interim.server.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Optional;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -61,6 +63,13 @@ public class ShopService {
                 .orElseThrow(() -> new RuntimeException("Shop not found: " + shopId));
         User vendor = userRepository.findById(vendorId)
                 .orElseThrow(() -> new RuntimeException("User not found: " + vendorId));
+
+        // Enforce one-to-one: reject if this vendor is already assigned to a different shop
+        shopRepository.findByVendor_EmployeeId(vendorId).stream()
+                .filter(s -> !s.getId().equals(shopId))
+                .findFirst()
+                .ifPresent(s -> { throw new RuntimeException("Vendor " + vendorId + " is already assigned to shop " + s.getId()); });
+
         shop.setVendor(vendor);
         return shopRepository.save(shop);
     }
