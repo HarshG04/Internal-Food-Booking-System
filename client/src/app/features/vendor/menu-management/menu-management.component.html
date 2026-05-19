@@ -18,22 +18,22 @@
       <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="saveItem()" class="item-form">
           <div class="form-row">
-            <mat-form-field appearance="outline" class="flex2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex2">
               <mat-label>Item Name</mat-label>
               <input matInput formControlName="name" placeholder="e.g. Paneer Butter Masala" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Price (₹)</mat-label>
               <input matInput type="number" formControlName="price" min="1" />
             </mat-form-field>
           </div>
 
           <div class="form-row">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Prep Time (min)</mat-label>
               <input matInput type="number" formControlName="prepTimeMins" min="1" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Stock Qty</mat-label>
               <input matInput type="number" formControlName="stockQuantity" min="0" />
             </mat-form-field>

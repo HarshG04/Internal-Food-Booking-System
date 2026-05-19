@@ -18,31 +18,31 @@
       <mat-card-content>
         <form [formGroup]="form" (ngSubmit)="createUser()" class="user-form">
           <div class="form-row">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Employee ID</mat-label>
               <input matInput type="number" formControlName="employeeId" min="1" />
             </mat-form-field>
-            <mat-form-field appearance="outline" class="flex2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex2">
               <mat-label>Full Name</mat-label>
               <input matInput formControlName="fullName" />
             </mat-form-field>
           </div>
           <div class="form-row">
-            <mat-form-field appearance="outline" class="flex2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" class="flex2">
               <mat-label>Email</mat-label>
               <input matInput type="email" formControlName="email" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Phone</mat-label>
               <input matInput formControlName="phone" />
             </mat-form-field>
           </div>
           <div class="form-row">
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Password</mat-label>
               <input matInput type="password" formControlName="password" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic">
               <mat-label>Role</mat-label>
               <mat-select formControlName="role">
                 @for (r of roles; track r) {

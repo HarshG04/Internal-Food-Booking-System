@@ -21,12 +21,14 @@
         <mat-card-title>{{ editingFloor() ? 'Edit Floor' : 'New Floor' }}</mat-card-title>
       </mat-card-header>
       <mat-card-content>
-        <form [formGroup]="floorForm" (ngSubmit)="saveFloor()" class="inline-form">
-          <mat-form-field appearance="outline">
-            <mat-label>Floor Number</mat-label>
-            <input matInput type="number" formControlName="floorNumber" min="1" />
-          </mat-form-field>
-          <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
+        <form [formGroup]="floorForm" (ngSubmit)="saveFloor()" class="floor-form">
+          <div class="floor-form-row">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
+              <mat-label>Floor Number</mat-label>
+              <input matInput type="number" formControlName="floorNumber" min="1" placeholder="Enter floor number" />
+            </mat-form-field>
+            <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
+          </div>
           <div class="form-btns">
             <button mat-stroked-button type="button" (click)="showFloorForm.set(false)">Cancel</button>
             <button mat-flat-button class="save-btn" type="submit" [disabled]="floorForm.invalid || saving()">
@@ -48,11 +50,11 @@
       <mat-card-content>
         <form [formGroup]="shopForm" (ngSubmit)="saveShop()" class="shop-form">
           <div class="form-row">
-            <mat-form-field appearance="outline" class="flex2">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always" class="flex2">
               <mat-label>Shop Name</mat-label>
-              <input matInput formControlName="name" />
+              <input matInput formControlName="name" placeholder="e.g. Canteen A" />
             </mat-form-field>
-            <mat-form-field appearance="outline">
+            <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
               <mat-label>Assign to Floor</mat-label>
               <mat-select formControlName="floorId">
                 @for (f of floors(); track f.id) {
@@ -61,14 +63,14 @@
               </mat-select>
             </mat-form-field>
           </div>
-          <div class="form-row">
+          <div class="toggle-row">
             <mat-slide-toggle formControlName="isVeg" color="primary">🟢 Vegetarian Only</mat-slide-toggle>
             <mat-slide-toggle formControlName="isOpen" color="accent">✅ Open</mat-slide-toggle>
           </div>
           <div class="form-btns">
             <button mat-stroked-button type="button" (click)="showShopForm.set(false)">Cancel</button>
             <button mat-flat-button class="save-btn" type="submit" [disabled]="shopForm.invalid || saving()">
-              @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
+              @if (saving()) { <mat-spinner diameter="18" color="accent"></mat-spinner> }
               @else { {{ editingShop() ? 'Update Shop' : 'Create Shop' }} }
             </button>
           </div>
@@ -123,16 +125,17 @@
 
               @if (vendorPanelShopId() === shop.id) {
                 <div class="vendor-panel">
-                  <mat-select
-                    [value]="selectedVendorId()"
-                    (selectionChange)="selectedVendorId.set($event.value)"
-                    placeholder="Select vendor"
-                    class="vendor-select"
-                  >
-                    @for (v of vendors; track v.employeeId) {
-                      <mat-option [value]="v.employeeId">{{ v.fullName }}</mat-option>
-                    }
-                  </mat-select>
+                  <mat-form-field appearance="outline" subscriptSizing="dynamic" class="vendor-select-field">
+                    <mat-label>Select vendor</mat-label>
+                    <mat-select
+                      [value]="selectedVendorId()"
+                      (selectionChange)="selectedVendorId.set($event.value)"
+                    >
+                      @for (v of vendors; track v.employeeId) {
+                        <mat-option [value]="v.employeeId">{{ v.fullName }}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
                   <div class="vendor-panel-actions">
                     <button mat-flat-button class="assign-btn"
                       (click)="confirmVendorAssign(shop)"
@@ -150,15 +153,13 @@
               }
 
               <div class="shop-card-actions">
-                <mat-select
-                  [value]="floor.id"
-                  (selectionChange)="reassignShopFloor(shop, $event.value)"
-                  class="floor-reassign"
-                >
-                  @for (f of floors(); track f.id) {
-                    <mat-option [value]="f.id">Floor {{ f.floorNumber }}</mat-option>
-                  }
-                </mat-select>
+                <mat-form-field appearance="outline" subscriptSizing="dynamic" class="floor-reassign">
+                  <mat-select [value]="floor.id" (selectionChange)="reassignShopFloor(shop, $event.value)">
+                    @for (f of floors(); track f.id) {
+                      <mat-option [value]="f.id">Floor {{ f.floorNumber }}</mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
                 <button mat-icon-button (click)="openEditShop(shop)">
                   <mat-icon>edit</mat-icon>
                 </button>

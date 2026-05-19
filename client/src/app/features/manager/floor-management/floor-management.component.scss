@@ -20,34 +20,72 @@
   border: 1px solid #e5e7eb !important;
   margin-bottom: 20px;
   box-shadow: 0 1px 2px rgba(0,0,0,0.05) !important;
+  overflow: visible !important;
   mat-card-title { font-size: 14px; font-weight: 700; }
 }
 
-.inline-form, .shop-form {
+/* Floor Form — simple single-field form */
+.floor-form {
   display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: flex-start;
-  margin-top: 8px;
+  flex-direction: column;
+  gap: 16px;
+  padding-top: 16px; // extra room for always-floating label
 
-  mat-form-field { flex: 1; min-width: 150px; }
-  .flex2 { flex: 2; }
-  .full { width: 100%; flex: unset; }
+  .floor-form-row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+
+  mat-form-field {
+    flex: 1; 
+    min-width: 160px; 
+    max-width: 260px;
+    
+    /* Move the variables directly onto the form field */
+    --mdc-outlined-text-field-outline-color: #9ca3af;
+    --mdc-outlined-text-field-hover-outline-color: #6b7280;
+    --mdc-outlined-text-field-label-text-color: #374151;
+  }
+}
+}
+
+/* Shop Form */
+.shop-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-top: 16px;
+
+  mat-form-field {
+    /* Apply variables directly to all form fields inside the shop form */
+    --mdc-outlined-text-field-outline-color: #9ca3af;
+    --mdc-outlined-text-field-hover-outline-color: #6b7280;
+    --mdc-outlined-text-field-label-text-color: #374151;
+  }
 }
 
 .form-row {
   display: flex;
-  gap: 10px;
+  gap: 12px;
   width: 100%;
-  mat-form-field { flex: 1; min-width: 150px; }
+
+  mat-form-field { flex: 1; min-width: 140px; }
   .flex2 { flex: 2; }
+}
+
+.toggle-row {
+  display: flex;
+  gap: 24px;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 4px 0;
 }
 
 .form-btns {
   display: flex;
   gap: 8px;
   align-items: center;
-  margin-top: 4px;
 
   .save-btn {
     background: #2563eb;
@@ -60,6 +98,13 @@
     align-items: center;
     justify-content: center;
     gap: 6px;
+
+    // Override MDC disabled state which renders near-transparent on white
+    &[disabled] {
+      background-color: #bfdbfe !important;
+      color: #1e40af !important;
+      opacity: 1 !important;
+    }
   }
 }
 
@@ -159,11 +204,6 @@
   .floor-reassign {
     flex: 1;
     font-size: 12px;
-    height: 32px;
-    border: 1px solid #e5e7eb;
-    border-radius: 5px;
-    padding: 0 8px;
-    background: #f8fafc;
   }
 
   .del-btn { color: #dc2626; }
@@ -198,7 +238,10 @@
   padding: 8px;
   margin-bottom: 8px;
 
-  .vendor-select { width: 100%; font-size: 12px; }
+  .vendor-select-field {
+    width: 100%;
+    font-size: 12px;
+  }
 
   .vendor-panel-actions {
     display: flex;
@@ -219,158 +262,8 @@
   p { font-size: 14px; margin-top: 8px; }
 }
 
-
-.inline-form, .shop-form {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  align-items: flex-start;
-  margin-top: 8px;
-
-  mat-form-field { flex: 1; min-width: 150px; }
-  .flex2 { flex: 2; }
-  .full { width: 100%; flex: unset; }
-}
-
-.form-row {
-  display: flex;
-  gap: 10px;
-  width: 100%;
-  mat-form-field { flex: 1; min-width: 150px; }
-  .flex2 { flex: 2; }
-}
-
-.form-btns {
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  margin-top: 4px;
-
-  .save-btn {
-    background: #1565c0;
-    color: white;
-    border-radius: 8px;
-    font-weight: 600;
-    min-width: 100px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-  }
-}
-
-//   padding: 16px 20px;
-//   margin-bottom: 20px;
-//   box-shadow: 0 2px 8px rgba(0,0,0,0.06);
-// }
-
-.floor-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-bottom: 14px;
-
-  .floor-title {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    mat-icon { color: #1565c0; font-size: 22px; width: 22px; height: 22px; }
-    h3 { margin: 0; font-size: 17px; font-weight: 700; }
-
-    .floor-num-badge {
-      font-size: 12px;
-      background: rgba(21,101,192,0.1);
-      color: #1565c0;
-      padding: 2px 8px;
-      border-radius: 10px;
-      font-weight: 600;
-    }
-
-    .shop-count {
-      font-size: 12px;
-      color: #888;
-    }
-  }
-
-  .floor-actions {
-    display: flex;
-    gap: 4px;
-    .del-btn { color: #f44336; }
-  }
-}
-
-.shops-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
-  gap: 12px;
-}
-
-.shop-card {
-  border: 1.5px solid #e8e8e8;
-  border-radius: 10px;
-  padding: 14px;
-  transition: box-shadow 0.2s;
-
-  &:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.08); }
-  &.closed { opacity: 0.55; }
-}
-
-.shop-card-top {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 10px;
-
-  .shop-name { font-weight: 700; font-size: 14px; color: #1a1a1a; }
-  .shop-cuisine { font-size: 12px; color: #888; margin-top: 2px; }
-}
-
-.open-badge {
-  font-size: 11px;
-  background: rgba(76,175,80,0.12);
-  color: #4caf50;
-  padding: 2px 8px;
-  border-radius: 10px;
-  font-weight: 600;
-  white-space: nowrap;
-
-  &.closed-badge {
-    background: rgba(244,67,54,0.1);
-    color: #f44336;
-  }
-}
-
-.shop-card-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-
-  .floor-reassign {
-    flex: 1;
-    font-size: 12px;
-    height: 36px;
-    border: 1px solid #e0e0e0;
-    border-radius: 6px;
-    padding: 0 8px;
-  }
-
-  .del-btn { color: #f44336; }
-}
-
-.no-shops {
-  font-size: 13px;
-  color: #bbb;
-  padding: 20px;
-  text-align: center;
-  border: 1.5px dashed #e0e0e0;
-  border-radius: 10px;
-}
-
-.empty-state {
-  text-align: center;
-  padding: 80px;
-  color: #bbb;
-  mat-icon { font-size: 56px; width: 56px; height: 56px; }
-  p { font-size: 15px; margin-top: 8px; }
+::ng-deep .mat-mdc-input-element {
+  border: none !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }

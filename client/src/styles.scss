@@ -1,5 +1,7 @@
 @use '@angular/material' as mat;
 
+@include mat.core(); 
+
 html {
   height: 100%;
   @include mat.theme(
@@ -49,6 +51,32 @@ a { text-decoration: none; color: inherit; }
   font-size: 14px;
 }
 
+// Force outlined field borders to always be clearly visible (not just when focused).
+// The M3 theme's internal selectors override CSS custom properties, so we target
+// the actual MDC notch elements directly.
+.mdc-text-field--outlined:not(.mdc-text-field--focused) {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #9ca3af !important;
+  }
+}
+.mdc-text-field--outlined:not(.mdc-text-field--focused):not(.mdc-text-field--disabled):hover {
+  .mdc-notched-outline__leading,
+  .mdc-notched-outline__notch,
+  .mdc-notched-outline__trailing {
+    border-color: #6b7280 !important;
+  }
+}
+
+// Make disabled mat-flat-buttons clearly visible on white card backgrounds.
+// The M3 theme applies rgba(0,0,0,0.12) which is near-invisible on white.
+.mat-mdc-unelevated-button[disabled][disabled] {
+  background-color: #bfdbfe !important;
+  color: #1e40af !important;
+  opacity: 1 !important;
+}
+
 /* ─── Scrollbar ─── */
 ::-webkit-scrollbar { width: 5px; height: 5px; }
 ::-webkit-scrollbar-track { background: transparent; }
@@ -64,4 +92,3 @@ a { text-decoration: none; color: inherit; }
 }
 
 .mat-divider { margin: 0 !important; }
-

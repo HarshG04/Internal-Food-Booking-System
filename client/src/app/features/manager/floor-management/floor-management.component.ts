@@ -17,6 +17,7 @@ import { NotificationService } from '../../../core/services/notification.service
 import { Floor, Restaurant } from '../../../core/models/restaurant.model';
 import { User } from '../../../core/models/user.model';
 import { forkJoin } from 'rxjs';
+import { MatSlideToggle } from '@angular/material/slide-toggle';
 
 @Component({
   selector: 'app-floor-management',
@@ -34,6 +35,7 @@ import { forkJoin } from 'rxjs';
     MatTabsModule,
     MatTableModule,
     MatChipsModule,
+    MatSlideToggle
   ],
   templateUrl: './floor-management.component.html',
   styleUrl: './floor-management.component.scss',
