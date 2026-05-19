@@ -1,28 +1,30 @@
 .app-navbar {
-  background: white !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  background: #ffffff !important;
+  border-bottom: 1px solid #e5e7eb;
+  box-shadow: none;
   position: sticky;
   top: 0;
   z-index: 100;
-  padding: 0 16px;
-  height: 64px;
+  padding: 0 20px;
+  height: 60px;
 
   .brand-btn {
-    width: 40px;
-    height: 40px;
+    width: 34px;
+    height: 34px;
+    margin-right: 0;
   }
 
   .brand-icon {
-    font-size: 24px;
+    font-size: 18px;
   }
 
   .brand-name {
-    font-size: 20px;
-    font-weight: 800;
-    color: #ff6f00;
+    font-size: 16px;
+    font-weight: 700;
+    color: #111827;
     cursor: pointer;
-    letter-spacing: -0.5px;
-    margin-left: 4px;
+    letter-spacing: -0.2px;
+    margin-left: 2px;
   }
 
   .spacer {
@@ -30,17 +32,23 @@
   }
 
   a[mat-button], button[mat-button] {
-    color: #555;
+    color: #6b7280;
     font-weight: 500;
-    border-radius: 8px;
-    margin: 0 2px;
+    font-size: 14px;
+    border-radius: 6px;
+    margin: 0 1px;
     display: flex;
     align-items: center;
     gap: 4px;
 
-    &.nav-active, &:hover {
-      color: #ff6f00;
-      background: rgba(255, 111, 0, 0.08);
+    &.nav-active {
+      color: #2563eb;
+      background: #eff6ff;
+    }
+
+    &:hover:not(.nav-active) {
+      color: #374151;
+      background: #f3f4f6;
     }
 
     .nav-label {
@@ -51,11 +59,12 @@
   }
 
   .cart-btn {
-    color: #555;
+    color: #6b7280;
     margin: 0 4px;
 
     &:hover {
-      color: #ff6f00;
+      color: #2563eb;
+      background: #eff6ff;
     }
   }
 
@@ -63,27 +72,29 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #333;
-    border-radius: 24px;
-    background: #f5f5f5;
+    color: #374151;
+    border-radius: 6px;
+    background: #f3f4f6;
+    border: 1px solid #e5e7eb;
+    height: 36px;
 
     &:hover {
-      background: rgba(255, 111, 0, 0.1);
-      color: #ff6f00;
+      background: #e5e7eb;
+      color: #111827;
     }
   }
 
   .user-avatar {
-    width: 32px;
-    height: 32px;
+    width: 28px;
+    height: 28px;
     border-radius: 50%;
-    background: linear-gradient(135deg, #ff6f00, #ffa726);
+    background: #2563eb;
     color: white;
     display: flex;
     align-items: center;
     justify-content: center;
     font-weight: 700;
-    font-size: 14px;
+    font-size: 12px;
   }
 }
 
@@ -91,21 +102,21 @@
   padding: 12px 16px;
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  gap: 3px;
 
   strong {
-    font-size: 15px;
-    color: #1a1a1a;
+    font-size: 14px;
+    color: #111827;
   }
 }
 
 .user-role-badge {
   font-size: 11px;
-  padding: 2px 8px;
-  background: rgba(255, 111, 0, 0.12);
-  color: #ff6f00;
-  border-radius: 12px;
+  padding: 2px 7px;
+  background: #eff6ff;
+  color: #2563eb;
+  border-radius: 4px;
   font-weight: 600;
-  letter-spacing: 0.5px;
+  letter-spacing: 0.3px;
   width: fit-content;
 }
