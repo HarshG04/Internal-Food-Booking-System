@@ -118,6 +118,11 @@ export class FloorManagementComponent implements OnInit {
     this.showFloorForm.set(true);
   }
 
+  cancelFloorForm(): void {
+    this.showFloorForm.set(false);
+    this.editingFloor.set(null);
+  }
+
   saveFloor(): void {
     if (this.floorForm.invalid) return;
     this.saving.set(true);

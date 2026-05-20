@@ -297,6 +297,30 @@ display: flex; align-items: center; justify-content: center; padding: 1rem }
       font-weight: 700;
       color: #111827;
     }
+
+    .dismiss-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px;
+      height: 28px;
+      padding: 0;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 4px;
+      color: #9ca3af;
+      font-size: 18px;
+      line-height: 1;
+      font-family: inherit;
+      flex-shrink: 0;
+      transition: color 0.15s, background 0.15s;
+
+      &:hover {
+        color: #374151;
+        background: #f3f4f6;
+      }
+    }
   }
 }
 

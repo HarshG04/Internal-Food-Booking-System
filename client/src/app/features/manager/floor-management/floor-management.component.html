@@ -14,13 +14,14 @@
     </div>
   </div>
 
-  <!-- Floor Form -->
+  <!-- Floor Modal -->
   @if (showFloorForm()) {
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>{{ editingFloor() ? 'Edit Floor' : 'New Floor' }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <div class="modal-overlay" (click)="cancelFloorForm()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ editingFloor() ? 'Edit Floor' : 'New Floor' }}</h3>
+          <button type="button" class="dismiss-btn" (click)="cancelFloorForm()" aria-label="Close">&#x2715;</button>
+        </div>
         <form [formGroup]="floorForm" (ngSubmit)="saveFloor()" class="floor-form">
           <div class="floor-form-row">
             <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always">
@@ -30,15 +31,15 @@
             <mat-slide-toggle formControlName="isActive" color="primary">Active</mat-slide-toggle>
           </div>
           <div class="form-btns">
-            <button mat-stroked-button type="button" (click)="showFloorForm.set(false)">Cancel</button>
+            <button mat-stroked-button type="button" (click)="cancelFloorForm()">Cancel</button>
             <button mat-flat-button class="save-btn" type="submit" [disabled]="floorForm.invalid || saving()">
               @if (saving()) { <mat-spinner diameter="18"></mat-spinner> }
               @else { {{ editingFloor() ? 'Update' : 'Create' }} }
             </button>
           </div>
         </form>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
   }
 
   <!-- Shop Modal -->
@@ -106,7 +107,6 @@
           <div class="floor-title">
             <mat-icon>apartment</mat-icon>
             <h3>Floor {{ floor.floorNumber }}</h3>
-            <span class="floor-num-badge">Floor {{ floor.floorNumber }}</span>
             <span class="shop-count">{{ shopsOnFloor(floor.id).length }} shops</span>
           </div>
           <div class="floor-actions">
