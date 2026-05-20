@@ -117,13 +117,17 @@ public class OrderService {
         return savedOrder;
     }
 
-    /** Generates a unique 4-digit numeric token (1000–9999). */
+    /**
+     * Generates a 4-digit numeric token (1000–9999).
+     * A token is available for reuse once the order it was assigned to is fully delivered
+     * (i.e. every OrderItem has status DELIVERED).
+     */
     private String generateUniqueToken() {
         Random random = new Random();
         String token;
         do {
             token = String.format("%04d", 1000 + random.nextInt(9000));
-        } while (orderRepository.findByTokenNo(token).isPresent());
+        } while (orderRepository.isTokenActive(token));
         return token;
     }
 
