@@ -72,9 +72,4 @@ export class CartService {
       this.cartItems().find((i) => i.foodItem.id === foodItemId)?.quantity ?? 0
     );
   }
-
-  getRestaurantId(): number | null {
-    const items = this.cartItems();
-    return items.length > 0 ? items[0].foodItem.shop.id : null;
-  }
 }

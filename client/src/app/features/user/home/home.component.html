@@ -219,7 +219,7 @@
               </div>
               <div class="horizontal-scroll">
                 @for (item of trendingItems(); track item.id) {
-                  <div class="food-card trending-card">
+                  <div class="food-card trending-card" [class.unavailable]="item.stockQuantity === 0">
                     <div class="food-img-wrap">
                       <img [src]="foodImgSrc(item.id)" [alt]="item.name"
                         (error)="onFoodImgError(item.id, $event.target)" />
@@ -236,23 +236,27 @@
                       </div>
                       <div class="food-footer">
                         <span class="price">₹{{ item.price }}</span>
-                        <div class="cart-controls">
-                          @if (getQuantity(item.id) === 0) {
-                            <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
-                              + Add
-                            </button>
-                          } @else {
-                            <div class="qty-control">
-                              <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
-                                <mat-icon>remove</mat-icon>
+                        @if (item.stockQuantity > 0) {
+                          <div class="cart-controls">
+                            @if (getQuantity(item.id) === 0) {
+                              <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
+                                + Add
                               </button>
-                              <span class="qty">{{ getQuantity(item.id) }}</span>
-                              <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
-                                <mat-icon>add</mat-icon>
-                              </button>
-                            </div>
-                          }
-                        </div>
+                            } @else {
+                              <div class="qty-control">
+                                <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                                  <mat-icon>remove</mat-icon>
+                                </button>
+                                <span class="qty">{{ getQuantity(item.id) }}</span>
+                                <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                                  <mat-icon>add</mat-icon>
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <span class="unavail-tag">Out of Stock</span>
+                        }
                       </div>
                     </div>
                   </div>
@@ -270,7 +274,7 @@
               </div>
               <div class="horizontal-scroll">
                 @for (item of fastItems(); track item.id) {
-                  <div class="food-card fast-card">
+                  <div class="food-card fast-card" [class.unavailable]="item.stockQuantity === 0">
                     <div class="food-img-wrap">
                       <img [src]="foodImgSrc(item.id)" [alt]="item.name"
                         (error)="onFoodImgError(item.id, $event.target)" />
@@ -285,23 +289,27 @@
                       </div>
                       <div class="food-footer">
                         <span class="price">₹{{ item.price }}</span>
-                        <div class="cart-controls">
-                          @if (getQuantity(item.id) === 0) {
-                            <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
-                              + Add
-                            </button>
-                          } @else {
-                            <div class="qty-control">
-                              <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
-                                <mat-icon>remove</mat-icon>
+                        @if (item.stockQuantity > 0) {
+                          <div class="cart-controls">
+                            @if (getQuantity(item.id) === 0) {
+                              <button mat-flat-button class="add-btn" (click)="addToCart(item, $event)">
+                                + Add
                               </button>
-                              <span class="qty">{{ getQuantity(item.id) }}</span>
-                              <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
-                                <mat-icon>add</mat-icon>
-                              </button>
-                            </div>
-                          }
-                        </div>
+                            } @else {
+                              <div class="qty-control">
+                                <button mat-icon-button class="qty-btn" (click)="removeFromCart(item, $event)">
+                                  <mat-icon>remove</mat-icon>
+                                </button>
+                                <span class="qty">{{ getQuantity(item.id) }}</span>
+                                <button mat-icon-button class="qty-btn" (click)="addToCart(item, $event)">
+                                  <mat-icon>add</mat-icon>
+                                </button>
+                              </div>
+                            }
+                          </div>
+                        } @else {
+                          <span class="unavail-tag">Out of Stock</span>
+                        }
                       </div>
                     </div>
                   </div>

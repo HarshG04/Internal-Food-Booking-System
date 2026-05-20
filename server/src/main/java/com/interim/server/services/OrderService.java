@@ -2,6 +2,17 @@ package com.interim.server.services;
 
 
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.Random;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import com.interim.server.dtos.OrderItemRequest;
 import com.interim.server.enums.OrderItemStatus;
 import com.interim.server.models.FoodItem;
@@ -12,17 +23,8 @@ import com.interim.server.repositories.FoodItemRepository;
 import com.interim.server.repositories.OrderItemRepository;
 import com.interim.server.repositories.OrderRepository;
 import com.interim.server.repositories.UserRepository;
-import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.Random;
+import lombok.RequiredArgsConstructor;
 
 @Service
 @RequiredArgsConstructor
@@ -79,6 +81,9 @@ public class OrderService {
         for (OrderItemRequest req : items) {
             FoodItem foodItem = foodItemRepository.findById(req.getFoodItemId())
                     .orElseThrow(() -> new RuntimeException("FoodItem not found: " + req.getFoodItemId()));
+            if (Boolean.FALSE.equals(foodItem.getShop().getIsOpen())) {
+                throw new RuntimeException("Shop is currently closed: " + foodItem.getShop().getName());
+            }
             if (foodItem.getStockQuantity() == null || foodItem.getStockQuantity() < req.getQuantity()) {
                 throw new RuntimeException("Insufficient stock for: " + foodItem.getName());
             }

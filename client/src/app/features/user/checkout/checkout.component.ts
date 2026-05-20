@@ -66,6 +66,7 @@ export class CheckoutComponent {
     // POST /api/orders/place — atomic order creation
     this.orderService.placeOrder(request).subscribe({
       next: (order) => {
+        this.cartService.clearCart();
         this.notify.info('Order placed! Proceeding to payment…');
         this.router.navigate(['/payment', order.id], {
           state: { paymentMethod: this.paymentMethod(), totalAmount: this.grandTotal },

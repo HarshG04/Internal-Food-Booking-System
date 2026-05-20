@@ -88,11 +88,6 @@ export class RestaurantComponent implements OnInit {
 
   addToCart(item: FoodItem, event: Event): void {
     event.stopPropagation();
-    const cartRestaurantId = this.cart.getRestaurantId();
-    if (cartRestaurantId && cartRestaurantId !== item.shop.id) {
-      this.notify.error('Clear your cart before ordering from a different restaurant.');
-      return;
-    }
     this.cart.addItem(item);
     this.notify.success(`${item.name} added to cart!`);
   }

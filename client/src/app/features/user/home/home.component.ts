@@ -282,11 +282,6 @@ export class HomeComponent implements OnInit {
   addToCart(item: FoodItem, event: Event): void {
     event.preventDefault();
     event.stopPropagation();
-    const cartRestaurantId = this.cart.getRestaurantId();
-    if (cartRestaurantId && cartRestaurantId !== item.shop.id) {
-      this.notify.error('Your cart has items from a different restaurant. Clear cart first.');
-      return;
-    }
     this.cart.addItem(item);
     this.notify.success(`${item.name} added to cart!`);
   }
