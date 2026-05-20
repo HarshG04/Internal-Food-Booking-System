@@ -1,11 +1,9 @@
 <div class="toast-container">
   @for (n of notifications(); track n.id) {
     <div class="toast toast-{{ n.type }}" [@toastAnim]>
-      <mat-icon class="toast-icon">{{ iconFor(n) }}</mat-icon>
+      <span class="toast-icon" aria-hidden="true">{{ iconFor(n) }}</span>
       <span class="toast-msg">{{ n.message }}</span>
-      <button mat-icon-button class="dismiss-btn" (click)="notifService.dismiss(n.id)">
-        <mat-icon>close</mat-icon>
-      </button>
+      <button type="button" class="dismiss-btn" (click)="notifService.dismiss(n.id)" aria-label="Dismiss">&#x2715;</button>
     </div>
   }
 </div>

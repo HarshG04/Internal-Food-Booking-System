@@ -1,14 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { MatIconModule } from '@angular/material/icon';
-import { MatButtonModule } from '@angular/material/button';
 import { NotificationService, Notification } from '../../core/services/notification.service';
 import { trigger, transition, style, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-toast',
   standalone: true,
-  imports: [CommonModule, MatIconModule, MatButtonModule],
+  imports: [CommonModule],
   templateUrl: './toast.component.html',
   styleUrl: './toast.component.scss',
   animations: [
@@ -29,11 +27,11 @@ export class ToastComponent {
 
   iconFor(n: Notification): string {
     const map: Record<string, string> = {
-      success: 'check_circle',
-      error: 'error',
-      warning: 'warning',
-      info: 'info',
+      success: '\u2714',
+      error: '\u2716',
+      warning: '\u26a0',
+      info: '\u2139',
     };
-    return map[n.type];
+    return map[n.type] ?? '\u2139';
   }
 }

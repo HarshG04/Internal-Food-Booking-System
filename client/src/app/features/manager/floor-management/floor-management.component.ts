@@ -56,6 +56,8 @@ export class FloorManagementComponent implements OnInit {
 
   showShopForm = signal(false);
   editingShop = signal<Restaurant | null>(null);
+  pendingShopImage = signal<File | null>(null);
+  pendingShopImagePreview = signal<string | null>(null);
 
   floorForm: FormGroup;
   shopForm: FormGroup;
@@ -160,6 +162,8 @@ export class FloorManagementComponent implements OnInit {
   openAddShop(): void {
     this.editingShop.set(null);
     this.shopForm.reset({ isVeg: false, isOpen: true, avgRating: 0 });
+    this.pendingShopImage.set(null);
+    this.pendingShopImagePreview.set(null);
     this.showShopForm.set(true);
   }
 
@@ -172,6 +176,8 @@ export class FloorManagementComponent implements OnInit {
       isOpen: shop.isOpen,
       avgRating: shop.avgRating,
     });
+    this.pendingShopImage.set(null);
+    this.pendingShopImagePreview.set(null);
     this.showShopForm.set(true);
   }
 
@@ -188,11 +194,34 @@ export class FloorManagementComponent implements OnInit {
       : this.manager.createShop(data);              // POST /api/shops
 
     obs.subscribe({
-      next: () => {
-        this.notify.success(editing ? 'Shop updated!' : 'Shop created!');
-        this.saving.set(false);
-        this.showShopForm.set(false);
-        this.loadAll();
+      next: (savedShop: Restaurant) => {
+        const pendingFile = this.pendingShopImage();
+        if (pendingFile) {
+          this.manager.uploadShopImage(savedShop.id, pendingFile).subscribe({
+            next: () => {
+              this.notify.success(editing ? 'Shop updated!' : 'Shop created!');
+              this.saving.set(false);
+              this.showShopForm.set(false);
+              this.pendingShopImage.set(null);
+              this.pendingShopImagePreview.set(null);
+              this.loadAll();
+            },
+            error: () => {
+              this.notify.success(editing ? 'Shop updated!' : 'Shop created!');
+              this.notify.error('Failed to upload image.');
+              this.saving.set(false);
+              this.showShopForm.set(false);
+              this.pendingShopImage.set(null);
+              this.pendingShopImagePreview.set(null);
+              this.loadAll();
+            },
+          });
+        } else {
+          this.notify.success(editing ? 'Shop updated!' : 'Shop created!');
+          this.saving.set(false);
+          this.showShopForm.set(false);
+          this.loadAll();
+        }
       },
       error: (err) => {
         this.saving.set(false);
@@ -211,6 +240,24 @@ export class FloorManagementComponent implements OnInit {
       },
       error: () => this.notify.error('Failed to delete shop.'),
     });
+  }
+
+  cancelShopForm(): void {
+    this.showShopForm.set(false);
+    this.pendingShopImage.set(null);
+    this.pendingShopImagePreview.set(null);
+  }
+
+  selectShopImage(file: File): void {
+    if (!file) return;
+    this.pendingShopImage.set(file);
+    const reader = new FileReader();
+    reader.onload = (e) => this.pendingShopImagePreview.set(e.target?.result as string);
+    reader.readAsDataURL(file);
+  }
+
+  shopImageSrc(shopId: number): string {
+    return this.manager.getShopImageUrl(shopId);
   }
 
   uploadShopImage(shop: Restaurant, file: File): void {

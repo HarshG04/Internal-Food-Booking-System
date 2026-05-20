@@ -24,8 +24,10 @@
 
   @if (user()) {
     <button mat-button [matMenuTriggerFor]="userMenu" class="user-menu-btn">
-      <div class="user-avatar">{{ user()!.fullName.charAt(0).toUpperCase() }}</div>
-      <span class="nav-label">{{ user()!.fullName }}</span>
+      <div style="display: flex; gap: 0.5rem; align-items: center; justify-content: center;">
+        <div class="user-avatar">{{ user()!.fullName.charAt(0).toUpperCase() }}</div>
+        <span class="nav-label">{{ user()!.fullName.split(' ')[0] }}</span>
+      </div>
       <mat-icon>arrow_drop_down</mat-icon>
     </button>
     <mat-menu #userMenu="matMenu">

@@ -41,13 +41,16 @@
     </mat-card>
   }
 
-  <!-- Shop Form -->
+  <!-- Shop Modal -->
   @if (showShopForm()) {
-    <mat-card class="form-card">
-      <mat-card-header>
-        <mat-card-title>{{ editingShop() ? 'Edit Shop' : 'Add New Shop' }}</mat-card-title>
-      </mat-card-header>
-      <mat-card-content>
+    <div class="modal-overlay" (click)="cancelShopForm()">
+      <div class="modal-container" (click)="$event.stopPropagation()">
+        <div class="modal-header">
+          <h3>{{ editingShop() ? 'Edit Shop' : 'Add New Shop' }}</h3>
+          <button mat-icon-button (click)="cancelShopForm()">
+            <mat-icon>close</mat-icon>
+          </button>
+        </div>
         <form [formGroup]="shopForm" (ngSubmit)="saveShop()" class="shop-form">
           <div class="form-row">
             <mat-form-field appearance="outline" subscriptSizing="dynamic" floatLabel="always" class="flex2">
@@ -67,16 +70,30 @@
             <mat-slide-toggle formControlName="isVeg" color="primary">🟢 Vegetarian Only</mat-slide-toggle>
             <mat-slide-toggle formControlName="isOpen" color="accent">✅ Open</mat-slide-toggle>
           </div>
+          <div class="shop-img-upload-section">
+            @if (pendingShopImagePreview()) {
+              <img [src]="pendingShopImagePreview()!" class="shop-img-preview" alt="Preview" />
+            } @else if (editingShop()) {
+              <img [src]="shopImageSrc(editingShop()!.id)" class="shop-img-preview"
+                   alt="Current image" (error)="$any($event.target).style.display='none'" />
+            }
+            <button mat-stroked-button type="button" (click)="shopImgInput.click()">
+              <mat-icon>add_a_photo</mat-icon>
+              {{ pendingShopImagePreview() ? 'Change Image' : 'Add Image' }}
+            </button>
+            <input #shopImgInput type="file" accept="image/*" hidden
+              (change)="selectShopImage($any($event.target).files[0]); $any($event.target).value=''" />
+          </div>
           <div class="form-btns">
-            <button mat-stroked-button type="button" (click)="showShopForm.set(false)">Cancel</button>
+            <button mat-stroked-button type="button" (click)="cancelShopForm()">Cancel</button>
             <button mat-flat-button class="save-btn" type="submit" [disabled]="shopForm.invalid || saving()">
               @if (saving()) { <mat-spinner diameter="18" color="accent"></mat-spinner> }
               @else { {{ editingShop() ? 'Update Shop' : 'Create Shop' }} }
             </button>
           </div>
         </form>
-      </mat-card-content>
-    </mat-card>
+      </div>
+    </div>
   }
 
   @if (loading()) {
@@ -105,6 +122,11 @@
         <div class="shops-grid">
           @for (shop of shopsOnFloor(floor.id); track shop.id) {
             <div class="shop-card" [class.closed]="!shop.isOpen">
+              <div class="shop-card-img-wrap">
+                <img [src]="shopImageSrc(shop.id)" class="shop-card-img" [alt]="shop.name"
+                     (error)="$any($event.target).classList.add('img-hidden')" />
+                <mat-icon class="shop-img-placeholder-icon">storefront</mat-icon>
+              </div>
               <div class="shop-card-top">
                 <div class="shop-info">
                   <div class="shop-name">{{ shop.name }}</div>
@@ -160,11 +182,6 @@
                     }
                   </mat-select>
                 </mat-form-field>
-                <button mat-icon-button title="Upload image" (click)="shopImgInput.click()">
-                  <mat-icon>add_a_photo</mat-icon>
-                </button>
-                <input #shopImgInput type="file" accept="image/*" hidden
-                  (change)="uploadShopImage(shop, $any($event.target).files[0]); $any($event.target).value=''" />
                 <button mat-icon-button (click)="openEditShop(shop)">
                   <mat-icon>edit</mat-icon>
                 </button>
