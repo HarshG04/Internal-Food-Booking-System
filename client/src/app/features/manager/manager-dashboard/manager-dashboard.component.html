@@ -55,22 +55,5 @@
         </div>
       </div>
     </div>
-
-      <h3>🏆 Top Shops by Revenue</h3>
-      @if (topShops().length === 0) {
-        <p class="no-data">No data yet.</p>
-      } @else {
-        <div class="shop-rank-list">
-          @for (shop of topShops(); track shop.name; let i = $index) {
-            <div class="shop-rank-row">
-              <span class="rank-num">#{{ i + 1 }}</span>
-              <span class="shop-name">{{ shop.name }}</span>
-              <span class="shop-orders">{{ shop.orders }} orders</span>
-              <span class="shop-rev">₹{{ shop.revenue | number:'1.0-0' }}</span>
-            </div>
-          }
-        </div>
-      }
-    </div> -->
   }
 </div>
