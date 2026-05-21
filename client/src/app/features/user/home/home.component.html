@@ -176,7 +176,7 @@
                     <p class="restaurant-name">{{ item.shop.name }}</p>
                     <div class="food-meta">
                       <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
-                      <span class="rating">{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
+                      <span class="rating">{{ !item.avgRating ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
                     </div>
                     <div class="food-footer">
                       <span class="price">₹{{ item.price }}</span>
@@ -232,7 +232,7 @@
                       <p class="restaurant-name">{{ item.shop.name }}</p>
                       <div class="food-meta">
                         <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
-                        <span class="rating">⭐ {{ item.avgRating }}</span>
+                        <span class="rating">{{ !item.avgRating ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
                       </div>
                       <div class="food-footer">
                         <span class="price">₹{{ item.price }}</span>
@@ -383,9 +383,6 @@
                   <div class="rest-info">
                     <h4>{{ shop.name }}</h4>
                     <p class="cuisine">{{ shop.isVeg ? '🟢 Veg' : '🍽️ Non-Veg' }}</p>
-                    <div class="rest-meta">
-                      <span class="rating">⭐ {{ shop.avgRating }}</span>
-                    </div>
                   </div>
                 </div>
               }
@@ -426,7 +423,7 @@
                       <p class="restaurant-name">{{ item.shop.name }}</p>
                       <div class="food-meta">
                         <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
-                        <span class="rating">{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
+                        <span class="rating">{{ !item.avgRating ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
                       </div>
                       <div class="food-footer">
                         <span class="price">₹{{ item.price }}</span>
@@ -499,7 +496,7 @@
                       <p class="restaurant-name">{{ item.shop.name }}</p>
                       <div class="food-meta">
                         <span class="prep-time"><mat-icon>schedule</mat-icon> {{ item.prepTimeMins }} min</span>
-                        <span class="rating">{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
+                        <span class="rating">{{ !item.avgRating ? 'Unrated' : ('⭐ ' + item.avgRating) }}</span>
                       </div>
                       <div class="food-footer">
                         <span class="price">₹{{ item.price }}</span>

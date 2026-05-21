@@ -17,7 +17,7 @@
           <h1>{{ restaurant()!.name }}</h1>
           <p>{{ restaurant()!.isVeg ? '🟢 Vegetarian' : '🍽️ Non-Vegetarian' }}</p>
           <div class="hero-meta">
-            <span>⭐ {{ restaurant()!.avgRating | number:'1.1-1' }}</span>
+            <span>{{ !restaurant()!.avgRating ? 'Unrated' : ('⭐ ' + (restaurant()!.avgRating | number:'1.1-1')) }}</span>
             <span>📍 Floor {{ restaurant()!.floor.floorNumber }}</span>
             <span class="open-status" [class.open]="restaurant()!.isOpen">
               {{ restaurant()!.isOpen ? '🟢 Open' : '🔴 Closed' }}
@@ -52,7 +52,7 @@
                 </div>
                 <div class="item-meta">
                   <span><mat-icon>schedule</mat-icon>{{ item.prepTimeMins }} min</span>
-                  <span>{{ item.avgRating === 0 ? 'Unrated' : ('⭐ ' + (item.avgRating | number:'1.1-1')) }}</span>
+                  <span>{{ !item.avgRating ? 'Unrated' : ('⭐ ' + (item.avgRating | number:'1.1-1')) }}</span>
                 </div>
                 <div class="item-footer">
                   <span class="price">₹{{ item.price }}</span>
