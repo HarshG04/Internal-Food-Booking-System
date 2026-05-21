@@ -72,7 +72,7 @@ export class FloorManagementComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.floorForm = this.fb.group({
-      floorNumber: [1, [Validators.required, Validators.min(1)]],
+      floorNumber: ['', [Validators.required]],
       isActive: [true],
     });
 
@@ -108,7 +108,7 @@ export class FloorManagementComponent implements OnInit {
   // ── FLOORS ──
   openAddFloor(): void {
     this.editingFloor.set(null);
-    this.floorForm.reset({ floorNumber: 1, isActive: true });
+    this.floorForm.reset({ floorNumber: '', isActive: true });
     this.showFloorForm.set(true);
   }
 
@@ -276,7 +276,7 @@ export class FloorManagementComponent implements OnInit {
 
   reassignShopFloor(shop: Restaurant, floorId: number): void {
     // PUT /api/shops/{id}
-    this.manager.updateShop(shop.id, { ...shop, floor: { id: floorId, floorNumber: 0, isActive: true } }).subscribe({
+    this.manager.updateShop(shop.id, { ...shop, floor: { id: floorId, floorNumber: '', isActive: true } }).subscribe({
       next: () => {
         this.notify.success(`${shop.name} moved to new floor!`);
         this.loadAll();

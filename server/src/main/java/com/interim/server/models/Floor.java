@@ -32,7 +32,7 @@ public class Floor {
     private Integer id;
 
     @Column(name = "floor_number", unique = true, nullable = false)
-    private Integer floorNumber;
+    private String floorNumber;
 
     @Column(name = "is_active")
     private Boolean isActive;

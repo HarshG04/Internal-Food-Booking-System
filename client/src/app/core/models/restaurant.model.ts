@@ -2,7 +2,7 @@ import { User } from './user.model';
 
 export interface Floor {
   id: number;
-  floorNumber: number;
+  floorNumber: string;
   isActive: boolean;
 }
 

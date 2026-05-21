@@ -20,8 +20,8 @@
             [class.active]="selectedFloorId() === floor.id && selectedShopId() === null"
             (click)="filterByFloor(floor.id)"
           >
-            <span class="floor-num">{{ floor.floorNumber }}F</span>
-            <span>Floor {{ floor.floorNumber }}</span>
+            <span class="floor-num">{{ floor.floorNumber === 'G' ? 'G' : floor.floorNumber + 'F' }}</span>
+            <span>{{ floor.floorNumber === 'G' ? 'Ground Floor' : 'Floor ' + floor.floorNumber }}</span>
           </button>
           <div class="shop-list">
             @for (shop of shopsOnFloor(floor.id); track shop.id) {
