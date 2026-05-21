@@ -24,6 +24,7 @@
                   <div class="item-info">
                     <span class="item-name">{{ item.foodItem.name }}</span>
                     <span class="item-qty">× {{ item.quantity }}</span>
+                    <span class="item-shop">🏪 {{ item.foodItem?.shop?.name }}</span>
                     <span class="item-status"
                       [style.color]="itemStatusColors[item.status]">
                       {{ item.status }}
@@ -43,7 +44,6 @@
 
           <div class="order-footer">
             <div class="order-meta">
-              <span class="shop-name">🏪 {{ shopForOrder(order.id) }}</span>
               <span class="token-badge">🎫 {{ order.tokenNo }}</span>
               <span class="date">{{ order.createdAt | date:'dd MMM yy, h:mm a' }}</span>
             </div>

@@ -47,10 +47,6 @@ export class OrderHistoryComponent implements OnInit {
     private dialog: MatDialog
   ) {}
 
-  shopForOrder(orderId: number): string {
-    return this.orderItemsMap()[orderId]?.[0]?.foodItem?.shop?.name ?? '';
-  }
-
   ngOnInit(): void {
     const employeeId = this.auth.getUserId();
     if (!employeeId) { this.loading.set(false); return; }
