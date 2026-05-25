@@ -42,7 +42,7 @@ export class AuthService {
     });
   }
 
-  private clearSession(): void {
+  clearSession(): void {
     this.currentUser.set(null);
     this.isLoggedIn.set(false);
     localStorage.removeItem('fc_user');
