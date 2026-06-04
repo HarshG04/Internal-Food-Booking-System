@@ -6,6 +6,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { MatDividerModule } from '@angular/material/divider';
 
 import { CartService } from '../../../core/services/cart.service';
+import { FoodService } from '../../../core/services/food.service';
 import { CartItem } from '../../../core/models/cart.model';
 
 @Component({
@@ -17,7 +18,21 @@ import { CartItem } from '../../../core/models/cart.model';
 })
 export class CartComponent {
   cartService = inject(CartService);
+  private foodService = inject(FoodService);
   cart = this.cartService.cart;
+
+  private failedFoodIds = new Set<number>();
+
+  foodImgSrc(id: number): string {
+    return this.failedFoodIds.has(id)
+      ? '/food_placeholder.webp'
+      : this.foodService.getFoodItemImageUrl(id);
+  }
+
+  onFoodImgError(id: number, el: EventTarget | null): void {
+    this.failedFoodIds.add(id);
+    if (el) (el as HTMLImageElement).src = '/food_placeholder.webp';
+  }
 
   updateQty(item: CartItem, delta: number): void {
     if (delta > 0) this.cartService.addItem(item.foodItem);
