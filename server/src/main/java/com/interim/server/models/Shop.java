@@ -56,9 +56,8 @@ public class Shop {
     @JoinColumn(name = "vendor_id", unique = true)
     private User vendor;
 
-    @Lob
     @JsonIgnore
-    @Column(name = "image", columnDefinition = "LONGBLOB")
+    @Column(name = "image", columnDefinition = "bytea")
     private byte[] image;
 
     @JsonIgnore

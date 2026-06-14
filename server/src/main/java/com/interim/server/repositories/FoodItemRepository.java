@@ -18,7 +18,7 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Integer> {
 
     // ── Search + filter (default order) ─────────────────────────────────────
     @Query("SELECT fi FROM FoodItem fi WHERE " +
-            "(:name IS NULL OR LOWER(fi.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+            "(CAST(:name AS string) IS NULL OR LOWER(fi.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%'))) AND " +
             "(:isVeg IS NULL OR fi.isVeg = :isVeg) AND " +
             "(:shopId IS NULL OR fi.shop.id = :shopId) AND " +
             "(:minPrice IS NULL OR fi.price >= :minPrice) AND " +
@@ -33,7 +33,7 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Integer> {
 
     // ── Search + filter sorted by rating DESC ────────────────────────────────
     @Query("SELECT fi FROM FoodItem fi WHERE " +
-            "(:name IS NULL OR LOWER(fi.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+            "(CAST(:name AS string) IS NULL OR LOWER(fi.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%'))) AND " +
             "(:isVeg IS NULL OR fi.isVeg = :isVeg) AND " +
             "(:shopId IS NULL OR fi.shop.id = :shopId) AND " +
             "(:minPrice IS NULL OR fi.price >= :minPrice) AND " +
@@ -49,7 +49,7 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Integer> {
 
     // ── Search + filter sorted by popularity (total orders) DESC ─────────────
     @Query("SELECT fi FROM FoodItem fi WHERE " +
-            "(:name IS NULL OR LOWER(fi.name) LIKE LOWER(CONCAT('%', :name, '%'))) AND " +
+            "(CAST(:name AS string) IS NULL OR LOWER(fi.name) LIKE LOWER(CONCAT('%', CAST(:name AS string), '%'))) AND " +
             "(:isVeg IS NULL OR fi.isVeg = :isVeg) AND " +
             "(:shopId IS NULL OR fi.shop.id = :shopId) AND " +
             "(:minPrice IS NULL OR fi.price >= :minPrice) AND " +
@@ -63,4 +63,3 @@ public interface FoodItemRepository extends JpaRepository<FoodItem, Integer> {
                                                @Param("maxPrice") BigDecimal maxPrice,
                                                @Param("maxPrepTime") Integer maxPrepTime);
 }
-

@@ -41,9 +41,8 @@ public class FoodItem {
     @Column(name = "avg_rating", precision = 3, scale = 2)
     private BigDecimal avgRating;
 
-    @Lob
     @JsonIgnore
-    @Column(name = "image", columnDefinition = "LONGBLOB")
+    @Column(name = "image", columnDefinition = "bytea")
     private byte[] image;
 
     @JsonIgnore
