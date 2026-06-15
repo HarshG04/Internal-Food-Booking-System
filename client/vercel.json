@@ -3,5 +3,5 @@
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "outputDirectory": "dist/foodcourt-client"
+  "outputDirectory": "dist/foodcourt-client/browser"
 }
