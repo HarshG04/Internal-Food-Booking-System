@@ -3,5 +3,5 @@
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
   ],
-  "outputDirectory": "dist/internal-food-booking/browser"
+  "outputDirectory": "dist/foodcourt-client"
 }
