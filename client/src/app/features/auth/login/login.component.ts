@@ -51,7 +51,7 @@ export class LoginComponent {
   }
 
   onSubmit(): void {
-    if (this.form.invalid) return;
+    if (this.form.invalid || this.loading()) return;
     this.loading.set(true);
 
     const { email, password } = this.form.getRawValue();
